@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using FtelMap.Core.Entities;
 using FtelMap.Core.Interfaces;
 using FtelMap.Infrastructure.Data;
+using System.Collections.Concurrent;
 
 namespace FtelMap.Infrastructure.Repositories;
 
@@ -10,6 +11,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly ApplicationDbContext _context;
     private IDbContextTransaction? _transaction;
     private bool _disposed;
+    private readonly ConcurrentDictionary<Type, object> _repositories;
 
     private IRepository<User>? _users;
     private IRepository<Project>? _projects;
@@ -19,6 +21,12 @@ public class UnitOfWork : IUnitOfWork
     public UnitOfWork(ApplicationDbContext context)
     {
         _context = context;
+        _repositories = new ConcurrentDictionary<Type, object>();
+    }
+
+    public IRepository<T> Repository<T>() where T : BaseEntity
+    {
+        return (IRepository<T>)_repositories.GetOrAdd(typeof(T), _ => new Repository<T>(_context));
     }
 
     public IRepository<User> Users => _users ??= new Repository<User>(_context);

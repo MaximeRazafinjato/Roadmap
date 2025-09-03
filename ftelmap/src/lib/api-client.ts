@@ -1,9 +1,15 @@
-import axios, { AxiosError, type AxiosInstance } from 'axios';
+import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
+import { TokenStorage } from './token-storage';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5095/api';
 
 class ApiClient {
   private instance: AxiosInstance;
+  private isRefreshing = false;
+  private failedQueue: Array<{
+    resolve: (value?: unknown) => void;
+    reject: (error?: unknown) => void;
+  }> = [];
 
   constructor() {
     this.instance = axios.create({
@@ -14,12 +20,16 @@ class ApiClient {
       withCredentials: true,
     });
 
+    this.setupInterceptors();
+  }
+
+  private setupInterceptors() {
     // Request interceptor
     this.instance.interceptors.request.use(
       (config) => {
         // Add auth token if available
-        const token = localStorage.getItem('authToken');
-        if (token) {
+        const token = TokenStorage.getToken();
+        if (token && TokenStorage.isTokenValid()) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
@@ -29,18 +39,98 @@ class ApiClient {
       }
     );
 
-    // Response interceptor
+    // Response interceptor with token refresh
     this.instance.interceptors.response.use(
       (response) => response,
-      (error: AxiosError) => {
-        if (error.response?.status === 401) {
-          // Handle unauthorized
-          localStorage.removeItem('authToken');
-          window.location.href = '/login';
+      async (error: AxiosError) => {
+        const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          if (this.isRefreshing) {
+            // If already refreshing, add to queue
+            return new Promise((resolve, reject) => {
+              this.failedQueue.push({ resolve, reject });
+            }).then(() => {
+              const token = TokenStorage.getToken();
+              if (token && originalRequest.headers) {
+                originalRequest.headers.Authorization = `Bearer ${token}`;
+              }
+              return this.instance(originalRequest);
+            }).catch(err => {
+              return Promise.reject(err);
+            });
+          }
+
+          originalRequest._retry = true;
+          this.isRefreshing = true;
+
+          const refreshToken = TokenStorage.getRefreshToken();
+          
+          if (refreshToken) {
+            try {
+              // Try to refresh token
+              const response = await this.instance.post('/auth/refresh', {
+                refreshToken,
+              });
+
+              const { token, refreshToken: newRefreshToken, expiresIn } = response.data.data;
+
+              TokenStorage.setTokenData({
+                token,
+                refreshToken: newRefreshToken,
+                expiresAt: Date.now() + (expiresIn * 1000),
+              });
+
+              // Process failed queue
+              this.processQueue(null);
+
+              // Retry original request
+              if (originalRequest.headers) {
+                originalRequest.headers.Authorization = `Bearer ${token}`;
+              }
+              return this.instance(originalRequest);
+
+            } catch (refreshError) {
+              // Refresh failed, clear tokens and redirect
+              this.processQueue(refreshError);
+              TokenStorage.clearTokens();
+              this.redirectToLogin();
+              return Promise.reject(refreshError);
+            } finally {
+              this.isRefreshing = false;
+            }
+          } else {
+            // No refresh token available
+            TokenStorage.clearTokens();
+            this.redirectToLogin();
+          }
         }
+
         return Promise.reject(error);
       }
     );
+  }
+
+  private processQueue(error: unknown) {
+    this.failedQueue.forEach(({ resolve, reject }) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+
+    this.failedQueue = [];
+  }
+
+  private redirectToLogin() {
+    // Only redirect if we're not already on a public page
+    const currentPath = window.location.pathname;
+    const publicPaths = ['/login', '/register', '/forgot-password'];
+    
+    if (!publicPaths.includes(currentPath)) {
+      window.location.href = '/login';
+    }
   }
 
   get<T>(url: string, params?: any) {

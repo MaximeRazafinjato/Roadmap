@@ -20,13 +20,15 @@ export interface User extends BaseEntity {
 }
 
 // Project status enum
-export enum ProjectStatus {
-  Planning = 'Planning',
-  InProgress = 'InProgress',
-  OnHold = 'OnHold',
-  Completed = 'Completed',
-  Cancelled = 'Cancelled',
-}
+export const ProjectStatus = {
+  Planning: 'Planning',
+  InProgress: 'InProgress', 
+  OnHold: 'OnHold',
+  Completed: 'Completed',
+  Cancelled: 'Cancelled',
+} as const;
+
+export type ProjectStatus = typeof ProjectStatus[keyof typeof ProjectStatus];
 
 // Project entity
 export interface Project extends BaseEntity {
@@ -43,21 +45,25 @@ export interface Project extends BaseEntity {
 }
 
 // Task priority enum
-export enum TaskPriority {
-  Low = 'Low',
-  Medium = 'Medium',
-  High = 'High',
-  Critical = 'Critical',
-}
+export const TaskPriority = {
+  Low: 'Low',
+  Medium: 'Medium',
+  High: 'High',
+  Critical: 'Critical',
+} as const;
+
+export type TaskPriority = typeof TaskPriority[keyof typeof TaskPriority];
 
 // Task status enum
-export enum TaskStatus {
-  Todo = 'Todo',
-  InProgress = 'InProgress',
-  Review = 'Review',
-  Done = 'Done',
-  Blocked = 'Blocked',
-}
+export const TaskStatus = {
+  Todo: 'Todo',
+  InProgress: 'InProgress',
+  Review: 'Review',
+  Done: 'Done',
+  Blocked: 'Blocked',
+} as const;
+
+export type TaskStatus = typeof TaskStatus[keyof typeof TaskStatus];
 
 // Task entity
 export interface Task extends BaseEntity {

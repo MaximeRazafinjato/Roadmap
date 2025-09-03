@@ -1,15 +1,21 @@
-namespace FtelMap.Core.Entities;
+using System;
+using System.Collections.Generic;
 
-public class User : BaseEntity
+namespace FtelMap.Core.Entities
 {
-    public string Email { get; set; } = string.Empty;
-    public string Username { get; set; } = string.Empty;
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
-    public bool IsActive { get; set; } = true;
-    public DateTime? LastLoginAt { get; set; }
-    
-    // Navigation properties
-    public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
+    public class User : BaseEntity
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
+        public bool IsActive { get; set; } = true;
+        public string? Role { get; set; } = "User";
+        
+        public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
+        public virtual ICollection<Core.Entities.Task> AssignedTasks { get; set; } = new List<Core.Entities.Task>();
+    }
 }

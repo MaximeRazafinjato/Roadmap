@@ -24,7 +24,16 @@
       "Bash(dotnet run:*)",
       "Bash(dotnet tool install:*)",
       "Bash(dotnet ef migrations add:*)",
-      "Bash(pnpm list:*)"
+      "Bash(pnpm list:*)",
+      "Bash(dotnet ef database update:*)",
+      "Bash(curl:*)",
+      "Bash(tree:*)",
+      "Bash(npm run build:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pnpm install:*)"
     ],
     "deny": [],
     "ask": []
