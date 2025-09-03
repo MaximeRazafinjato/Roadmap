@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCreateProject, useUpdateProject } from '../hooks/use-projects';
 import { type Project, ProjectStatus, type CreateProjectForm, type UpdateProjectForm } from '../types/entities';
+import { getStatusValue, getStatusLabel } from '../utils/status-helpers';
 
 interface ProjectFormProps {
   project?: Project | null;
@@ -59,7 +60,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'budget' ? parseFloat(value) || 0 : value,
+      [name]: name === 'budget' ? parseFloat(value) || 0 
+           : name === 'status' ? parseInt(value, 10)
+           : value,
     }));
   };
 
@@ -134,11 +137,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
                 onChange={handleChange}
                 required
               >
-                {Object.values(ProjectStatus).map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
+                <option value={ProjectStatus.Planning}>Planning</option>
+                <option value={ProjectStatus.InProgress}>In Progress</option>
+                <option value={ProjectStatus.OnHold}>On Hold</option>
+                <option value={ProjectStatus.Completed}>Completed</option>
+                <option value={ProjectStatus.Cancelled}>Cancelled</option>
               </select>
             </div>
 
