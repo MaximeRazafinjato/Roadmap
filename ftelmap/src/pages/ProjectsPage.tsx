@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProjects, useDeleteProject } from '../hooks/use-projects';
 import ProjectForm from '../components/ProjectForm';
 import type { Project } from '../types/entities';
+import { getStatusLabel } from '../utils/status-helpers';
 
 const ProjectsPage = () => {
   const navigate = useNavigate();
@@ -52,8 +53,8 @@ const ProjectsPage = () => {
             <div key={project.id} className="project-card">
               <div className="project-card-header">
                 <h3>{project.name}</h3>
-                <span className={`status-badge ${project.status.toLowerCase()}`}>
-                  {project.status}
+                <span className={`status-badge ${getStatusLabel(project.status).toLowerCase()}`}>
+                  {getStatusLabel(project.status)}
                 </span>
               </div>
               <p className="project-description">{project.description}</p>

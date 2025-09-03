@@ -95,11 +95,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     
-    // Apply migrations automatically in development
+    // Apply migrations automatically in development and seed data
     using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         dbContext.Database.Migrate();
+        DataSeeder.SeedAsync(dbContext).GetAwaiter().GetResult();
     }
 }
 

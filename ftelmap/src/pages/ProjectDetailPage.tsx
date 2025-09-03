@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProject } from '../hooks/use-projects';
+import { getStatusLabel } from '../utils/status-helpers';
 
 const ProjectDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,8 +25,8 @@ const ProjectDetailPage = () => {
       <div className="project-detail">
         <div className="detail-header">
           <h1>{project.name}</h1>
-          <span className={`status-badge ${project.status.toLowerCase()}`}>
-            {project.status}
+          <span className={`status-badge ${getStatusLabel(project.status).toLowerCase()}`}>
+            {getStatusLabel(project.status)}
           </span>
         </div>
 
