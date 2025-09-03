@@ -1,0 +1,16 @@
+namespace FtelMap.Core.Entities;
+
+public class Milestone : BaseEntity
+{
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public DateTime TargetDate { get; set; }
+    public DateTime? CompletedDate { get; set; }
+    public bool IsCompleted { get; set; }
+    
+    // Foreign keys
+    public Guid ProjectId { get; set; }
+    
+    // Navigation properties
+    public virtual Project Project { get; set; } = null!;
+}

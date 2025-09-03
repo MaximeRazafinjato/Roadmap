@@ -1,0 +1,6 @@
+@FtelMap.Api_HostAddress = http://localhost:5094
+
+GET {{FtelMap.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

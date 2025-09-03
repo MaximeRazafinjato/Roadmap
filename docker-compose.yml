@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  ftelmap-api:
+    image: ftelmap-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ftelmap-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Server=ftelmap-db;Database=FtelMapDb;User Id=sa;Password=Strong_password_123!;TrustServerCertificate=true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ftelmap-db
+    networks:
+      - ftelmap-network
+
+  ftelmap-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ftelmap-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Strong_password_123!
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - ftelmap-db-data:/var/opt/mssql
+    networks:
+      - ftelmap-network
+
+networks:
+  ftelmap-network:
+    driver: bridge
+
+volumes:
+  ftelmap-db-data:
