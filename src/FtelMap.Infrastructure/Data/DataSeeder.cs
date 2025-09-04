@@ -82,34 +82,37 @@ public static class DataSeeder
             new Project
             {
                 Id = Guid.NewGuid(),
-                Name = "Website Redesign",
+                Title = "Website Redesign",
                 Description = "Complete overhaul of the company website with modern design and improved UX",
                 StartDate = DateTime.UtcNow.AddMonths(-2),
                 EndDate = DateTime.UtcNow.AddMonths(4),
-                Status = ProjectStatus.InProgress,
-                Budget = 75000,
+                BackgroundColor = "#3B82F6", // Blue
+                TextColor = "#FFFFFF",
+                Position = TimelinePosition.Top,
                 OwnerId = adminUserId
             },
             new Project
             {
                 Id = Guid.NewGuid(),
-                Name = "Mobile App Development",
+                Title = "Mobile App Development",
                 Description = "Native mobile application for iOS and Android platforms",
                 StartDate = DateTime.UtcNow.AddMonths(-1),
                 EndDate = DateTime.UtcNow.AddMonths(6),
-                Status = ProjectStatus.Planning,
-                Budget = 120000,
+                BackgroundColor = "#10B981", // Green
+                TextColor = "#FFFFFF",
+                Position = TimelinePosition.Bottom,
                 OwnerId = adminUserId
             },
             new Project
             {
                 Id = Guid.NewGuid(),
-                Name = "Data Migration Project",
+                Title = "Data Migration Project",
                 Description = "Migrate legacy database to new cloud-based infrastructure",
                 StartDate = DateTime.UtcNow.AddMonths(-3),
                 EndDate = DateTime.UtcNow.AddMonths(-1),
-                Status = ProjectStatus.Completed,
-                Budget = 45000,
+                BackgroundColor = "#8B5CF6", // Purple
+                TextColor = "#FFFFFF",
+                Position = TimelinePosition.Top,
                 OwnerId = adminUserId
             }
         };

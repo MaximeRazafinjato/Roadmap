@@ -224,14 +224,14 @@ const Layout = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          pt: '80px',
+          pt: '64px', // Exact height of the toolbar
           px: { xs: 2, sm: 3, md: 4 },
           pb: 4,
           minHeight: '100vh',
           bgcolor: '#f8fafc',
         }}
       >
-        <Container maxWidth="xl" sx={{ height: '100%', pt: 2 }}>
+        <Container maxWidth="xl" sx={{ height: '100%', pt: 3, pb: 3 }}>
           <Outlet />
         </Container>
       </Box>

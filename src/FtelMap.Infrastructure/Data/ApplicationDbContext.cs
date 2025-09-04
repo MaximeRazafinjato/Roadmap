@@ -12,8 +12,6 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Project> Projects => Set<Project>();
-    public DbSet<Core.Entities.Task> Tasks => Set<Core.Entities.Task>();
-    public DbSet<Milestone> Milestones => Set<Milestone>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,47 +20,19 @@ public class ApplicationDbContext : DbContext
         // Apply all configurations from assembly
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
-        // Additional Project configuration
+        // Project configuration
         modelBuilder.Entity<Project>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Description).HasMaxLength(2000);
-            entity.Property(e => e.Budget).HasPrecision(18, 2);
-            entity.HasOne(e => e.Owner)
-                .WithMany(u => u.Projects)
-                .HasForeignKey(e => e.OwnerId)
-                .OnDelete(DeleteBehavior.Restrict);
-            entity.HasQueryFilter(e => !e.IsDeleted);
-        });
-
-        // Task configuration
-        modelBuilder.Entity<Core.Entities.Task>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Description).HasMaxLength(2000);
-            entity.HasOne(e => e.Project)
-                .WithMany(p => p.Tasks)
-                .HasForeignKey(e => e.ProjectId)
-                .OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne(e => e.AssignedTo)
-                .WithMany(u => u.AssignedTasks)
-                .HasForeignKey(e => e.AssignedToId)
-                .OnDelete(DeleteBehavior.SetNull);
-            entity.HasQueryFilter(e => !e.IsDeleted);
-        });
-
-        // Milestone configuration
-        modelBuilder.Entity<Milestone>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Description).HasMaxLength(2000);
-            entity.HasOne(e => e.Project)
-                .WithMany(p => p.Milestones)
-                .HasForeignKey(e => e.ProjectId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.Property(e => e.BackgroundColor).IsRequired().HasMaxLength(7);
+            entity.Property(e => e.TextColor).IsRequired().HasMaxLength(7);
+            entity.Property(e => e.Position).IsRequired();
+            entity.HasOne(e => e.Owner)
+                .WithMany(u => u.Projects)
+                .HasForeignKey(e => e.OwnerId)
+                .OnDelete(DeleteBehavior.Restrict);
             entity.HasQueryFilter(e => !e.IsDeleted);
         });
     }

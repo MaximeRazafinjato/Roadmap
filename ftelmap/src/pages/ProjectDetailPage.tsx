@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProject } from '../hooks/use-projects';
-import { getStatusLabel } from '../utils/status-helpers';
+import { TimelinePosition } from '../types/entities';
 
 const ProjectDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,10 +24,18 @@ const ProjectDetailPage = () => {
 
       <div className="project-detail">
         <div className="detail-header">
-          <h1>{project.name}</h1>
-          <span className={`status-badge ${getStatusLabel(project.status).toLowerCase()}`}>
-            {getStatusLabel(project.status)}
-          </span>
+          <h1>{project.title}</h1>
+          <div 
+            style={{
+              backgroundColor: project.backgroundColor,
+              color: project.textColor,
+              padding: '4px 12px',
+              borderRadius: '4px',
+              display: 'inline-block'
+            }}
+          >
+            {project.position === TimelinePosition.Top ? 'Top' : 'Bottom'} Position
+          </div>
         </div>
 
         <div className="detail-section">
@@ -40,15 +48,32 @@ const ProjectDetailPage = () => {
             <label>Start Date</label>
             <p>{new Date(project.startDate).toLocaleDateString()}</p>
           </div>
-          {project.endDate && (
-            <div className="detail-item">
-              <label>End Date</label>
-              <p>{new Date(project.endDate).toLocaleDateString()}</p>
-            </div>
-          )}
           <div className="detail-item">
-            <label>Budget</label>
-            <p>${project.budget.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+            <label>End Date</label>
+            <p>{new Date(project.endDate).toLocaleDateString()}</p>
+          </div>
+          <div className="detail-item">
+            <label>Duration</label>
+            <p>{Math.ceil((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24))} days</p>
+          </div>
+          <div className="detail-item">
+            <label>Colors</label>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <div style={{ 
+                width: '24px', 
+                height: '24px', 
+                backgroundColor: project.backgroundColor,
+                border: '1px solid #ccc',
+                borderRadius: '4px'
+              }} />
+              <div style={{ 
+                width: '24px', 
+                height: '24px', 
+                backgroundColor: project.textColor,
+                border: '1px solid #ccc',
+                borderRadius: '4px'
+              }} />
+            </div>
           </div>
           <div className="detail-item">
             <label>Created</label>
@@ -61,44 +86,41 @@ const ProjectDetailPage = () => {
         </div>
 
         <div className="detail-section">
-          <h3>Tasks</h3>
-          {project.tasks && project.tasks.length > 0 ? (
-            <div className="task-list">
-              {project.tasks.map((task) => (
-                <div key={task.id} className="task-item">
-                  <h4>{task.title}</h4>
-                  <span className={`priority-badge ${task.priority.toLowerCase()}`}>
-                    {task.priority}
-                  </span>
-                  <span className={`status-badge ${task.status.toLowerCase()}`}>
-                    {task.status}
-                  </span>
-                </div>
-              ))}
+          <h3>Timeline Preview</h3>
+          <div style={{
+            position: 'relative',
+            height: '100px',
+            backgroundColor: '#f5f5f5',
+            borderRadius: '8px',
+            padding: '20px',
+            marginTop: '20px'
+          }}>
+            <div style={{
+              position: 'absolute',
+              left: '0',
+              right: '0',
+              top: '50%',
+              height: '2px',
+              backgroundColor: '#ddd',
+              transform: 'translateY(-50%)'
+            }} />
+            <div style={{
+              position: 'absolute',
+              left: '20px',
+              right: '20px',
+              top: project.position === 0 ? '10px' : 'auto',
+              bottom: project.position === 1 ? '10px' : 'auto',
+              backgroundColor: project.backgroundColor,
+              color: project.textColor,
+              padding: '8px 16px',
+              borderRadius: '6px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <strong>{project.title}</strong>
+              <br />
+              <small>{new Date(project.startDate).toLocaleDateString()} - {new Date(project.endDate).toLocaleDateString()}</small>
             </div>
-          ) : (
-            <p>No tasks yet</p>
-          )}
-        </div>
-
-        <div className="detail-section">
-          <h3>Milestones</h3>
-          {project.milestones && project.milestones.length > 0 ? (
-            <div className="milestone-list">
-              {project.milestones.map((milestone) => (
-                <div key={milestone.id} className="milestone-item">
-                  <h4>{milestone.name}</h4>
-                  <p>{milestone.description}</p>
-                  <p>Target: {new Date(milestone.targetDate).toLocaleDateString()}</p>
-                  {milestone.isCompleted && (
-                    <span className="completed-badge">Completed</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No milestones yet</p>
-          )}
+          </div>
         </div>
       </div>
     </div>

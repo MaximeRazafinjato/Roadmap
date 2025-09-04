@@ -2,27 +2,23 @@ namespace FtelMap.Core.Entities;
 
 public class Project : BaseEntity
 {
-    public string Name { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public DateTime StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
-    public ProjectStatus Status { get; set; } = ProjectStatus.Planning;
-    public decimal Budget { get; set; }
+    public DateTime EndDate { get; set; }
+    public string BackgroundColor { get; set; } = "#3B82F6"; // Default blue
+    public string TextColor { get; set; } = "#FFFFFF"; // Default white
+    public TimelinePosition Position { get; set; } = TimelinePosition.Top;
     
     // Foreign keys
     public Guid OwnerId { get; set; }
     
     // Navigation properties
     public virtual User Owner { get; set; } = null!;
-    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
-    public virtual ICollection<Milestone> Milestones { get; set; } = new List<Milestone>();
 }
 
-public enum ProjectStatus
+public enum TimelinePosition
 {
-    Planning,
-    InProgress,
-    OnHold,
-    Completed,
-    Cancelled
+    Top,
+    Bottom
 }

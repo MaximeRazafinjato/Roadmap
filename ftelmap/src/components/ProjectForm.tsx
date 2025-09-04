@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCreateProject, useUpdateProject } from '../hooks/use-projects';
-import { type Project, ProjectStatus, type CreateProjectForm, type UpdateProjectForm } from '../types/entities';
-import { getStatusValue, getStatusLabel } from '../utils/status-helpers';
+import { type Project, TimelinePosition, type CreateProjectForm, type UpdateProjectForm } from '../types/entities';
 
 interface ProjectFormProps {
   project?: Project | null;
@@ -14,24 +13,38 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
   const isEditing = !!project;
 
   const [formData, setFormData] = useState<CreateProjectForm>({
-    name: '',
+    title: '',
     description: '',
     startDate: new Date().toISOString().split('T')[0],
-    endDate: undefined,
-    status: ProjectStatus.Planning,
-    budget: 0,
+    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 30 days from now
+    backgroundColor: '#3B82F6',
+    textColor: '#FFFFFF',
+    position: TimelinePosition.Top,
     ownerId: '00000000-0000-0000-0000-000000000001', // Temporary default user ID
   });
+
+  // Preset color combinations
+  const colorPresets = [
+    { bg: '#3B82F6', text: '#FFFFFF', name: 'Blue' },
+    { bg: '#10B981', text: '#FFFFFF', name: 'Green' },
+    { bg: '#8B5CF6', text: '#FFFFFF', name: 'Purple' },
+    { bg: '#EF4444', text: '#FFFFFF', name: 'Red' },
+    { bg: '#F59E0B', text: '#FFFFFF', name: 'Orange' },
+    { bg: '#EC4899', text: '#FFFFFF', name: 'Pink' },
+    { bg: '#14B8A6', text: '#FFFFFF', name: 'Teal' },
+    { bg: '#6B7280', text: '#FFFFFF', name: 'Gray' },
+  ];
 
   useEffect(() => {
     if (project) {
       setFormData({
-        name: project.name,
+        title: project.title,
         description: project.description,
         startDate: project.startDate.split('T')[0],
-        endDate: project.endDate?.split('T')[0],
-        status: project.status,
-        budget: project.budget,
+        endDate: project.endDate.split('T')[0],
+        backgroundColor: project.backgroundColor,
+        textColor: project.textColor,
+        position: project.position,
         ownerId: project.ownerId,
       });
     }
@@ -60,9 +73,15 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'budget' ? parseFloat(value) || 0 
-           : name === 'status' ? parseInt(value, 10)
-           : value,
+      [name]: name === 'position' ? parseInt(value, 10) : value,
+    }));
+  };
+
+  const handleColorPresetClick = (bg: string, text: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      backgroundColor: bg,
+      textColor: text,
     }));
   };
 
@@ -71,20 +90,34 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
       <div className="modal">
         <div className="modal-header">
           <h3>{isEditing ? 'Edit Project' : 'Create New Project'}</h3>
-          <button className="btn-close" onClick={onClose}>×</button>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <button 
+              type="submit"
+              form="project-form"
+              className="btn btn-primary"
+              disabled={createProject.isPending || updateProject.isPending}
+            >
+              {createProject.isPending || updateProject.isPending
+                ? 'Saving...'
+                : isEditing
+                ? 'Update Project'
+                : 'Create Project'}
+            </button>
+            <button className="btn-close" onClick={onClose}>×</button>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="project-form">
+        <form onSubmit={handleSubmit} className="project-form" id="project-form">
           <div className="form-group">
-            <label htmlFor="name">Project Name *</label>
+            <label htmlFor="title">Project Title *</label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="title"
+              name="title"
+              value={formData.title}
               onChange={handleChange}
               required
-              placeholder="Enter project name"
+              placeholder="Enter project title"
             />
           </div>
 
@@ -97,7 +130,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
               onChange={handleChange}
               required
               placeholder="Enter project description"
-              rows={4}
+              rows={3}
             />
           </div>
 
@@ -115,67 +148,79 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="endDate">End Date</label>
+              <label htmlFor="endDate">End Date *</label>
               <input
                 type="date"
                 id="endDate"
                 name="endDate"
-                value={formData.endDate || ''}
+                value={formData.endDate}
                 onChange={handleChange}
                 min={formData.startDate}
+                required
               />
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="status">Status *</label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                required
-              >
-                <option value={ProjectStatus.Planning}>Planning</option>
-                <option value={ProjectStatus.InProgress}>In Progress</option>
-                <option value={ProjectStatus.OnHold}>On Hold</option>
-                <option value={ProjectStatus.Completed}>Completed</option>
-                <option value={ProjectStatus.Cancelled}>Cancelled</option>
-              </select>
+          <div className="form-group">
+            <label>Colors *</label>
+            <div className="color-presets">
+              {colorPresets.map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  className={`color-preset ${formData.backgroundColor === preset.bg ? 'selected' : ''}`}
+                  style={{ backgroundColor: preset.bg, color: preset.text }}
+                  onClick={() => handleColorPresetClick(preset.bg, preset.text)}
+                  title={preset.name}
+                >
+                  {preset.name}
+                </button>
+              ))}
             </div>
-
-            <div className="form-group">
-              <label htmlFor="budget">Budget ($) *</label>
+            <div className="color-inputs">
               <input
-                type="number"
-                id="budget"
-                name="budget"
-                value={formData.budget}
+                type="color"
+                id="backgroundColor"
+                name="backgroundColor"
+                value={formData.backgroundColor}
                 onChange={handleChange}
-                required
-                min="0"
-                step="0.01"
-                placeholder="0.00"
+                title="Background color"
               />
+              <input
+                type="color"
+                id="textColor"
+                name="textColor"
+                value={formData.textColor}
+                onChange={handleChange}
+                title="Text color"
+              />
+              <div 
+                className="color-preview" 
+                style={{ 
+                  backgroundColor: formData.backgroundColor, 
+                  color: formData.textColor,
+                  padding: '5px 10px',
+                  borderRadius: '4px',
+                  marginLeft: '10px'
+                }}
+              >
+                Preview
+              </div>
             </div>
           </div>
 
-          <div className="form-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={createProject.isPending || updateProject.isPending}
+          <div className="form-group">
+            <label htmlFor="position">Timeline Position *</label>
+            <select
+              id="position"
+              name="position"
+              value={formData.position}
+              onChange={handleChange}
+              required
             >
-              {createProject.isPending || updateProject.isPending
-                ? 'Saving...'
-                : isEditing
-                ? 'Update Project'
-                : 'Create Project'}
-            </button>
+              <option value={TimelinePosition.Top}>Top</option>
+              <option value={TimelinePosition.Bottom}>Bottom</option>
+            </select>
           </div>
         </form>
       </div>

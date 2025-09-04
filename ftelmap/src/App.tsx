@@ -11,6 +11,8 @@ import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/auth/login-page';
 import RegisterPage from './pages/auth/register-page';
 import './App.css';
+import './styles/project-form.css';
+import './styles/project-buttons.css';
 
 // Create a client
 const queryClient = new QueryClient({

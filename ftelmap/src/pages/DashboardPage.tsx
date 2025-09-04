@@ -27,7 +27,6 @@ import {
   Folder as FolderIcon,
 } from '@mui/icons-material';
 import { useProjects } from '../hooks/use-projects';
-import { ProjectStatus } from '../types/entities';
 
 interface StatCardProps {
   title: string;
@@ -96,27 +95,13 @@ const DashboardPage = () => {
   const navigate = useNavigate();
   const { data: projects, isLoading, error } = useProjects();
 
-  const projectsByStatus = projects?.reduce((acc, project) => {
-    acc[project.status] = (acc[project.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>) || {};
-
-  const totalBudget = projects?.reduce((sum, project) => sum + project.budget, 0) || 0;
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case ProjectStatus.Planning:
-        return 'info';
-      case ProjectStatus.InProgress:
-        return 'warning';
-      case ProjectStatus.Completed:
-        return 'success';
-      case ProjectStatus.OnHold:
-        return 'error';
-      default:
-        return 'default';
-    }
-  };
+  const projectsOnTop = projects?.filter(p => p.position === 0).length || 0;
+  const projectsOnBottom = projects?.filter(p => p.position === 1).length || 0;
+  const upcomingProjects = projects?.filter(p => new Date(p.startDate) > new Date()).length || 0;
+  const activeProjects = projects?.filter(p => {
+    const now = new Date();
+    return new Date(p.startDate) <= now && new Date(p.endDate) >= now;
+  }).length || 0;
 
   if (isLoading) {
     return (
@@ -201,24 +186,23 @@ const DashboardPage = () => {
             trend={12}
           />
           <StatCard
-            title="Total Budget"
-            value={`$${totalBudget.toLocaleString('en-US', { minimumFractionDigits: 0 })}`}
-            icon={<AttachMoneyIcon />}
+            title="Active Projects"
+            value={activeProjects}
+            icon={<PlayArrowIcon />}
             color="success"
             trend={8}
           />
           <StatCard
-            title="In Progress"
-            value={projectsByStatus[ProjectStatus.InProgress] || 0}
-            icon={<PlayArrowIcon />}
+            title="Top Position"
+            value={projectsOnTop}
+            icon={<TrendingUpIcon />}
             color="warning"
           />
           <StatCard
-            title="Completed"
-            value={projectsByStatus[ProjectStatus.Completed] || 0}
+            title="Bottom Position"
+            value={projectsOnBottom}
             icon={<CheckCircleIcon />}
-            color="success"
-            trend={25}
+            color="info"
           />
         </Box>
 
@@ -267,54 +251,64 @@ const DashboardPage = () => {
                   >
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                       <Stack direction="row" spacing={2} alignItems="center">
-                        <Avatar sx={{ bgcolor: 'primary.main' }}>
-                          {project.name.charAt(0).toUpperCase()}
+                        <Avatar sx={{ bgcolor: project.backgroundColor, color: project.textColor }}>
+                          {project.title.charAt(0).toUpperCase()}
                         </Avatar>
                         <Box>
                           <Typography variant="subtitle1" fontWeight="600">
-                            {project.name}
+                            {project.title}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            Budget: ${project.budget.toLocaleString()}
+                            {new Date(project.startDate).toLocaleDateString()} - {new Date(project.endDate).toLocaleDateString()}
                           </Typography>
                         </Box>
                       </Stack>
                       <Stack direction="row" spacing={2} alignItems="center">
                         <Chip
-                          label={project.status}
-                          color={getStatusColor(project.status)}
+                          label={project.position === 0 ? 'Top' : 'Bottom'}
                           size="small"
                           variant="filled"
+                          sx={{ bgcolor: project.backgroundColor, color: project.textColor }}
                         />
                         <IconButton size="small" color="primary">
                           <ArrowForwardIcon />
                         </IconButton>
                       </Stack>
                     </Stack>
-                    {project.status === ProjectStatus.InProgress && (
-                      <Box mt={2}>
-                        <Stack direction="row" justifyContent="space-between" mb={1}>
-                          <Typography variant="caption" color="text.secondary">
-                            Progress
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            65%
-                          </Typography>
-                        </Stack>
-                        <LinearProgress
-                          variant="determinate"
-                          value={65}
-                          sx={{
-                            height: 6,
-                            borderRadius: 3,
-                            bgcolor: 'grey.200',
-                            '& .MuiLinearProgress-bar': {
+                    {(() => {
+                      const now = new Date();
+                      const start = new Date(project.startDate);
+                      const end = new Date(project.endDate);
+                      const total = end.getTime() - start.getTime();
+                      const elapsed = Math.max(0, Math.min(now.getTime() - start.getTime(), total));
+                      const progress = total > 0 ? Math.round((elapsed / total) * 100) : 0;
+                      
+                      return now >= start && now <= end ? (
+                        <Box mt={2}>
+                          <Stack direction="row" justifyContent="space-between" mb={1}>
+                            <Typography variant="caption" color="text.secondary">
+                              Progress
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {progress}%
+                            </Typography>
+                          </Stack>
+                          <LinearProgress
+                            variant="determinate"
+                            value={progress}
+                            sx={{
+                              height: 6,
                               borderRadius: 3,
-                            },
-                          }}
-                        />
-                      </Box>
-                    )}
+                              bgcolor: 'grey.200',
+                              '& .MuiLinearProgress-bar': {
+                                borderRadius: 3,
+                                bgcolor: project.backgroundColor,
+                              },
+                            }}
+                          />
+                        </Box>
+                      ) : null;
+                    })()}
                   </Paper>
                 </Fade>
               ))}

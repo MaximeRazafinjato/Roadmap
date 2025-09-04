@@ -48,11 +48,6 @@ namespace FtelMap.Infrastructure.Data.Configurations
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(u => u.AssignedTasks)
-                .WithOne(t => t.AssignedTo)
-                .HasForeignKey(t => t.AssignedToId)
-                .OnDelete(DeleteBehavior.SetNull);
-
             builder.HasQueryFilter(u => !u.IsDeleted);
         }
     }

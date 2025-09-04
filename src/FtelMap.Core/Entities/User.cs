@@ -16,6 +16,5 @@ namespace FtelMap.Core.Entities
         public string? Role { get; set; } = "User";
         
         public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
-        public virtual ICollection<Core.Entities.Task> AssignedTasks { get; set; } = new List<Core.Entities.Task>();
     }
 }

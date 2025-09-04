@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using FtelMap.Application.DTOs;
 using FtelMap.Core.Entities;
 using FtelMap.Core.Interfaces;
+using System.Security.Claims;
 
 namespace FtelMap.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ProjectsController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -21,16 +24,27 @@ public class ProjectsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProjectDto>>> GetAll()
     {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        
         var projects = await _unitOfWork.Projects.GetAllAsync();
+        
+        // Filter projects based on user role
+        if (userRole != "Admin" && !string.IsNullOrEmpty(userId))
+        {
+            projects = projects.Where(p => p.OwnerId == Guid.Parse(userId));
+        }
+        
         var projectDtos = projects.Select(p => new ProjectDto
         {
             Id = p.Id,
-            Name = p.Name,
+            Title = p.Title,
             Description = p.Description,
             StartDate = p.StartDate,
             EndDate = p.EndDate,
-            Status = p.Status,
-            Budget = p.Budget,
+            BackgroundColor = p.BackgroundColor,
+            TextColor = p.TextColor,
+            Position = p.Position,
             OwnerId = p.OwnerId,
             CreatedAt = p.CreatedAt,
             UpdatedAt = p.UpdatedAt,
@@ -50,15 +64,25 @@ public class ProjectsController : ControllerBase
             return NotFound();
         }
         
+        // Check authorization
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        
+        if (userRole != "Admin" && project.OwnerId != Guid.Parse(userId))
+        {
+            return Forbid();
+        }
+        
         var projectDto = new ProjectDto
         {
             Id = project.Id,
-            Name = project.Name,
+            Title = project.Title,
             Description = project.Description,
             StartDate = project.StartDate,
             EndDate = project.EndDate,
-            Status = project.Status,
-            Budget = project.Budget,
+            BackgroundColor = project.BackgroundColor,
+            TextColor = project.TextColor,
+            Position = project.Position,
             OwnerId = project.OwnerId,
             CreatedAt = project.CreatedAt,
             UpdatedAt = project.UpdatedAt,
@@ -72,16 +96,19 @@ public class ProjectsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ProjectDto>> Create(CreateProjectDto createDto)
     {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        
         var project = new Project
         {
             Id = Guid.NewGuid(),
-            Name = createDto.Name,
+            Title = createDto.Title,
             Description = createDto.Description,
             StartDate = createDto.StartDate,
             EndDate = createDto.EndDate,
-            Status = createDto.Status,
-            Budget = createDto.Budget,
-            OwnerId = createDto.OwnerId
+            BackgroundColor = createDto.BackgroundColor,
+            TextColor = createDto.TextColor,
+            Position = createDto.Position,
+            OwnerId = string.IsNullOrEmpty(userId) ? createDto.OwnerId : Guid.Parse(userId)
         };
         
         await _unitOfWork.Projects.AddAsync(project);
@@ -90,12 +117,13 @@ public class ProjectsController : ControllerBase
         var projectDto = new ProjectDto
         {
             Id = project.Id,
-            Name = project.Name,
+            Title = project.Title,
             Description = project.Description,
             StartDate = project.StartDate,
             EndDate = project.EndDate,
-            Status = project.Status,
-            Budget = project.Budget,
+            BackgroundColor = project.BackgroundColor,
+            TextColor = project.TextColor,
+            Position = project.Position,
             OwnerId = project.OwnerId,
             CreatedAt = project.CreatedAt,
             UpdatedAt = project.UpdatedAt,
@@ -115,13 +143,23 @@ public class ProjectsController : ControllerBase
         {
             return NotFound();
         }
+        
+        // Check authorization
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        
+        if (userRole != "Admin" && existingProject.OwnerId != Guid.Parse(userId))
+        {
+            return Forbid();
+        }
 
-        existingProject.Name = updateDto.Name;
+        existingProject.Title = updateDto.Title;
         existingProject.Description = updateDto.Description;
         existingProject.StartDate = updateDto.StartDate;
         existingProject.EndDate = updateDto.EndDate;
-        existingProject.Status = updateDto.Status;
-        existingProject.Budget = updateDto.Budget;
+        existingProject.BackgroundColor = updateDto.BackgroundColor;
+        existingProject.TextColor = updateDto.TextColor;
+        existingProject.Position = updateDto.Position;
         existingProject.OwnerId = updateDto.OwnerId;
 
         await _unitOfWork.Projects.UpdateAsync(existingProject);
@@ -137,6 +175,15 @@ public class ProjectsController : ControllerBase
         if (project == null)
         {
             return NotFound();
+        }
+        
+        // Check authorization
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        
+        if (userRole != "Admin" && project.OwnerId != Guid.Parse(userId))
+        {
+            return Forbid();
         }
 
         await _unitOfWork.Projects.DeleteAsync(project);

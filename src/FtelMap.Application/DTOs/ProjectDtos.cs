@@ -7,7 +7,7 @@ public class CreateProjectDto
 {
     [Required]
     [StringLength(200, MinimumLength = 1)]
-    public string Name { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
     
     [Required]
     [StringLength(1000)]
@@ -16,14 +16,19 @@ public class CreateProjectDto
     [Required]
     public DateTime StartDate { get; set; }
     
-    public DateTime? EndDate { get; set; }
+    [Required]
+    public DateTime EndDate { get; set; }
     
     [Required]
-    public ProjectStatus Status { get; set; } = ProjectStatus.Planning;
+    [RegularExpression("^#[0-9A-Fa-f]{6}$", ErrorMessage = "Background color must be a valid hex color code")]
+    public string BackgroundColor { get; set; } = "#3B82F6";
     
     [Required]
-    [Range(0, double.MaxValue)]
-    public decimal Budget { get; set; }
+    [RegularExpression("^#[0-9A-Fa-f]{6}$", ErrorMessage = "Text color must be a valid hex color code")]
+    public string TextColor { get; set; } = "#FFFFFF";
+    
+    [Required]
+    public TimelinePosition Position { get; set; } = TimelinePosition.Top;
     
     [Required]
     public Guid OwnerId { get; set; }
@@ -36,12 +41,13 @@ public class UpdateProjectDto : CreateProjectDto
 public class ProjectDto
 {
     public Guid Id { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public DateTime StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
-    public ProjectStatus Status { get; set; }
-    public decimal Budget { get; set; }
+    public DateTime EndDate { get; set; }
+    public string BackgroundColor { get; set; } = "#3B82F6";
+    public string TextColor { get; set; } = "#FFFFFF";
+    public TimelinePosition Position { get; set; }
     public Guid OwnerId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
