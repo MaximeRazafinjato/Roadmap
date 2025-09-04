@@ -42,6 +42,14 @@ export const TimelineSimple = ({
   const [containerWidth, setContainerWidth] = useState(1200);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   
+  // État local pour les projets avec mises à jour optimistes
+  const [localProjects, setLocalProjects] = useState<Project[]>(projects || []);
+  
+  // Synchroniser avec les projets externes
+  useEffect(() => {
+    setLocalProjects(projects || []);
+  }, [projects]);
+  
   // Hooks pour la gestion de la timeline
   const { zoomLevel, zoomIn, zoomOut, resetZoom, canZoomIn, canZoomOut } = useTimelineZoom();
   const { centerDate, isPanning, startPan, handlePanMove, endPan, panToToday } = useTimelinePan();
@@ -64,13 +72,13 @@ export const TimelineSimple = ({
   
   // Filtrer et positionner les projets visibles
   const visibleProjects = useMemo(() => {
-    return projects
+    return localProjects
       .filter((project) => isProjectVisible(project, viewport))
       .map((project) => ({
         project,
         position: calculateProjectPosition(project, viewport),
       }));
-  }, [projects, viewport]);
+  }, [localProjects, viewport]);
   
   // Mise à jour de la largeur du container
   useEffect(() => {
@@ -101,24 +109,48 @@ export const TimelineSimple = ({
     }
   }, [isPanning, handlePanMove, endPan]);
   
-  // Gestion du drag des projets
+  // Gestion du drag des projets avec mise à jour optimiste
   const handleProjectDrag = (project: Project, deltaX: number) => {
     const currentPos = calculateProjectPosition(project, viewport);
     const newLeft = currentPos.left + deltaX;
     const newStartDate = pixelToDate(newLeft, viewport);
     const newEndDate = pixelToDate(newLeft + currentPos.width, viewport);
     
+    // Mise à jour optimiste locale immédiate
+    const updatedProject = {
+      ...project,
+      startDate: newStartDate.toISOString(),
+      endDate: newEndDate.toISOString(),
+    };
+    
+    setLocalProjects(prev => 
+      prev.map(p => p.id === project.id ? updatedProject : p)
+    );
+    
+    // Puis envoyer la mise à jour au serveur
     onProjectUpdate?.(project, {
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString(),
     });
   };
   
-  // Gestion du redimensionnement des projets
+  // Gestion du redimensionnement des projets avec mise à jour optimiste
   const handleProjectResize = (project: Project, newPosition: { left: number; width: number }) => {
     const newStartDate = pixelToDate(newPosition.left, viewport);
     const newEndDate = pixelToDate(newPosition.left + newPosition.width, viewport);
     
+    // Mise à jour optimiste locale immédiate
+    const updatedProject = {
+      ...project,
+      startDate: newStartDate.toISOString(),
+      endDate: newEndDate.toISOString(),
+    };
+    
+    setLocalProjects(prev => 
+      prev.map(p => p.id === project.id ? updatedProject : p)
+    );
+    
+    // Puis envoyer la mise à jour au serveur
     onProjectUpdate?.(project, {
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString(),

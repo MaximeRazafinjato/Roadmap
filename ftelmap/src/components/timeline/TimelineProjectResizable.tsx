@@ -48,12 +48,12 @@ export const TimelineProjectResizable = ({
   
   // Mise à jour des refs quand la position change
   useEffect(() => {
-    if (!isDragging && !isResizing) {
+    // Ne mettre à jour que si on n'est pas en train d'interagir
+    if (!isDragging && !isResizing && !tempPosition) {
       startLeft.current = position.left;
       startWidth.current = position.width;
-      setTempPosition(null); // Réinitialiser la position temporaire
     }
-  }, [position, isDragging, isResizing]);
+  }, [position, isDragging, isResizing, tempPosition]);
   
   // Gestion du drag
   const handleMouseDownDrag = useCallback((e: React.MouseEvent) => {
@@ -118,12 +118,18 @@ export const TimelineProjectResizable = ({
         } else if (isResizing) {
           onResize?.(project, tempPosition);
         }
+        
+        // Mettre à jour les refs avec la nouvelle position
+        startLeft.current = tempPosition.left;
+        startWidth.current = tempPosition.width;
       }
       
       setIsDragging(false);
       setIsResizing(false);
       setResizeSide(null);
-      setTempPosition(null);
+      // Garder la position temporaire jusqu'à ce que la nouvelle position arrive
+      // pour éviter le flash
+      setTimeout(() => setTempPosition(null), 50);
     };
     
     document.addEventListener('mousemove', handleMouseMove);
