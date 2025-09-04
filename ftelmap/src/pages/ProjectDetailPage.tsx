@@ -7,9 +7,9 @@ const ProjectDetailPage = () => {
   const navigate = useNavigate();
   const { data: project, isLoading, error } = useProject(id);
 
-  if (isLoading) return <div className="loading">Loading project details...</div>;
-  if (error) return <div className="error">Failed to load project details</div>;
-  if (!project) return <div className="error">Project not found</div>;
+  if (isLoading) return <div className="loading">Chargement des détails du projet...</div>;
+  if (error) return <div className="error">Échec du chargement des détails du projet</div>;
+  if (!project) return <div className="error">Projet introuvable</div>;
 
   return (
     <div className="project-detail-page">
@@ -18,7 +18,7 @@ const ProjectDetailPage = () => {
           className="btn btn-link"
           onClick={() => navigate('/projects')}
         >
-          ← Back to Projects
+          ← Retour aux Projets
         </button>
       </div>
 
@@ -34,7 +34,7 @@ const ProjectDetailPage = () => {
               display: 'inline-block'
             }}
           >
-            {project.position === TimelinePosition.Top ? 'Top' : 'Bottom'} Position
+            Position {project.position === TimelinePosition.Top ? 'Haute' : 'Basse'}
           </div>
         </div>
 
@@ -45,19 +45,19 @@ const ProjectDetailPage = () => {
 
         <div className="detail-grid">
           <div className="detail-item">
-            <label>Start Date</label>
+            <label>Date de Début</label>
             <p>{new Date(project.startDate).toLocaleDateString()}</p>
           </div>
           <div className="detail-item">
-            <label>End Date</label>
+            <label>Date de Fin</label>
             <p>{new Date(project.endDate).toLocaleDateString()}</p>
           </div>
           <div className="detail-item">
-            <label>Duration</label>
-            <p>{Math.ceil((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24))} days</p>
+            <label>Durée</label>
+            <p>{Math.ceil((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24))} jours</p>
           </div>
           <div className="detail-item">
-            <label>Colors</label>
+            <label>Couleurs</label>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <div style={{ 
                 width: '24px', 
@@ -76,17 +76,17 @@ const ProjectDetailPage = () => {
             </div>
           </div>
           <div className="detail-item">
-            <label>Created</label>
+            <label>Créé</label>
             <p>{new Date(project.createdAt).toLocaleString()}</p>
           </div>
           <div className="detail-item">
-            <label>Last Updated</label>
+            <label>Dernière mise à jour</label>
             <p>{new Date(project.updatedAt).toLocaleString()}</p>
           </div>
         </div>
 
         <div className="detail-section">
-          <h3>Timeline Preview</h3>
+          <h3>Aperçu de la Timeline</h3>
           <div style={{
             position: 'relative',
             height: '100px',

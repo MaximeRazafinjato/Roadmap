@@ -25,14 +25,14 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
 
   // Preset color combinations
   const colorPresets = [
-    { bg: '#3B82F6', text: '#FFFFFF', name: 'Blue' },
-    { bg: '#10B981', text: '#FFFFFF', name: 'Green' },
-    { bg: '#8B5CF6', text: '#FFFFFF', name: 'Purple' },
-    { bg: '#EF4444', text: '#FFFFFF', name: 'Red' },
+    { bg: '#3B82F6', text: '#FFFFFF', name: 'Bleu' },
+    { bg: '#10B981', text: '#FFFFFF', name: 'Vert' },
+    { bg: '#8B5CF6', text: '#FFFFFF', name: 'Violet' },
+    { bg: '#EF4444', text: '#FFFFFF', name: 'Rouge' },
     { bg: '#F59E0B', text: '#FFFFFF', name: 'Orange' },
-    { bg: '#EC4899', text: '#FFFFFF', name: 'Pink' },
-    { bg: '#14B8A6', text: '#FFFFFF', name: 'Teal' },
-    { bg: '#6B7280', text: '#FFFFFF', name: 'Gray' },
+    { bg: '#EC4899', text: '#FFFFFF', name: 'Rose' },
+    { bg: '#14B8A6', text: '#FFFFFF', name: 'Turquoise' },
+    { bg: '#6B7280', text: '#FFFFFF', name: 'Gris' },
   ];
 
   useEffect(() => {
@@ -89,7 +89,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-header">
-          <h3>{isEditing ? 'Edit Project' : 'Create New Project'}</h3>
+          <h3>{isEditing ? 'Modifier le Projet' : 'Créer un Nouveau Projet'}</h3>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <button 
               type="submit"
@@ -98,10 +98,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
               disabled={createProject.isPending || updateProject.isPending}
             >
               {createProject.isPending || updateProject.isPending
-                ? 'Saving...'
+                ? 'Enregistrement...'
                 : isEditing
-                ? 'Update Project'
-                : 'Create Project'}
+                ? 'Mettre à jour le Projet'
+                : 'Créer le Projet'}
             </button>
             <button className="btn-close" onClick={onClose}>×</button>
           </div>
@@ -109,7 +109,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
 
         <form onSubmit={handleSubmit} className="project-form" id="project-form">
           <div className="form-group">
-            <label htmlFor="title">Project Title *</label>
+            <label htmlFor="title">Titre du Projet *</label>
             <input
               type="text"
               id="title"
@@ -117,7 +117,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
               value={formData.title}
               onChange={handleChange}
               required
-              placeholder="Enter project title"
+              placeholder="Entrez le titre du projet"
             />
           </div>
 
@@ -129,14 +129,14 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
               value={formData.description}
               onChange={handleChange}
               required
-              placeholder="Enter project description"
+              placeholder="Entrez la description du projet"
               rows={3}
             />
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="startDate">Start Date *</label>
+              <label htmlFor="startDate">Date de Début *</label>
               <input
                 type="date"
                 id="startDate"
@@ -148,7 +148,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="endDate">End Date *</label>
+              <label htmlFor="endDate">Date de Fin *</label>
               <input
                 type="date"
                 id="endDate"
@@ -162,7 +162,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
           </div>
 
           <div className="form-group">
-            <label>Colors *</label>
+            <label>Couleurs *</label>
             <div className="color-presets">
               {colorPresets.map((preset) => (
                 <button
@@ -184,7 +184,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
                 name="backgroundColor"
                 value={formData.backgroundColor}
                 onChange={handleChange}
-                title="Background color"
+                title="Couleur de fond"
               />
               <input
                 type="color"
@@ -192,7 +192,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
                 name="textColor"
                 value={formData.textColor}
                 onChange={handleChange}
-                title="Text color"
+                title="Couleur du texte"
               />
               <div 
                 className="color-preview" 
@@ -204,13 +204,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
                   marginLeft: '10px'
                 }}
               >
-                Preview
+                Aperçu
               </div>
             </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="position">Timeline Position *</label>
+            <label htmlFor="position">Position sur la Timeline *</label>
             <select
               id="position"
               name="position"
@@ -218,8 +218,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
               onChange={handleChange}
               required
             >
-              <option value={TimelinePosition.Top}>Top</option>
-              <option value={TimelinePosition.Bottom}>Bottom</option>
+              <option value={TimelinePosition.Top}>Haut</option>
+              <option value={TimelinePosition.Bottom}>Bas</option>
             </select>
           </div>
         </form>

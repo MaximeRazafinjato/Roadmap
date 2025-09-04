@@ -47,7 +47,11 @@
       "Read(/C:\\Files\\Projects\\Roadmap\\src\\FtelMap.Api/**)",
       "Read(/C:\\Files\\Projects\\Roadmap\\src\\FtelMap.Api/**)",
       "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\pages/**)",
-      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\pages/**)"
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\pages/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\components/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\components\\auth/**)"
     ],
     "deny": [],
     "ask": []

@@ -131,8 +131,8 @@ const DashboardPage = () => {
     return (
       <Fade in={true}>
         <Alert severity="error" sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
-          <AlertTitle>Error Loading Dashboard</AlertTitle>
-          Failed to load dashboard data. Please try again later.
+          <AlertTitle>Erreur de chargement du tableau de bord</AlertTitle>
+          Impossible de charger les données du tableau de bord. Veuillez réessayer plus tard.
         </Alert>
       </Fade>
     );
@@ -144,10 +144,10 @@ const DashboardPage = () => {
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
           <Box>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              Dashboard
+              Tableau de bord
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Overview of your project management system
+              Vue d'ensemble de votre système de gestion de projets
             </Typography>
           </Box>
           <Button
@@ -162,7 +162,7 @@ const DashboardPage = () => {
               fontWeight: 600,
             }}
           >
-            New Project
+            Nouveau Projet
           </Button>
         </Stack>
 
@@ -179,27 +179,27 @@ const DashboardPage = () => {
           }}
         >
           <StatCard
-            title="Total Projects"
+            title="Total des Projets"
             value={projects?.length || 0}
             icon={<FolderIcon />}
             color="primary"
             trend={12}
           />
           <StatCard
-            title="Active Projects"
+            title="Projets Actifs"
             value={activeProjects}
             icon={<PlayArrowIcon />}
             color="success"
             trend={8}
           />
           <StatCard
-            title="Top Position"
+            title="Position Haute"
             value={projectsOnTop}
             icon={<TrendingUpIcon />}
             color="warning"
           />
           <StatCard
-            title="Bottom Position"
+            title="Position Basse"
             value={projectsOnBottom}
             icon={<CheckCircleIcon />}
             color="info"
@@ -217,14 +217,14 @@ const DashboardPage = () => {
         >
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h6" fontWeight="600">
-              Recent Projects
+              Projets Récents
             </Typography>
             <Button
               endIcon={<ArrowForwardIcon />}
               onClick={() => navigate('/projects')}
               sx={{ textTransform: 'none' }}
             >
-              View All
+              Voir Tout
             </Button>
           </Stack>
 
@@ -265,7 +265,7 @@ const DashboardPage = () => {
                       </Stack>
                       <Stack direction="row" spacing={2} alignItems="center">
                         <Chip
-                          label={project.position === 0 ? 'Top' : 'Bottom'}
+                          label={project.position === 0 ? 'Haut' : 'Bas'}
                           size="small"
                           variant="filled"
                           sx={{ bgcolor: project.backgroundColor, color: project.textColor }}
@@ -287,7 +287,7 @@ const DashboardPage = () => {
                         <Box mt={2}>
                           <Stack direction="row" justifyContent="space-between" mb={1}>
                             <Typography variant="caption" color="text.secondary">
-                              Progress
+                              Progression
                             </Typography>
                             <Typography variant="caption" color="text.secondary">
                               {progress}%
@@ -328,10 +328,10 @@ const DashboardPage = () => {
             >
               <FolderIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
               <Typography variant="h6" color="text.secondary" gutterBottom>
-                No projects yet
+                Aucun projet pour le moment
               </Typography>
               <Typography variant="body2" color="text.secondary" mb={3}>
-                Create your first project to get started
+                Créez votre premier projet pour commencer
               </Typography>
               <Button
                 variant="contained"
@@ -342,7 +342,7 @@ const DashboardPage = () => {
                   textTransform: 'none',
                 }}
               >
-                Create Project
+                Créer un Projet
               </Button>
             </Paper>
           )}

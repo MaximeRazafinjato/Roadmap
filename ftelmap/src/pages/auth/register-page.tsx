@@ -95,7 +95,7 @@ export default function RegisterPage() {
                   FtelMap
                 </Typography>
                 <Typography variant="h5" color="text.secondary">
-                  Create your account
+                  Créez votre compte
                 </Typography>
               </Box>
             </Grow>
@@ -119,7 +119,7 @@ export default function RegisterPage() {
                         <Alert severity="error" variant="outlined">
                           {register.error instanceof Error 
                             ? register.error.message 
-                            : 'Registration failed. Please try again.'}
+                            : 'Inscription échouée. Veuillez réessayer.'}
                         </Alert>
                       </Fade>
                     )}
@@ -129,8 +129,8 @@ export default function RegisterPage() {
                           id="firstName"
                           name="firstName"
                           type="text"
-                          label="First Name"
-                          placeholder="Enter your first name"
+                          label="Prénom"
+                          placeholder="Entrez votre prénom"
                           fullWidth
                           required
                           value={formData.firstName}
@@ -155,8 +155,8 @@ export default function RegisterPage() {
                           id="lastName"
                           name="lastName"
                           type="text"
-                          label="Last Name"
-                          placeholder="Enter your last name"
+                          label="Nom"
+                          placeholder="Entrez votre nom"
                           fullWidth
                           required
                           value={formData.lastName}
@@ -183,8 +183,8 @@ export default function RegisterPage() {
                       id="username"
                       name="username"
                       type="text"
-                      label="Username"
-                      placeholder="Choose a username"
+                      label="Nom d'utilisateur"
+                      placeholder="Choisissez un nom d'utilisateur"
                       fullWidth
                       required
                       value={formData.username}
@@ -210,8 +210,8 @@ export default function RegisterPage() {
                       id="email"
                       name="email"
                       type="email"
-                      label="Email Address"
-                      placeholder="Enter your email"
+                      label="Adresse E-mail"
+                      placeholder="Entrez votre e-mail"
                       fullWidth
                       required
                       autoComplete="email"
@@ -238,15 +238,15 @@ export default function RegisterPage() {
                       id="password"
                       name="password"
                       type={showPassword ? 'text' : 'password'}
-                      label="Password"
-                      placeholder="Create a strong password"
+                      label="Mot de passe"
+                      placeholder="Créez un mot de passe fort"
                       fullWidth
                       required
                       autoComplete="new-password"
                       value={formData.password}
                       onChange={handleChange}
                       disabled={register.isPending}
-                      helperText="Use at least 8 characters with a mix of letters, numbers & symbols"
+                      helperText="Utilisez au moins 8 caractères avec un mélange de lettres, chiffres et symboles"
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -256,7 +256,7 @@ export default function RegisterPage() {
                         endAdornment: (
                           <InputAdornment position="end">
                             <IconButton
-                              aria-label="toggle password visibility"
+                              aria-label="afficher/masquer le mot de passe"
                               onClick={() => setShowPassword(!showPassword)}
                               onMouseDown={handleMouseDownPassword}
                               edge="end"
@@ -307,18 +307,18 @@ export default function RegisterPage() {
                         transition: 'all 0.3s ease',
                       }}
                     >
-                      {register.isPending ? 'Creating account...' : 'Create Account'}
+                      {register.isPending ? 'Création du compte...' : 'Créer un compte'}
                     </Button>
 
                     <Divider sx={{ my: 2 }}>
                       <Typography variant="body2" color="text.secondary">
-                        OR
+                        OU
                       </Typography>
                     </Divider>
 
                     <Box sx={{ textAlign: 'center' }}>
                       <Typography variant="body2" color="text.secondary">
-                        Already have an account?{' '}
+                        Déjà un compte ?{' '}
                         <Link
                           to="/login"
                           style={{
@@ -337,7 +337,7 @@ export default function RegisterPage() {
                               },
                             }}
                           >
-                            Sign In
+                            Se connecter
                           </Typography>
                         </Link>
                       </Typography>
@@ -349,7 +349,7 @@ export default function RegisterPage() {
 
             <Box sx={{ mt: 4, textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">
-                By registering, you agree to our Terms of Service and Privacy Policy
+                En vous inscrivant, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité
               </Typography>
             </Box>
           </Box>

@@ -155,7 +155,7 @@ export function UserMenu() {
             )}
           </ListItemIcon>
           <ListItemText>
-            {logout.isPending ? 'Signing out...' : 'Sign out'}
+            {logout.isPending ? 'Déconnexion...' : 'Se déconnecter'}
           </ListItemText>
         </MenuItem>
       </Menu>

@@ -93,7 +93,7 @@ export default function LoginPage() {
                   FtelMap
                 </Typography>
                 <Typography variant="h5" color="text.secondary">
-                  Welcome back
+                  Bon retour
                 </Typography>
               </Box>
             </Grow>
@@ -117,7 +117,7 @@ export default function LoginPage() {
                         <Alert severity="error" variant="outlined">
                           {login.error instanceof Error 
                             ? login.error.message 
-                            : 'Login failed. Please check your credentials.'}
+                            : 'Échec de la connexion. Veuillez vérifier vos identifiants.'}
                         </Alert>
                       </Fade>
                     )}
@@ -126,8 +126,8 @@ export default function LoginPage() {
                       id="email"
                       name="email"
                       type="email"
-                      label="Email Address"
-                      placeholder="Enter your email"
+                      label="Adresse E-mail"
+                      placeholder="Entrez votre e-mail"
                       fullWidth
                       required
                       autoComplete="email"
@@ -154,8 +154,8 @@ export default function LoginPage() {
                       id="password"
                       name="password"
                       type={showPassword ? 'text' : 'password'}
-                      label="Password"
-                      placeholder="Enter your password"
+                      label="Mot de passe"
+                      placeholder="Entrez votre mot de passe"
                       fullWidth
                       required
                       autoComplete="current-password"
@@ -171,7 +171,7 @@ export default function LoginPage() {
                         endAdornment: (
                           <InputAdornment position="end">
                             <IconButton
-                              aria-label="toggle password visibility"
+                              aria-label="afficher/masquer le mot de passe"
                               onClick={() => setShowPassword(!showPassword)}
                               onMouseDown={handleMouseDownPassword}
                               edge="end"
@@ -208,7 +208,7 @@ export default function LoginPage() {
                             },
                           }}
                         >
-                          Forgot password?
+                          Mot de passe oublié ?
                         </Typography>
                       </Link>
                     </Box>
@@ -245,18 +245,18 @@ export default function LoginPage() {
                         transition: 'all 0.3s ease',
                       }}
                     >
-                      {login.isPending ? 'Signing in...' : 'Sign In'}
+                      {login.isPending ? 'Connexion...' : 'Se connecter'}
                     </Button>
 
                     <Divider sx={{ my: 2 }}>
                       <Typography variant="body2" color="text.secondary">
-                        OR
+                        OU
                       </Typography>
                     </Divider>
 
                     <Box sx={{ textAlign: 'center' }}>
                       <Typography variant="body2" color="text.secondary">
-                        Don't have an account?{' '}
+                        Pas de compte ?{' '}
                         <Link
                           to="/register"
                           style={{
@@ -275,7 +275,7 @@ export default function LoginPage() {
                               },
                             }}
                           >
-                            Create Account
+                            Créer un compte
                           </Typography>
                         </Link>
                       </Typography>
@@ -287,7 +287,7 @@ export default function LoginPage() {
 
             <Box sx={{ mt: 4, textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">
-                Protected by enterprise-grade security
+                Protégé par une sécurité de niveau entreprise
               </Typography>
             </Box>
           </Box>

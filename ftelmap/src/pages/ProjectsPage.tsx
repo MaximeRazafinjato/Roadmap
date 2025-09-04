@@ -13,7 +13,7 @@ const ProjectsPage = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
       await deleteProject.mutateAsync(id);
     }
   };
@@ -22,18 +22,18 @@ const ProjectsPage = () => {
     navigate(`/projects/${id}`);
   };
 
-  if (isLoading) return <div className="loading">Loading projects...</div>;
-  if (error) return <div className="error">Failed to load projects</div>;
+  if (isLoading) return <div className="loading">Chargement des projets...</div>;
+  if (error) return <div className="error">Échec du chargement des projets</div>;
 
   return (
     <div className="projects-page">
       <div className="page-header">
-        <h2>Projects</h2>
+        <h2>Projets</h2>
         <button 
           className="btn btn-primary"
           onClick={() => setShowCreateForm(true)}
         >
-          Create New Project
+          Créer un Nouveau Projet
         </button>
       </div>
 
@@ -80,19 +80,19 @@ const ProjectsPage = () => {
                     fontSize: '12px'
                   }}
                 >
-                  {project.position === TimelinePosition.Top ? 'Top' : 'Bottom'}
+                  {project.position === TimelinePosition.Top ? 'Haut' : 'Bas'}
                 </div>
               </div>
               <p className="project-description">{project.description}</p>
               <div className="project-meta">
                 <div>
-                  <strong>Start Date:</strong> {new Date(project.startDate).toLocaleDateString()}
+                  <strong>Date de Début :</strong> {new Date(project.startDate).toLocaleDateString()}
                 </div>
                 <div>
-                  <strong>End Date:</strong> {new Date(project.endDate).toLocaleDateString()}
+                  <strong>Date de Fin :</strong> {new Date(project.endDate).toLocaleDateString()}
                 </div>
                 <div>
-                  <strong>Duration:</strong> {Math.ceil((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24))} days
+                  <strong>Durée :</strong> {Math.ceil((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24))} jours
                 </div>
               </div>
               <div className="project-actions" onClick={(e) => e.stopPropagation()}>
@@ -102,19 +102,19 @@ const ProjectsPage = () => {
                     setSelectedProject(project);
                     setShowCreateForm(true);
                   }}
-                  title="Edit project"
+                  title="Modifier le projet"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                   </svg>
-                  <span>Edit</span>
+                  <span>Modifier</span>
                 </button>
                 <button 
                   className="action-btn delete-btn"
                   onClick={() => handleDelete(project.id)}
                   disabled={deleteProject.isPending}
-                  title="Delete project"
+                  title="Supprimer le projet"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="3 6 5 6 21 6"></polyline>
@@ -122,7 +122,7 @@ const ProjectsPage = () => {
                     <line x1="10" y1="11" x2="10" y2="17"></line>
                     <line x1="14" y1="11" x2="14" y2="17"></line>
                   </svg>
-                  <span>Delete</span>
+                  <span>Supprimer</span>
                 </button>
               </div>
             </div>
@@ -130,7 +130,7 @@ const ProjectsPage = () => {
         </div>
       ) : (
         <div className="empty-state">
-          <p>No projects found. Create your first project to get started!</p>
+          <p>Aucun projet trouvé. Créez votre premier projet pour commencer !</p>
         </div>
       )}
     </div>

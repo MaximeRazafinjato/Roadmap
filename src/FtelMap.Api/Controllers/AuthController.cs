@@ -28,7 +28,7 @@ namespace FtelMap.Api.Controllers
             var result = await _authenticationService.RegisterAsync(registerDto);
             if (result == null)
             {
-                return BadRequest(new { message = "User with this email or username already exists" });
+                return BadRequest(new { message = "Un utilisateur avec cet e-mail ou ce nom d'utilisateur existe déjà" });
             }
 
             return Ok(result);
@@ -45,7 +45,7 @@ namespace FtelMap.Api.Controllers
             var result = await _authenticationService.LoginAsync(loginDto);
             if (result == null)
             {
-                return Unauthorized(new { message = "Invalid email or password" });
+                return Unauthorized(new { message = "E-mail ou mot de passe invalide" });
             }
 
             return Ok(result);
@@ -62,7 +62,7 @@ namespace FtelMap.Api.Controllers
             var result = await _authenticationService.RefreshTokenAsync(refreshTokenDto);
             if (result == null)
             {
-                return Unauthorized(new { message = "Invalid or expired refresh token" });
+                return Unauthorized(new { message = "Token de rafraîchissement invalide ou expiré" });
             }
 
             return Ok(result);
@@ -81,10 +81,10 @@ namespace FtelMap.Api.Controllers
             var result = await _authenticationService.RevokeTokenAsync(userId);
             if (!result)
             {
-                return BadRequest(new { message = "Failed to revoke token" });
+                return BadRequest(new { message = "Échec de la révocation du token" });
             }
 
-            return Ok(new { message = "Token revoked successfully" });
+            return Ok(new { message = "Token révoqué avec succès" });
         }
 
         [Authorize]
