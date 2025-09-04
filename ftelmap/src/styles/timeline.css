@@ -1,0 +1,248 @@
+/* Timeline Styles */
+
+.timeline-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+}
+
+/* Timeline tracks */
+.timeline-track {
+  position: relative;
+  border-bottom: 1px solid #e2e8f0;
+  transition: background-color 0.2s ease;
+}
+
+.timeline-track:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Timeline grid lines */
+.timeline-grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed #e2e8f0;
+  pointer-events: none;
+}
+
+.timeline-grid-line.major {
+  border-left: 1px solid #cbd5e1;
+  border-width: 2px;
+}
+
+/* Timeline markers */
+.timeline-marker {
+  position: absolute;
+  font-size: 0.75rem;
+  color: #64748b;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.timeline-marker.major {
+  font-weight: 600;
+  color: #334155;
+}
+
+/* Today indicator */
+.timeline-today {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #ef4444;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.timeline-today::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -4px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 8px solid #ef4444;
+}
+
+.timeline-today-label {
+  position: absolute;
+  top: -24px;
+  left: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #ef4444;
+  white-space: nowrap;
+}
+
+/* Project items */
+.timeline-project {
+  position: absolute;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  cursor: grab;
+  user-select: none;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.timeline-project:active {
+  cursor: grabbing;
+}
+
+.timeline-project.dragging {
+  opacity: 0.7;
+  z-index: 1000;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.timeline-project:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 10;
+}
+
+/* Project resize handles */
+.timeline-project-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  cursor: ew-resize;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.timeline-project-resize-handle:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.timeline-project-resize-handle.left {
+  left: 0;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.timeline-project-resize-handle.right {
+  right: 0;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.timeline-project-resize-handle.active {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Pan cursor */
+.timeline-panning {
+  cursor: grabbing !important;
+}
+
+.timeline-panning * {
+  cursor: grabbing !important;
+}
+
+/* Zoom controls */
+.timeline-zoom-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.timeline-zoom-button {
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.timeline-zoom-button:hover:not(:disabled) {
+  background-color: rgba(37, 99, 235, 0.1);
+}
+
+.timeline-zoom-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Loading skeleton */
+.timeline-skeleton {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Scrollbar customization for timeline */
+.timeline-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.timeline-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .timeline-marker {
+    font-size: 0.65rem;
+  }
+  
+  .timeline-project {
+    min-width: 40px;
+  }
+  
+  .timeline-zoom-controls {
+    gap: 0.25rem;
+  }
+}
+
+/* Animation classes */
+.timeline-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.timeline-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

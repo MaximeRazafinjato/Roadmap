@@ -8,12 +8,14 @@ import Layout from './components/Layout';
 import ProjectsPage from './pages/ProjectsPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import DashboardPage from './pages/DashboardPage';
+import TimelinePage from './pages/TimelinePage';
 import UsersPage from './pages/UsersPage';
 import LoginPage from './pages/auth/login-page';
 import RegisterPage from './pages/auth/register-page';
 import './App.css';
 import './styles/project-form.css';
 import './styles/project-buttons.css';
+import './styles/timeline.css';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -194,7 +196,7 @@ function App() {
               </ProtectedRoute>
             }>
               <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="dashboard" element={<TimelinePage />} />
               <Route path="projects" element={<ProjectsPage />} />
               <Route path="projects/:id" element={<ProjectDetailPage />} />
               <Route path="users" element={<UsersPage />} />
