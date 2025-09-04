@@ -1,4 +1,4 @@
-import { Navigate, useLocation, Outlet } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/use-auth';
 import { Box, LinearProgress } from '@mui/material';
 
@@ -7,16 +7,21 @@ interface ProtectedRouteProps {
   requireAuth?: boolean;
   redirectTo?: string;
   requiredRoles?: string[];
+  requiredRole?: string;
 }
 
 export function ProtectedRoute({ 
   children, 
   requireAuth = true, 
   redirectTo = '/login',
-  requiredRoles = [] 
+  requiredRoles = [],
+  requiredRole
 }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
+
+  // Combine requiredRole and requiredRoles
+  const allRequiredRoles = requiredRole ? [...requiredRoles, requiredRole] : requiredRoles;
 
   if (isLoading) {
     return (
@@ -45,8 +50,8 @@ export function ProtectedRoute({
   }
 
   // If authentication is required but user doesn't have required roles
-  if (requireAuth && isAuthenticated && requiredRoles.length > 0) {
-    const hasRequiredRole = requiredRoles.some(role => user?.roles?.includes(role));
+  if (requireAuth && isAuthenticated && allRequiredRoles.length > 0) {
+    const hasRequiredRole = allRequiredRoles.some(role => user?.roles?.includes(role));
     if (!hasRequiredRole) {
       return <Navigate to="/unauthorized" replace />;
     }

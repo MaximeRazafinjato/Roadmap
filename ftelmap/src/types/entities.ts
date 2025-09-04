@@ -20,10 +20,12 @@ export interface User extends BaseEntity {
 }
 
 // Timeline position enum
-export enum TimelinePosition {
-  Top = 0,
-  Bottom = 1
-}
+export const TimelinePosition = {
+  Top: 0,
+  Bottom: 1
+} as const;
+
+export type TimelinePositionType = typeof TimelinePosition[keyof typeof TimelinePosition];
 
 // Project entity
 export interface Project extends BaseEntity {
@@ -33,7 +35,7 @@ export interface Project extends BaseEntity {
   endDate: string;
   backgroundColor: string;
   textColor: string;
-  position: TimelinePosition;
+  position: TimelinePositionType;
   ownerId: string;
   owner?: User;
 }
@@ -62,7 +64,7 @@ export interface CreateProjectForm {
   endDate: string;
   backgroundColor: string;
   textColor: string;
-  position: TimelinePosition;
+  position: TimelinePositionType;
   ownerId: string;
 }
 

@@ -1,7 +1,7 @@
-import { useState, MouseEvent } from 'react';
+import { useState } from 'react';
+import type { MouseEvent } from 'react';
 import {
   Avatar,
-  IconButton,
   Menu,
   MenuItem,
   Typography,
@@ -10,11 +10,9 @@ import {
   CircularProgress,
   ListItemIcon,
   ListItemText,
-  Chip,
 } from '@mui/material';
 import {
   Logout as LogoutIcon,
-  Person as PersonIcon,
   KeyboardArrowDown as ArrowDownIcon,
 } from '@mui/icons-material';
 import { useAuth, useLogout } from '../../hooks/use-auth';

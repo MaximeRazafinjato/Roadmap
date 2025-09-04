@@ -23,16 +23,19 @@ import {
   Menu as MenuIcon,
   Dashboard as DashboardIcon,
   Folder as FolderIcon,
+  People as PeopleIcon,
 } from '@mui/icons-material';
 import { UserMenu } from './auth/user-menu';
+import { useAuth } from '../contexts/auth-context';
 
 interface NavItem {
   title: string;
   path: string;
   icon: React.ReactNode;
+  adminOnly?: boolean;
 }
 
-const navItems: NavItem[] = [
+const allNavItems: NavItem[] = [
   {
     title: 'Tableau de bord',
     path: '/dashboard',
@@ -43,6 +46,11 @@ const navItems: NavItem[] = [
     path: '/projects',
     icon: <FolderIcon />,
   },
+  {
+    title: 'Utilisateurs',
+    path: '/users',
+    icon: <PeopleIcon />,
+  },
 ];
 
 const Layout = () => {
@@ -51,6 +59,15 @@ const Layout = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { user } = useAuth();
+
+  // Filter nav items based on user role
+  const navItems = allNavItems.filter(item => {
+    if (item.adminOnly && user?.roles?.[0] !== 'Admin') {
+      return false;
+    }
+    return true;
+  });
 
   const isActive = (path: string) => {
     return location.pathname.startsWith(path);

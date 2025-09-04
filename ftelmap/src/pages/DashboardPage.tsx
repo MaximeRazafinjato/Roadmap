@@ -18,7 +18,6 @@ import {
   Grow,
 } from '@mui/material';
 import {
-  AttachMoney as AttachMoneyIcon,
   PlayArrow as PlayArrowIcon,
   CheckCircle as CheckCircleIcon,
   Add as AddIcon,
@@ -97,7 +96,7 @@ const DashboardPage = () => {
 
   const projectsOnTop = projects?.filter(p => p.position === 0).length || 0;
   const projectsOnBottom = projects?.filter(p => p.position === 1).length || 0;
-  const upcomingProjects = projects?.filter(p => new Date(p.startDate) > new Date()).length || 0;
+  // const upcomingProjects = projects?.filter(p => new Date(p.startDate) > new Date()).length || 0;
   const activeProjects = projects?.filter(p => {
     const now = new Date();
     return new Date(p.startDate) <= now && new Date(p.endDate) >= now;

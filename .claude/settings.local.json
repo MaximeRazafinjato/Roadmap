@@ -42,6 +42,7 @@
       "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\components/**)",
       "Read(/C:\\Files\\Projects\\Roadmap\\src\\FtelMap.Infrastructure\\Data/**)",
       "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\hooks/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\**)",
       "Read(/C:\\Files\\Projects\\Roadmap\\src\\FtelMap.Core\\Entities/**)",
       "Read(/C:\\Files\\Projects\\Roadmap\\src\\FtelMap.Application\\DTOs/**)",
       "Read(/C:\\Files\\Projects\\Roadmap\\src\\FtelMap.Api/**)",
@@ -51,9 +52,35 @@
       "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src/**)",
       "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src/**)",
       "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\components/**)",
-      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\components\\auth/**)"
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\components\\auth/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\components/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\src\\FtelMap.Core\\Interfaces/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\src\\FtelMap.Infrastructure/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\contexts/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\components\\auth/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\lib/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\components\\auth/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\lib/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\src\\FtelMap.Infrastructure\\Data/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\components/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\src\\FtelMap.Api\\Controllers/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\pages/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\types/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap/**)",
+      "Read(/C:\\Files\\Projects\\Roadmap\\ftelmap/**)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "workingDirectories": [
+      "/C:\\Files\\Projects\\Roadmap"
+    ]
   }
 }

@@ -8,6 +8,7 @@ import Layout from './components/Layout';
 import ProjectsPage from './pages/ProjectsPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import DashboardPage from './pages/DashboardPage';
+import UsersPage from './pages/UsersPage';
 import LoginPage from './pages/auth/login-page';
 import RegisterPage from './pages/auth/register-page';
 import './App.css';
@@ -196,6 +197,7 @@ function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="projects" element={<ProjectsPage />} />
               <Route path="projects/:id" element={<ProjectDetailPage />} />
+              <Route path="users" element={<UsersPage />} />
             </Route>
             
             {/* Unauthorized page */}

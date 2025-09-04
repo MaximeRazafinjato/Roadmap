@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using FtelMap.Application.Interfaces;
+using FtelMap.Application.Services;
 using FtelMap.Core.Interfaces;
 using FtelMap.Infrastructure.Data;
 using FtelMap.Infrastructure.Repositories;
@@ -26,6 +27,7 @@ public static class DependencyInjection
         // Add services
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IUserService, UserService>();
 
         return services;
     }
