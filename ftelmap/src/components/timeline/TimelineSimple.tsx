@@ -13,13 +13,15 @@ import { TimelineProjectResizable } from './TimelineProjectResizable';
 import { useTimelineZoom } from '../../hooks/use-timeline-zoom';
 import { useTimelinePan } from '../../hooks/use-timeline-pan';
 import {
-  calculateProjectPosition,
+  calculateProjectsPositions,
   calculateViewportDates,
   generateTimeMarkers,
   isProjectVisible,
   pixelToDate,
   dateToPixel,
-  TIMELINE_HEIGHT,
+  TIMELINE_PADDING_TOP,
+  PROJECT_HEIGHT,
+  PROJECT_MARGIN,
   type TimelineViewport,
 } from '../../utils/timeline-utils';
 
@@ -70,14 +72,20 @@ export const TimelineSimple = ({
     return generateTimeMarkers(viewport);
   }, [viewport]);
   
-  // Filtrer et positionner les projets visibles
+  // Filtrer et positionner les projets visibles avec gestion des chevauchements
   const visibleProjects = useMemo(() => {
-    return localProjects
-      .filter((project) => isProjectVisible(project, viewport))
-      .map((project) => ({
-        project,
-        position: calculateProjectPosition(project, viewport),
-      }));
+    const visible = localProjects.filter((project) => isProjectVisible(project, viewport));
+    const positions = calculateProjectsPositions(visible, viewport);
+    
+    return visible.map((project) => ({
+      project,
+      position: positions.get(project.id) || {
+        left: 0,
+        width: 100,
+        top: TIMELINE_PADDING_TOP,
+        height: PROJECT_HEIGHT,
+      },
+    }));
   }, [localProjects, viewport]);
   
   // Mise à jour de la largeur du container
@@ -111,7 +119,9 @@ export const TimelineSimple = ({
   
   // Gestion du drag des projets avec mise à jour optimiste
   const handleProjectDrag = (project: Project, deltaX: number) => {
-    const currentPos = calculateProjectPosition(project, viewport);
+    const currentPos = visibleProjects.find(p => p.project.id === project.id)?.position;
+    if (!currentPos) return;
+    
     const newLeft = currentPos.left + deltaX;
     const newStartDate = pixelToDate(newLeft, viewport);
     const newEndDate = pixelToDate(newLeft + currentPos.width, viewport);
@@ -310,7 +320,7 @@ export const TimelineSimple = ({
           ))}
         </Box>
         
-        {/* Pistes de la timeline */}
+        {/* Zone des projets */}
         <Box
           sx={{
             position: 'absolute',
@@ -318,59 +328,9 @@ export const TimelineSimple = ({
             left: 0,
             right: 0,
             bottom: 0,
+            bgcolor: 'background.paper',
           }}
         >
-          {/* Piste haute */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: TIMELINE_HEIGHT,
-              borderBottom: 1,
-              borderColor: 'divider',
-              bgcolor: 'background.paper',
-            }}
-          >
-            <Typography
-              variant="caption"
-              sx={{
-                position: 'absolute',
-                left: 16,
-                top: 8,
-                color: 'text.secondary',
-                fontWeight: 500,
-              }}
-            >
-              Position Haute
-            </Typography>
-          </Box>
-          
-          {/* Piste basse */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: TIMELINE_HEIGHT,
-              left: 0,
-              right: 0,
-              height: TIMELINE_HEIGHT,
-              bgcolor: 'grey.50',
-            }}
-          >
-            <Typography
-              variant="caption"
-              sx={{
-                position: 'absolute',
-                left: 16,
-                top: 8,
-                color: 'text.secondary',
-                fontWeight: 500,
-              }}
-            >
-              Position Basse
-            </Typography>
-          </Box>
           
           {/* Ligne verticale pour aujourd'hui */}
           {todayPosition !== null && (

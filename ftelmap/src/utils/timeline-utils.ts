@@ -18,10 +18,9 @@ export interface ProjectPosition {
 }
 
 // Constantes pour la timeline
-export const TIMELINE_HEIGHT = 120; // Hauteur de chaque piste
-export const PROJECT_HEIGHT = 60; // Hauteur d'un projet
-export const PROJECT_MARGIN = 10; // Marge entre les projets
-export const TRACK_PADDING = 20; // Padding vertical dans une piste
+export const PROJECT_HEIGHT = 50; // Hauteur d'un projet
+export const PROJECT_MARGIN = 5; // Marge entre les projets empilés
+export const TIMELINE_PADDING_TOP = 60; // Padding en haut de la timeline
 export const MIN_PROJECT_WIDTH = 50; // Largeur minimale d'un projet
 export const RESIZE_HANDLE_WIDTH = 10; // Largeur de la zone de redimensionnement
 
@@ -41,7 +40,82 @@ export function createTimeScale(viewport: TimelineViewport) {
     .range([0, viewport.width]);
 }
 
-// Calcule la position d'un projet sur la timeline
+// Vérifie si deux projets se chevauchent dans le temps
+export function projectsOverlap(project1: Project, project2: Project): boolean {
+  const start1 = new Date(project1.startDate).getTime();
+  const end1 = new Date(project1.endDate).getTime();
+  const start2 = new Date(project2.startDate).getTime();
+  const end2 = new Date(project2.endDate).getTime();
+  
+  return !(end1 < start2 || end2 < start1);
+}
+
+// Calcule les positions de tous les projets avec gestion des chevauchements
+export function calculateProjectsPositions(
+  projects: Project[],
+  viewport: TimelineViewport
+): Map<string, ProjectPosition> {
+  const positions = new Map<string, ProjectPosition>();
+  const scale = createTimeScale(viewport);
+  
+  // Trier les projets par date de début
+  const sortedProjects = [...projects].sort((a, b) => 
+    new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+  );
+  
+  // Tableau de pistes, chaque piste contient les projets qui y sont placés
+  const tracks: Project[][] = [];
+  
+  sortedProjects.forEach(project => {
+    const projectStart = new Date(project.startDate);
+    const projectEnd = new Date(project.endDate);
+    const left = scale(projectStart);
+    const right = scale(projectEnd);
+    const width = Math.max(right - left, MIN_PROJECT_WIDTH);
+    
+    // Trouver la première piste disponible (sans chevauchement)
+    let trackIndex = -1;
+    
+    for (let i = 0; i < tracks.length; i++) {
+      const track = tracks[i];
+      let canFit = true;
+      
+      // Vérifier si le projet chevauche avec un projet existant dans cette piste
+      for (const existingProject of track) {
+        if (projectsOverlap(project, existingProject)) {
+          canFit = false;
+          break;
+        }
+      }
+      
+      if (canFit) {
+        trackIndex = i;
+        tracks[i].push(project);
+        break;
+      }
+    }
+    
+    // Si aucune piste disponible, créer une nouvelle piste
+    if (trackIndex === -1) {
+      tracks.push([project]);
+      trackIndex = tracks.length - 1;
+    }
+    
+    // Calculer la position verticale
+    const top = TIMELINE_PADDING_TOP + (trackIndex * (PROJECT_HEIGHT + PROJECT_MARGIN));
+    
+    positions.set(project.id, {
+      left,
+      width,
+      top,
+      height: PROJECT_HEIGHT,
+    });
+  });
+  
+  return positions;
+}
+
+// Calcule la position d'un projet sur la timeline (pour compatibilité)
 export function calculateProjectPosition(
   project: Project,
   viewport: TimelineViewport
@@ -54,15 +128,10 @@ export function calculateProjectPosition(
   const right = scale(projectEnd);
   const width = Math.max(right - left, MIN_PROJECT_WIDTH);
   
-  // Position verticale selon la piste (0 = haut, 1 = bas)
-  const top = project.position === 0 
-    ? TRACK_PADDING 
-    : TIMELINE_HEIGHT + TRACK_PADDING;
-  
   return {
     left,
     width,
-    top,
+    top: TIMELINE_PADDING_TOP,
     height: PROJECT_HEIGHT,
   };
 }

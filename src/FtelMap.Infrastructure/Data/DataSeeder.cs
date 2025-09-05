@@ -88,7 +88,6 @@ public static class DataSeeder
                 EndDate = DateTime.UtcNow.AddMonths(4),
                 BackgroundColor = "#3B82F6", // Blue
                 TextColor = "#FFFFFF",
-                Position = TimelinePosition.Top,
                 OwnerId = adminUserId
             },
             new Project
@@ -100,7 +99,6 @@ public static class DataSeeder
                 EndDate = DateTime.UtcNow.AddMonths(6),
                 BackgroundColor = "#10B981", // Green
                 TextColor = "#FFFFFF",
-                Position = TimelinePosition.Bottom,
                 OwnerId = adminUserId
             },
             new Project
@@ -112,7 +110,6 @@ public static class DataSeeder
                 EndDate = DateTime.UtcNow.AddMonths(-1),
                 BackgroundColor = "#8B5CF6", // Purple
                 TextColor = "#FFFFFF",
-                Position = TimelinePosition.Top,
                 OwnerId = adminUserId
             }
         };

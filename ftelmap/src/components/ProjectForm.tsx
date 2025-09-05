@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCreateProject, useUpdateProject } from '../hooks/use-projects';
-import { type Project, TimelinePosition, type CreateProjectForm, type UpdateProjectForm } from '../types/entities';
+import { type Project, type CreateProjectForm, type UpdateProjectForm } from '../types/entities';
 
 interface ProjectFormProps {
   project?: Project | null;
@@ -19,7 +19,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
     endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 30 days from now
     backgroundColor: '#3B82F6',
     textColor: '#FFFFFF',
-    position: TimelinePosition.Top,
     ownerId: '00000000-0000-0000-0000-000000000001', // Temporary default user ID
   });
 
@@ -44,7 +43,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
         endDate: project.endDate.split('T')[0],
         backgroundColor: project.backgroundColor,
         textColor: project.textColor,
-        position: project.position,
         ownerId: project.ownerId,
       });
     }
@@ -73,7 +71,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'position' ? parseInt(value, 10) : value,
+      [name]: value,
     }));
   };
 
@@ -209,19 +207,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="position">Position sur la Timeline *</label>
-            <select
-              id="position"
-              name="position"
-              value={formData.position}
-              onChange={handleChange}
-              required
-            >
-              <option value={TimelinePosition.Top}>Haut</option>
-              <option value={TimelinePosition.Bottom}>Bas</option>
-            </select>
-          </div>
         </form>
       </div>
     </div>

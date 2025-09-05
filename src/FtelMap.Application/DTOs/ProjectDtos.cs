@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using FtelMap.Core.Entities;
 
 namespace FtelMap.Application.DTOs;
 
@@ -28,9 +27,6 @@ public class CreateProjectDto
     public string TextColor { get; set; } = "#FFFFFF";
     
     [Required]
-    public TimelinePosition Position { get; set; } = TimelinePosition.Top;
-    
-    [Required]
     public Guid OwnerId { get; set; }
 }
 
@@ -47,7 +43,6 @@ public class ProjectDto
     public DateTime EndDate { get; set; }
     public string BackgroundColor { get; set; } = "#3B82F6";
     public string TextColor { get; set; } = "#FFFFFF";
-    public TimelinePosition Position { get; set; }
     public Guid OwnerId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

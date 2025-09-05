@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useProjects, useDeleteProject } from '../hooks/use-projects';
 import ProjectForm from '../components/ProjectForm';
 import type { Project } from '../types/entities';
-import { TimelinePosition } from '../types/entities';
 
 const ProjectsPage = () => {
   const navigate = useNavigate();
@@ -70,18 +69,6 @@ const ProjectsPage = () => {
             >
               <div className="project-card-header">
                 <h3>{project.title}</h3>
-                <div 
-                  className="project-color-badge"
-                  style={{
-                    backgroundColor: project.backgroundColor,
-                    color: project.textColor,
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    fontSize: '12px'
-                  }}
-                >
-                  {project.position === TimelinePosition.Top ? 'Haut' : 'Bas'}
-                </div>
               </div>
               <p className="project-description">{project.description}</p>
               <div className="project-meta">

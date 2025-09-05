@@ -28,7 +28,6 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(2000);
             entity.Property(e => e.BackgroundColor).IsRequired().HasMaxLength(7);
             entity.Property(e => e.TextColor).IsRequired().HasMaxLength(7);
-            entity.Property(e => e.Position).IsRequired();
             entity.HasOne(e => e.Owner)
                 .WithMany(u => u.Projects)
                 .HasForeignKey(e => e.OwnerId)

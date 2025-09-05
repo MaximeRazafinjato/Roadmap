@@ -44,7 +44,6 @@ public class ProjectsController : ControllerBase
             EndDate = p.EndDate,
             BackgroundColor = p.BackgroundColor,
             TextColor = p.TextColor,
-            Position = p.Position,
             OwnerId = p.OwnerId,
             CreatedAt = p.CreatedAt,
             UpdatedAt = p.UpdatedAt,
@@ -82,7 +81,6 @@ public class ProjectsController : ControllerBase
             EndDate = project.EndDate,
             BackgroundColor = project.BackgroundColor,
             TextColor = project.TextColor,
-            Position = project.Position,
             OwnerId = project.OwnerId,
             CreatedAt = project.CreatedAt,
             UpdatedAt = project.UpdatedAt,
@@ -107,7 +105,6 @@ public class ProjectsController : ControllerBase
             EndDate = createDto.EndDate,
             BackgroundColor = createDto.BackgroundColor,
             TextColor = createDto.TextColor,
-            Position = createDto.Position,
             OwnerId = string.IsNullOrEmpty(userId) ? createDto.OwnerId : Guid.Parse(userId)
         };
         
@@ -123,7 +120,6 @@ public class ProjectsController : ControllerBase
             EndDate = project.EndDate,
             BackgroundColor = project.BackgroundColor,
             TextColor = project.TextColor,
-            Position = project.Position,
             OwnerId = project.OwnerId,
             CreatedAt = project.CreatedAt,
             UpdatedAt = project.UpdatedAt,
@@ -159,7 +155,6 @@ public class ProjectsController : ControllerBase
         existingProject.EndDate = updateDto.EndDate;
         existingProject.BackgroundColor = updateDto.BackgroundColor;
         existingProject.TextColor = updateDto.TextColor;
-        existingProject.Position = updateDto.Position;
         existingProject.OwnerId = updateDto.OwnerId;
 
         await _unitOfWork.Projects.UpdateAsync(existingProject);

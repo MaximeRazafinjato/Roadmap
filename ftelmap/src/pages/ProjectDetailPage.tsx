@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProject } from '../hooks/use-projects';
-import { TimelinePosition } from '../types/entities';
 
 const ProjectDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,7 +33,7 @@ const ProjectDetailPage = () => {
               display: 'inline-block'
             }}
           >
-            Position {project.position === TimelinePosition.Top ? 'Haute' : 'Basse'}
+            Projet
           </div>
         </div>
 
@@ -108,8 +107,7 @@ const ProjectDetailPage = () => {
               position: 'absolute',
               left: '20px',
               right: '20px',
-              top: project.position === 0 ? '10px' : 'auto',
-              bottom: project.position === 1 ? '10px' : 'auto',
+              top: '25px',
               backgroundColor: project.backgroundColor,
               color: project.textColor,
               padding: '8px 16px',
