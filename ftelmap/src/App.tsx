@@ -6,7 +6,7 @@ import { AuthProvider } from './contexts/auth-context';
 import { ProtectedRoute, PublicRoute } from './components/auth/protected-route';
 import { AdminRoute } from './components/auth/AdminRoute';
 import Layout from './components/Layout';
-import ProjectsPage from './pages/ProjectsPage';
+import ProjectsPageGrid from './pages/ProjectsPageGrid';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import DashboardPage from './pages/DashboardPage';
 import TimelinePage from './pages/TimelinePage';
@@ -198,7 +198,7 @@ function App() {
             }>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<TimelinePage />} />
-              <Route path="projects" element={<ProjectsPage />} />
+              <Route path="projects" element={<ProjectsPageGrid />} />
               <Route path="projects/:id" element={<ProjectDetailPage />} />
               <Route path="users" element={
                 <AdminRoute>
