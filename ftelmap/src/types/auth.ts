@@ -25,7 +25,7 @@ export interface AuthUser {
   firstName: string;
   lastName: string;
   isActive: boolean;
-  roles?: string[];
+  role?: string;
 }
 
 export interface AuthContextType {

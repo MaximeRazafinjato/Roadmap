@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { AuthProvider } from './contexts/auth-context';
 import { ProtectedRoute, PublicRoute } from './components/auth/protected-route';
+import { AdminRoute } from './components/auth/AdminRoute';
 import Layout from './components/Layout';
 import ProjectsPage from './pages/ProjectsPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
@@ -199,7 +200,11 @@ function App() {
               <Route path="dashboard" element={<TimelinePage />} />
               <Route path="projects" element={<ProjectsPage />} />
               <Route path="projects/:id" element={<ProjectDetailPage />} />
-              <Route path="users" element={<UsersPage />} />
+              <Route path="users" element={
+                <AdminRoute>
+                  <UsersPage />
+                </AdminRoute>
+              } />
             </Route>
             
             {/* Unauthorized page */}

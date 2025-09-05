@@ -96,17 +96,18 @@ export function useResendEmailVerification() {
 // Hook to check if user has specific role
 export function useHasRole(role: string) {
   const { user } = useAuthContext();
-  return user?.roles?.includes(role) ?? false;
+  return user?.role === role;
 }
 
 // Hook to check if user has any of the specified roles
 export function useHasAnyRole(roles: string[]) {
   const { user } = useAuthContext();
-  return roles.some(role => user?.roles?.includes(role)) ?? false;
+  return roles.includes(user?.role ?? '');
 }
 
 // Hook to check if user has all of the specified roles
 export function useHasAllRoles(roles: string[]) {
   const { user } = useAuthContext();
-  return roles.every(role => user?.roles?.includes(role)) ?? false;
+  // Since we have a single role, this returns true only if the array has exactly one role that matches
+  return roles.length === 1 && roles[0] === user?.role;
 }

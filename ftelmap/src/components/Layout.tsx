@@ -50,6 +50,7 @@ const allNavItems: NavItem[] = [
     title: 'Utilisateurs',
     path: '/users',
     icon: <PeopleIcon />,
+    adminOnly: true,
   },
 ];
 
@@ -63,7 +64,7 @@ const Layout = () => {
 
   // Filter nav items based on user role
   const navItems = allNavItems.filter(item => {
-    if (item.adminOnly && user?.roles?.[0] !== 'Admin') {
+    if (item.adminOnly && user?.role !== 'Admin') {
       return false;
     }
     return true;
