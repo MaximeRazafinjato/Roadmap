@@ -69,6 +69,16 @@ const TimelinePage = () => {
     setOpenProjectDialog(true);
   };
   
+  // Gestion de l'ajout d'un projet avec dates préremplies
+  const handleProjectAddWithDates = (startDate: Date, endDate: Date) => {
+    const newProject: Partial<Project> = {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    };
+    setEditingProject(newProject as Project);
+    setOpenProjectDialog(true);
+  };
+  
   // Fermeture du dialogue
   const handleCloseDialog = () => {
     setOpenProjectDialog(false);
@@ -96,8 +106,7 @@ const TimelinePage = () => {
   }
   
   return (
-    <Fade in={true}>
-      <Box sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* En-tête */}
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
           <Box>
@@ -133,6 +142,7 @@ const TimelinePage = () => {
               onProjectEdit={handleProjectEdit}
               onProjectDelete={handleProjectDelete}
               onProjectAdd={handleProjectAdd}
+              onProjectAddWithDates={handleProjectAddWithDates}
             />
           ) : (
             <Box
@@ -218,7 +228,6 @@ const TimelinePage = () => {
           </Box>
         </Dialog>
       </Box>
-    </Fade>
   );
 };
 

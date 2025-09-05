@@ -1,10 +1,28 @@
 import { useRef, useEffect, useState, useMemo } from 'react';
-import { Box, Paper, Typography, IconButton, ButtonGroup } from '@mui/material';
+import { 
+  Box, 
+  Paper, 
+  Typography, 
+  IconButton, 
+  ButtonGroup,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Divider
+} from '@mui/material';
 import {
   ZoomIn as ZoomInIcon,
   ZoomOut as ZoomOutIcon,
   CenterFocusWeak as CenterIcon,
   Add as AddIcon,
+  Download as DownloadIcon,
+  Image as ImageIcon,
+  PictureAsPdf as PdfIcon,
+  TableChart as ExcelIcon,
+  Code as JsonIcon,
+  Web as HtmlIcon,
+  Description as MarkdownIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -12,6 +30,7 @@ import type { Project } from '../../types/entities';
 import { TimelineProjectResizable } from './TimelineProjectResizable';
 import { useTimelineZoom } from '../../hooks/use-timeline-zoom';
 import { useTimelinePan } from '../../hooks/use-timeline-pan';
+import { TimelineExportService } from '../../services/timeline-export-service';
 import {
   calculateProjectsPositions,
   calculateViewportDates,
@@ -31,6 +50,7 @@ interface TimelineSimpleProps {
   onProjectEdit?: (project: Project) => void;
   onProjectDelete?: (project: Project) => void;
   onProjectAdd?: () => void;
+  onProjectAddWithDates?: (startDate: Date, endDate: Date) => void;
 }
 
 export const TimelineSimple = ({
@@ -39,10 +59,20 @@ export const TimelineSimple = ({
   onProjectEdit,
   onProjectDelete,
   onProjectAdd,
+  onProjectAddWithDates,
 }: TimelineSimpleProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(1200);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  
+  // État pour la sélection de dates
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState<number | null>(null);
+  const [selectionEnd, setSelectionEnd] = useState<number | null>(null);
+  
+  // État pour le menu d'export
+  const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
   
   // État local pour les projets avec mises à jour optimistes
   const [localProjects, setLocalProjects] = useState<Project[]>(projects || []);
@@ -176,8 +206,64 @@ export const TimelineSimple = ({
     return null;
   }, [viewport]);
   
+  // Gestionnaires d'export
+  const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setExportMenuAnchor(event.currentTarget);
+  };
+  
+  const handleExportMenuClose = () => {
+    setExportMenuAnchor(null);
+  };
+  
+  const handleExport = async (exportFormat: string) => {
+    try {
+      const filename = `timeline_${format(new Date(), 'yyyy-MM-dd')}`;
+      
+      switch (exportFormat) {
+        case 'png':
+          if (timelineRef.current) {
+            await TimelineExportService.exportAsPNG(timelineRef.current, `${filename}.png`);
+          }
+          break;
+        case 'svg':
+          if (timelineRef.current) {
+            await TimelineExportService.exportAsSVG(timelineRef.current, `${filename}.svg`);
+          }
+          break;
+        case 'pdf':
+          if (timelineRef.current) {
+            await TimelineExportService.exportAsPDF(timelineRef.current, `${filename}.pdf`);
+          }
+          break;
+        case 'excel':
+          TimelineExportService.exportAsExcel(localProjects, `${filename}.xlsx`);
+          break;
+        case 'csv':
+          TimelineExportService.exportAsCSV(localProjects, `${filename}.csv`);
+          break;
+        case 'msproject':
+          TimelineExportService.exportAsMSProjectXML(localProjects, `${filename}.xml`);
+          break;
+        case 'json':
+          TimelineExportService.exportAsJSON(localProjects, `${filename}.json`);
+          break;
+        case 'html':
+          TimelineExportService.exportAsHTMLGantt(localProjects, `${filename}.html`);
+          break;
+        case 'markdown':
+          TimelineExportService.exportAsMarkdown(localProjects, `${filename}.md`);
+          break;
+      }
+      
+      handleExportMenuClose();
+    } catch (error) {
+      console.error('Erreur lors de l\'export:', error);
+    }
+  };
+  
   return (
     <Paper
+      ref={timelineRef}
       elevation={0}
       sx={{
         height: '100%',
@@ -201,9 +287,14 @@ export const TimelineSimple = ({
           bgcolor: 'background.paper',
         }}
       >
-        <Typography variant="h6" fontWeight="600">
-          Timeline des Projets
-        </Typography>
+        <Box>
+          <Typography variant="h6" fontWeight="600">
+            Timeline des Projets
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Maintenez Shift + Glissez pour créer un nouveau projet
+          </Typography>
+        </Box>
         
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <Typography variant="body2" color="text.secondary">
@@ -255,6 +346,14 @@ export const TimelineSimple = ({
               <AddIcon />
             </IconButton>
           )}
+          
+          <IconButton
+            onClick={handleExportMenuOpen}
+            size="small"
+            title="Exporter la timeline"
+          >
+            <DownloadIcon />
+          </IconButton>
         </Box>
       </Box>
       
@@ -265,13 +364,53 @@ export const TimelineSimple = ({
           flex: 1,
           position: 'relative',
           overflow: 'hidden',
-          cursor: isPanning ? 'grabbing' : 'grab',
+          cursor: isSelecting ? 'crosshair' : isPanning ? 'grabbing' : 'grab',
           bgcolor: 'grey.50',
         }}
         onMouseDown={(e) => {
           // Ne pas démarrer le pan si on clique sur un projet
           if ((e.target as HTMLElement).closest('[data-project]')) return;
-          startPan(e);
+          
+          // Si on tient Shift, on démarre une sélection
+          if (e.shiftKey) {
+            const rect = containerRef.current?.getBoundingClientRect();
+            if (!rect) return;
+            
+            const x = e.clientX - rect.left;
+            setIsSelecting(true);
+            setSelectionStart(x);
+            setSelectionEnd(x);
+            e.preventDefault();
+          } else {
+            startPan(e);
+          }
+        }}
+        onMouseMove={(e) => {
+          if (isSelecting && selectionStart !== null) {
+            const rect = containerRef.current?.getBoundingClientRect();
+            if (!rect) return;
+            
+            const x = e.clientX - rect.left;
+            setSelectionEnd(x);
+          }
+        }}
+        onMouseUp={(e) => {
+          if (isSelecting && selectionStart !== null && selectionEnd !== null) {
+            const minX = Math.min(selectionStart, selectionEnd);
+            const maxX = Math.max(selectionStart, selectionEnd);
+            
+            // Ne créer un projet que si la sélection est assez large (au moins 20px)
+            if (maxX - minX > 20) {
+              const startDate = pixelToDate(minX, viewport);
+              const endDate = pixelToDate(maxX, viewport);
+              onProjectAddWithDates?.(startDate, endDate);
+            }
+            
+            // Réinitialiser la sélection
+            setIsSelecting(false);
+            setSelectionStart(null);
+            setSelectionEnd(null);
+          }
         }}
         onClick={() => setSelectedProject(null)}
       >
@@ -332,6 +471,26 @@ export const TimelineSimple = ({
           }}
         >
           
+          {/* Zone de sélection */}
+          {isSelecting && selectionStart !== null && selectionEnd !== null && (
+            <Box
+              sx={{
+                position: 'absolute',
+                left: Math.min(selectionStart, selectionEnd),
+                width: Math.abs(selectionEnd - selectionStart),
+                top: TIMELINE_PADDING_TOP,
+                height: PROJECT_HEIGHT,
+                bgcolor: 'primary.main',
+                opacity: 0.2,
+                border: 2,
+                borderStyle: 'dashed',
+                borderColor: 'primary.main',
+                zIndex: 4,
+                pointerEvents: 'none',
+              }}
+            />
+          )}
+          
           {/* Ligne verticale pour aujourd'hui */}
           {todayPosition !== null && (
             <Box
@@ -387,6 +546,74 @@ export const TimelineSimple = ({
           ))}
         </Box>
       </Box>
+      
+      {/* Menu d'export */}
+      <Menu
+        anchorEl={exportMenuAnchor}
+        open={Boolean(exportMenuAnchor)}
+        onClose={handleExportMenuClose}
+      >
+        <MenuItem onClick={() => handleExport('png')}>
+          <ListItemIcon>
+            <ImageIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Export PNG</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleExport('svg')}>
+          <ListItemIcon>
+            <ImageIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Export SVG</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleExport('pdf')}>
+          <ListItemIcon>
+            <PdfIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Export PDF</ListItemText>
+        </MenuItem>
+        
+        <Divider />
+        
+        <MenuItem onClick={() => handleExport('excel')}>
+          <ListItemIcon>
+            <ExcelIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Export Excel</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleExport('csv')}>
+          <ListItemIcon>
+            <ExcelIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Export CSV</ListItemText>
+        </MenuItem>
+        
+        <Divider />
+        
+        <MenuItem onClick={() => handleExport('msproject')}>
+          <ListItemIcon>
+            <ExcelIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Export MS Project XML</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleExport('json')}>
+          <ListItemIcon>
+            <JsonIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Export JSON</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleExport('html')}>
+          <ListItemIcon>
+            <HtmlIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Export HTML Gantt</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleExport('markdown')}>
+          <ListItemIcon>
+            <MarkdownIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Export Markdown</ListItemText>
+        </MenuItem>
+      </Menu>
     </Paper>
   );
 };

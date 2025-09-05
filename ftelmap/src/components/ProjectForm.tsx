@@ -5,12 +5,13 @@ import { type Project, type CreateProjectForm, type UpdateProjectForm } from '..
 interface ProjectFormProps {
   project?: Project | null;
   onClose: () => void;
+  ownerId?: string;
 }
 
-const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
+const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose, ownerId }) => {
   const createProject = useCreateProject();
   const updateProject = useUpdateProject();
-  const isEditing = !!project;
+  const isEditing = !!project?.id; // Only consider it editing if project has an ID
 
   const [formData, setFormData] = useState<CreateProjectForm>({
     title: '',
@@ -19,7 +20,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
     endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 30 days from now
     backgroundColor: '#3B82F6',
     textColor: '#FFFFFF',
-    ownerId: '00000000-0000-0000-0000-000000000001', // Temporary default user ID
+    ownerId: ownerId || '00000000-0000-0000-0000-000000000001', // Use provided ownerId or default
   });
 
   // Preset color combinations
@@ -37,22 +38,27 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose }) => {
   useEffect(() => {
     if (project) {
       setFormData({
-        title: project.title,
-        description: project.description,
-        startDate: project.startDate.split('T')[0],
-        endDate: project.endDate.split('T')[0],
-        backgroundColor: project.backgroundColor,
-        textColor: project.textColor,
-        ownerId: project.ownerId,
+        title: project.title || '',
+        description: project.description || '',
+        startDate: project.startDate ? project.startDate.split('T')[0] : new Date().toISOString().split('T')[0],
+        endDate: project.endDate ? project.endDate.split('T')[0] : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        backgroundColor: project.backgroundColor || '#3B82F6',
+        textColor: project.textColor || '#FFFFFF',
+        ownerId: project.ownerId || ownerId || '00000000-0000-0000-0000-000000000001',
       });
+    } else if (ownerId) {
+      setFormData(prev => ({
+        ...prev,
+        ownerId: ownerId,
+      }));
     }
-  }, [project]);
+  }, [project, ownerId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
-      if (isEditing && project) {
+      if (isEditing && project?.id) {
         const updateData: UpdateProjectForm = {
           ...formData,
           id: project.id,

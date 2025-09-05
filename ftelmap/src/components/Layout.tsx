@@ -244,12 +244,21 @@ const Layout = () => {
           flexGrow: 1,
           pt: '64px', // Exact height of the toolbar
           px: { xs: 2, sm: 3, md: 4 },
-          pb: 4,
-          minHeight: '100vh',
+          height: '100vh',
           bgcolor: '#f8fafc',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <Container maxWidth="xl" sx={{ height: '100%', pt: 3, pb: 3 }}>
+        <Container maxWidth="xl" sx={{ 
+          height: 'calc(100vh - 64px)', 
+          pt: 3, 
+          pb: 3,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}>
           <Outlet />
         </Container>
       </Box>
