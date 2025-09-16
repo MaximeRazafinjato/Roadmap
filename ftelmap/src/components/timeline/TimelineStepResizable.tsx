@@ -1,35 +1,35 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Box, Typography, Tooltip, IconButton } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import type { Project } from '../../types/entities';
+import type { Step } from '../../types/entities';
 import { formatDuration, RESIZE_HANDLE_WIDTH, PROJECT_HEIGHT } from '../../utils/timeline-utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-interface TimelineProjectResizableProps {
-  project: Project;
+interface TimelineStepResizableProps {
+  step: Step;
   position: {
     left: number;
     width: number;
     top: number;
     height: number;
   };
-  onEdit?: (project: Project) => void;
-  onDelete?: (project: Project) => void;
-  onResize?: (project: Project, newPosition: { left: number; width: number }) => void;
-  onDrag?: (project: Project, deltaX: number) => void;
+  onEdit?: (step: Step) => void;
+  onDelete?: (step: Step) => void;
+  onResize?: (step: Step, newPosition: { left: number; width: number }) => void;
+  onDrag?: (step: Step, deltaX: number) => void;
   isSelected?: boolean;
 }
 
-export const TimelineProjectResizable = ({
-  project,
+export const TimelineStepResizable = ({
+  step,
   position,
   onEdit,
   onDelete,
   onResize,
   onDrag,
   isSelected = false,
-}: TimelineProjectResizableProps) => {
+}: TimelineStepResizableProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -114,9 +114,9 @@ export const TimelineProjectResizable = ({
       if (tempPosition) {
         if (isDragging) {
           const deltaX = tempPosition.left - startLeft.current;
-          onDrag?.(project, deltaX);
+          onDrag?.(step, deltaX);
         } else if (isResizing) {
-          onResize?.(project, tempPosition);
+          onResize?.(step, tempPosition);
         }
         
         // Mettre à jour les refs avec la nouvelle position
@@ -139,17 +139,17 @@ export const TimelineProjectResizable = ({
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, isResizing, resizeSide, project, onDrag, onResize, tempPosition]);
+  }, [isDragging, isResizing, resizeSide, step, onDrag, onResize, tempPosition]);
   
   // Calcul de la durée
   const duration = formatDuration(
-    new Date(project.startDate),
-    new Date(project.endDate)
+    new Date(step.startDate),
+    new Date(step.endDate)
   );
   
   // Formatage des dates pour le tooltip
-  const startDateFormatted = format(new Date(project.startDate), 'd MMMM yyyy', { locale: fr });
-  const endDateFormatted = format(new Date(project.endDate), 'd MMMM yyyy', { locale: fr });
+  const startDateFormatted = format(new Date(step.startDate), 'd MMMM yyyy', { locale: fr });
+  const endDateFormatted = format(new Date(step.endDate), 'd MMMM yyyy', { locale: fr });
   
   const getCursor = () => {
     if (isDragging) return 'grabbing';
@@ -168,11 +168,11 @@ export const TimelineProjectResizable = ({
             top: position.top,
             width: position.width,
             height: PROJECT_HEIGHT,
-            backgroundColor: project.backgroundColor,
+            backgroundColor: step.backgroundColor,
             opacity: 0.3,
             borderRadius: 1,
             border: '2px dashed',
-            borderColor: project.backgroundColor,
+            borderColor: step.backgroundColor,
             pointerEvents: 'none',
             zIndex: 1,
           }}
@@ -183,11 +183,11 @@ export const TimelineProjectResizable = ({
         title={
           <Box>
             <Typography variant="body2" fontWeight="bold">
-              {project.title}
+              {step.title}
             </Typography>
-            {project.description && (
+            {step.description && (
               <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
-                {project.description}
+                {step.description}
               </Typography>
             )}
             <Typography variant="caption" display="block" sx={{ mt: 1 }}>
@@ -213,8 +213,8 @@ export const TimelineProjectResizable = ({
           top: position.top,
           width: displayPosition.width,
           height: PROJECT_HEIGHT,
-          backgroundColor: project.backgroundColor,
-          color: project.textColor,
+          backgroundColor: step.backgroundColor,
+          color: step.textColor,
           borderRadius: 1,
           border: '2px solid',
           borderColor: (isDragging || isResizing || isSelected) ? 'primary.main' : 'transparent',
@@ -251,7 +251,7 @@ export const TimelineProjectResizable = ({
           }}
         />
         
-        {/* Contenu du projet */}
+        {/* Contenu de l'étape */}
         <Box sx={{ flex: 1, overflow: 'hidden', pr: isHovered ? 8 : 0 }}>
           <Typography
             variant="body2"
@@ -261,7 +261,7 @@ export const TimelineProjectResizable = ({
               fontSize: displayPosition.width < 100 ? '0.75rem' : '0.875rem',
             }}
           >
-            {project.title}
+            {step.title}
           </Typography>
           {displayPosition.width > 150 && (
             <Typography
@@ -293,12 +293,12 @@ export const TimelineProjectResizable = ({
               size="small"
               onClick={(e) => {
                 e.stopPropagation();
-                onEdit?.(project);
+                onEdit?.(step);
               }}
               sx={{
                 padding: '4px',
                 backgroundColor: 'rgba(255,255,255,0.2)',
-                color: project.textColor,
+                color: step.textColor,
                 '&:hover': {
                   backgroundColor: 'rgba(255,255,255,0.3)',
                 },
@@ -310,12 +310,12 @@ export const TimelineProjectResizable = ({
               size="small"
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete?.(project);
+                onDelete?.(step);
               }}
               sx={{
                 padding: '4px',
                 backgroundColor: 'rgba(255,255,255,0.2)',
-                color: project.textColor,
+                color: step.textColor,
                 '&:hover': {
                   backgroundColor: 'rgba(255,255,255,0.3)',
                 },

@@ -16,11 +16,11 @@ export interface User extends BaseEntity {
   lastName: string;
   isActive: boolean;
   lastLoginAt?: string;
-  projects?: Project[];
+  steps?: Step[];
 }
 
-// Project entity
-export interface Project extends BaseEntity {
+// Step entity
+export interface Step extends BaseEntity {
   title: string;
   description: string;
   startDate: string;
@@ -48,7 +48,7 @@ export interface PaginatedResponse<T> {
 }
 
 // Form types
-export interface CreateProjectForm {
+export interface CreateStepForm {
   title: string;
   description: string;
   startDate: string;
@@ -58,6 +58,6 @@ export interface CreateProjectForm {
   ownerId: string;
 }
 
-export interface UpdateProjectForm extends CreateProjectForm {
+export interface UpdateStepForm extends CreateStepForm {
   id: string;
 }

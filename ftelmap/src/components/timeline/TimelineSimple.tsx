@@ -26,16 +26,16 @@ import {
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import type { Project } from '../../types/entities';
-import { TimelineProjectResizable } from './TimelineProjectResizable';
+import type { Step } from '../../types/entities';
+import { TimelineStepResizable } from './TimelineStepResizable';
 import { useTimelineZoom } from '../../hooks/use-timeline-zoom';
 import { useTimelinePan } from '../../hooks/use-timeline-pan';
 import { TimelineExportService } from '../../services/timeline-export-service';
 import {
-  calculateProjectsPositions,
+  calculateStepsPositions,
   calculateViewportDates,
   generateTimeMarkers,
-  isProjectVisible,
+  isStepVisible,
   pixelToDate,
   dateToPixel,
   TIMELINE_PADDING_TOP,
@@ -45,26 +45,26 @@ import {
 } from '../../utils/timeline-utils';
 
 interface TimelineSimpleProps {
-  projects: Project[];
-  onProjectUpdate?: (project: Project, updates: Partial<Project>) => void;
-  onProjectEdit?: (project: Project) => void;
-  onProjectDelete?: (project: Project) => void;
-  onProjectAdd?: () => void;
-  onProjectAddWithDates?: (startDate: Date, endDate: Date) => void;
+  steps: Step[];
+  onStepUpdate?: (step: Step, updates: Partial<Step>) => void;
+  onStepEdit?: (step: Step) => void;
+  onStepDelete?: (step: Step) => void;
+  onStepAdd?: () => void;
+  onStepAddWithDates?: (startDate: Date, endDate: Date) => void;
 }
 
 export const TimelineSimple = ({
-  projects,
-  onProjectUpdate,
-  onProjectEdit,
-  onProjectDelete,
-  onProjectAdd,
-  onProjectAddWithDates,
+  steps,
+  onStepUpdate,
+  onStepEdit,
+  onStepDelete,
+  onStepAdd,
+  onStepAddWithDates,
 }: TimelineSimpleProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(1200);
-  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [selectedStep, setSelectedStep] = useState<string | null>(null);
   
   // État pour la sélection de dates
   const [isSelecting, setIsSelecting] = useState(false);
@@ -75,12 +75,12 @@ export const TimelineSimple = ({
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
   
   // État local pour les projets avec mises à jour optimistes
-  const [localProjects, setLocalProjects] = useState<Project[]>(projects || []);
+  const [localSteps, setLocalSteps] = useState<Step[]>(steps || []);
   
   // Synchroniser avec les projets externes
   useEffect(() => {
-    setLocalProjects(projects || []);
-  }, [projects]);
+    setLocalSteps(steps || []);
+  }, [steps]);
   
   // Hooks pour la gestion de la timeline
   const { zoomLevel, zoomIn, zoomOut, resetZoom, canZoomIn, canZoomOut } = useTimelineZoom();
@@ -103,20 +103,20 @@ export const TimelineSimple = ({
   }, [viewport]);
   
   // Filtrer et positionner les projets visibles avec gestion des chevauchements
-  const visibleProjects = useMemo(() => {
-    const visible = localProjects.filter((project) => isProjectVisible(project, viewport));
-    const positions = calculateProjectsPositions(visible, viewport);
+  const visibleSteps = useMemo(() => {
+    const visible = localSteps.filter((step) => isStepVisible(step, viewport));
+    const positions = calculateStepsPositions(visible, viewport);
     
-    return visible.map((project) => ({
-      project,
-      position: positions.get(project.id) || {
+    return visible.map((step) => ({
+      step,
+      position: positions.get(step.id) || {
         left: 0,
         width: 100,
         top: TIMELINE_PADDING_TOP,
         height: PROJECT_HEIGHT,
       },
     }));
-  }, [localProjects, viewport]);
+  }, [localSteps, viewport]);
   
   // Mise à jour de la largeur du container
   useEffect(() => {
@@ -148,8 +148,8 @@ export const TimelineSimple = ({
   }, [isPanning, handlePanMove, endPan]);
   
   // Gestion du drag des projets avec mise à jour optimiste
-  const handleProjectDrag = (project: Project, deltaX: number) => {
-    const currentPos = visibleProjects.find(p => p.project.id === project.id)?.position;
+  const handleStepDrag = (step: Step, deltaX: number) => {
+    const currentPos = visibleSteps.find(p => p.step.id === step.id)?.position;
     if (!currentPos) return;
     
     const newLeft = currentPos.left + deltaX;
@@ -157,41 +157,41 @@ export const TimelineSimple = ({
     const newEndDate = pixelToDate(newLeft + currentPos.width, viewport);
     
     // Mise à jour optimiste locale immédiate
-    const updatedProject = {
-      ...project,
+    const updatedStep = {
+      ...step,
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString(),
     };
     
-    setLocalProjects(prev => 
-      prev.map(p => p.id === project.id ? updatedProject : p)
+    setLocalSteps(prev => 
+      prev.map(p => p.id === step.id ? updatedStep : p)
     );
     
     // Puis envoyer la mise à jour au serveur
-    onProjectUpdate?.(project, {
+    onStepUpdate?.(step, {
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString(),
     });
   };
   
   // Gestion du redimensionnement des projets avec mise à jour optimiste
-  const handleProjectResize = (project: Project, newPosition: { left: number; width: number }) => {
+  const handleStepResize = (step: Step, newPosition: { left: number; width: number }) => {
     const newStartDate = pixelToDate(newPosition.left, viewport);
     const newEndDate = pixelToDate(newPosition.left + newPosition.width, viewport);
     
     // Mise à jour optimiste locale immédiate
-    const updatedProject = {
-      ...project,
+    const updatedStep = {
+      ...step,
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString(),
     };
     
-    setLocalProjects(prev => 
-      prev.map(p => p.id === project.id ? updatedProject : p)
+    setLocalSteps(prev => 
+      prev.map(p => p.id === step.id ? updatedStep : p)
     );
     
     // Puis envoyer la mise à jour au serveur
-    onProjectUpdate?.(project, {
+    onStepUpdate?.(step, {
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString(),
     });
@@ -236,22 +236,22 @@ export const TimelineSimple = ({
           }
           break;
         case 'excel':
-          TimelineExportService.exportAsExcel(localProjects, `${filename}.xlsx`);
+          TimelineExportService.exportAsExcel(localSteps, `${filename}.xlsx`);
           break;
         case 'csv':
-          TimelineExportService.exportAsCSV(localProjects, `${filename}.csv`);
+          TimelineExportService.exportAsCSV(localSteps, `${filename}.csv`);
           break;
-        case 'msproject':
-          TimelineExportService.exportAsMSProjectXML(localProjects, `${filename}.xml`);
+        case 'msstep':
+          TimelineExportService.exportAsMSProjectXML(localSteps, `${filename}.xml`);
           break;
         case 'json':
-          TimelineExportService.exportAsJSON(localProjects, `${filename}.json`);
+          TimelineExportService.exportAsJSON(localSteps, `${filename}.json`);
           break;
         case 'html':
-          TimelineExportService.exportAsHTMLGantt(localProjects, `${filename}.html`);
+          TimelineExportService.exportAsHTMLGantt(localSteps, `${filename}.html`);
           break;
         case 'markdown':
-          TimelineExportService.exportAsMarkdown(localProjects, `${filename}.md`);
+          TimelineExportService.exportAsMarkdown(localSteps, `${filename}.md`);
           break;
       }
       
@@ -289,10 +289,10 @@ export const TimelineSimple = ({
       >
         <Box>
           <Typography variant="h6" fontWeight="600">
-            Timeline des Projets
+            Timeline des Étapes
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Maintenez Shift + Glissez pour créer un nouveau projet
+            Maintenez Shift + Glissez pour créer une nouvelle étape
           </Typography>
         </Box>
         
@@ -336,9 +336,9 @@ export const TimelineSimple = ({
             Aujourd'hui
           </IconButton>
           
-          {onProjectAdd && (
+          {onStepAdd && (
             <IconButton
-              onClick={onProjectAdd}
+              onClick={onStepAdd}
               color="primary"
               size="small"
               title="Ajouter un projet"
@@ -369,7 +369,7 @@ export const TimelineSimple = ({
         }}
         onMouseDown={(e) => {
           // Ne pas démarrer le pan si on clique sur un projet
-          if ((e.target as HTMLElement).closest('[data-project]')) return;
+          if ((e.target as HTMLElement).closest('[data-step]')) return;
           
           // Si on tient Shift, on démarre une sélection
           if (e.shiftKey) {
@@ -403,7 +403,7 @@ export const TimelineSimple = ({
             if (maxX - minX > 20) {
               const startDate = pixelToDate(minX, viewport);
               const endDate = pixelToDate(maxX, viewport);
-              onProjectAddWithDates?.(startDate, endDate);
+              onStepAddWithDates?.(startDate, endDate);
             }
             
             // Réinitialiser la sélection
@@ -412,7 +412,7 @@ export const TimelineSimple = ({
             setSelectionEnd(null);
           }
         }}
-        onClick={() => setSelectedProject(null)}
+        onClick={() => setSelectedStep(null)}
       >
         {/* Grille temporelle */}
         <Box
@@ -523,24 +523,24 @@ export const TimelineSimple = ({
           )}
           
           {/* Projets */}
-          {visibleProjects.map(({ project, position }) => (
+          {visibleSteps.map(({ step, position }) => (
             <Box
-              key={project.id}
-              data-project
+              key={step.id}
+              data-step
               sx={{ position: 'absolute' }}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedProject(project.id);
+                setSelectedStep(step.id);
               }}
             >
-              <TimelineProjectResizable
-                project={project}
+              <TimelineStepResizable
+                step={step}
                 position={position}
-                onEdit={onProjectEdit}
-                onDelete={onProjectDelete}
-                onResize={handleProjectResize}
-                onDrag={handleProjectDrag}
-                isSelected={selectedProject === project.id}
+                onEdit={onStepEdit}
+                onDelete={onStepDelete}
+                onResize={handleStepResize}
+                onDrag={handleStepDrag}
+                isSelected={selectedStep === step.id}
               />
             </Box>
           ))}
@@ -589,7 +589,7 @@ export const TimelineSimple = ({
         
         <Divider />
         
-        <MenuItem onClick={() => handleExport('msproject')}>
+        <MenuItem onClick={() => handleExport('msstep')}>
           <ListItemIcon>
             <ExcelIcon fontSize="small" />
           </ListItemIcon>

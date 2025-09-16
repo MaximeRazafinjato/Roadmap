@@ -16,8 +16,8 @@ public static class DataSeeder
         // Seed users first and save them
         await SeedUsers(context);
         
-        // Then seed projects
-        await SeedProjects(context);
+        // Then seed steps
+        await SeedSteps(context);
     }
 
     private static async System.Threading.Tasks.Task SeedUsers(ApplicationDbContext context)
@@ -68,18 +68,18 @@ public static class DataSeeder
         await context.SaveChangesAsync(); // Save users immediately
     }
 
-    private static async System.Threading.Tasks.Task SeedProjects(ApplicationDbContext context)
+    private static async System.Threading.Tasks.Task SeedSteps(ApplicationDbContext context)
     {
-        if (await context.Projects.AnyAsync())
+        if (await context.Steps.AnyAsync())
         {
             return; // Data already exists
         }
 
         var adminUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-        var projects = new List<Project>
+        var steps = new List<Step>
         {
-            new Project
+            new Step
             {
                 Id = Guid.NewGuid(),
                 Title = "Website Redesign",
@@ -90,7 +90,7 @@ public static class DataSeeder
                 TextColor = "#FFFFFF",
                 OwnerId = adminUserId
             },
-            new Project
+            new Step
             {
                 Id = Guid.NewGuid(),
                 Title = "Mobile App Development",
@@ -101,7 +101,7 @@ public static class DataSeeder
                 TextColor = "#FFFFFF",
                 OwnerId = adminUserId
             },
-            new Project
+            new Step
             {
                 Id = Guid.NewGuid(),
                 Title = "Data Migration Project",
@@ -114,7 +114,7 @@ public static class DataSeeder
             }
         };
 
-        await context.Projects.AddRangeAsync(projects);
-        await context.SaveChangesAsync(); // Save projects
+        await context.Steps.AddRangeAsync(steps);
+        await context.SaveChangesAsync(); // Save steps
     }
 }

@@ -6,7 +6,7 @@ public interface IUnitOfWork : IDisposable
 {
     IRepository<T> Repository<T>() where T : BaseEntity;
     IRepository<User> Users { get; }
-    IRepository<Project> Projects { get; }
+    IRepository<Step> Steps { get; }
     IRepository<Entities.Task> Tasks { get; }
     IRepository<Milestone> Milestones { get; }
     

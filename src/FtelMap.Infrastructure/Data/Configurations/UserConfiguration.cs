@@ -43,9 +43,9 @@ namespace FtelMap.Infrastructure.Data.Configurations
             builder.HasIndex(u => u.Username)
                 .IsUnique();
 
-            builder.HasMany(u => u.Projects)
-                .WithOne(p => p.Owner)
-                .HasForeignKey(p => p.OwnerId)
+            builder.HasMany(u => u.Steps)
+                .WithOne(s => s.Owner)
+                .HasForeignKey(s => s.OwnerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasQueryFilter(u => !u.IsDeleted);

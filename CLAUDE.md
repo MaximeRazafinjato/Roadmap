@@ -1,14 +1,16 @@
 # FtelMap Backend (.NET 9) Project
 
 ## Project Structure
-- **FtelMap.sln** - Main solution file
-- **src/FtelMap.Core** - Domain entities, interfaces, business logic
-- **src/FtelMap.Application** - Application services, DTOs, use cases
-- **src/FtelMap.Infrastructure** - Data access, external services, implementations
-- **src/FtelMap.Api** - REST API, controllers, middleware
-- **tests/** - Unit and integration tests
+
+-   **FtelMap.sln** - Main solution file
+-   **src/FtelMap.Core** - Domain entities, interfaces, business logic
+-   **src/FtelMap.Application** - Application services, DTOs, use cases
+-   **src/FtelMap.Infrastructure** - Data access, external services, implementations
+-   **src/FtelMap.Api** - REST API, controllers, middleware
+-   **tests/** - Unit and integration tests
 
 ## Essential Commands
+
 ```bash
 # Build the solution
 dotnet build
@@ -38,27 +40,31 @@ docker-compose down
 ```
 
 ## Architecture Overview
-- **Clean Architecture** with Domain-Driven Design principles
-- **Repository Pattern** with Unit of Work for data access
-- **Entity Framework Core 9** with SQL Server
-- **Dependency Injection** configured in Infrastructure layer
-- **Docker** support with multi-stage builds
-- **Integration Tests** with TestContainers for isolated testing
+
+-   **Clean Architecture** with Domain-Driven Design principles
+-   **Repository Pattern** with Unit of Work for data access
+-   **Entity Framework Core 9** with SQL Server
+-   **Dependency Injection** configured in Infrastructure layer
+-   **Docker** support with multi-stage builds
+-   **Integration Tests** with TestContainers for isolated testing
 
 ## Database Configuration
-- Connection string in appsettings.json
-- Automatic migrations in Development environment
-- Soft delete pattern implemented
-- Audit fields (CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
+
+-   Connection string in appsettings.json
+-   Automatic migrations in Development environment
+-   Soft delete pattern implemented
+-   Audit fields (CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
 
 ## API Endpoints
-- **/api/health** - Health check endpoint
-- **/api/projects** - Projects CRUD operations
-- Swagger UI available at **/swagger** in Development
+
+-   **/api/health** - Health check endpoint
+-   **/api/projects** - Projects CRUD operations
+-   Swagger UI available at **/swagger** in Development
 
 ## Important Notes
-- Entity "Task" is referenced as Core.Entities.Task to avoid conflicts with System.Threading.Tasks.Task
-- CORS configured for React frontend (localhost:5173, localhost:5174)
+
+-   Entity "Task" is referenced as Core.Entities.Task to avoid conflicts with System.Threading.Tasks.Task
+-   CORS configured for React frontend (localhost:5173, localhost:5174)
 
 # .NET General Guidelines
 
@@ -321,3 +327,7 @@ docker-compose down
 2. Bloc de commandes à exécuter pour installer dépendances ou migrer la config.
 3. Résumé des risques, limites, dettes techniques et pistes d’amélioration.
 4. Lignes directrices pour l’observabilité si pertinent (logs structurés, traces).
+
+## Instruction Puppeteer
+
+1. Lance toujours le navigateur en plein écran

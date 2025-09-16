@@ -6,16 +6,16 @@ import { AuthProvider } from './contexts/auth-context';
 import { ProtectedRoute, PublicRoute } from './components/auth/protected-route';
 import { AdminRoute } from './components/auth/AdminRoute';
 import Layout from './components/Layout';
-import ProjectsPageGrid from './pages/ProjectsPageGrid';
-import ProjectDetailPage from './pages/ProjectDetailPage';
+import StepsPageGrid from './pages/StepsPageGrid';
+import StepDetailPage from './pages/StepDetailPage';
 import DashboardPage from './pages/DashboardPage';
 import TimelinePage from './pages/TimelinePage';
 import UsersPage from './pages/UsersPage';
 import LoginPage from './pages/auth/login-page';
 import RegisterPage from './pages/auth/register-page';
 import './App.css';
-import './styles/project-form.css';
-import './styles/project-buttons.css';
+import './styles/step-form.css';
+import './styles/step-buttons.css';
 import './styles/timeline.css';
 
 // Create a client
@@ -196,10 +196,11 @@ function App() {
                 <Layout />
               </ProtectedRoute>
             }>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<TimelinePage />} />
-              <Route path="projects" element={<ProjectsPageGrid />} />
-              <Route path="projects/:id" element={<ProjectDetailPage />} />
+              <Route index element={<Navigate to="/timeline" replace />} />
+              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="timeline" element={<TimelinePage />} />
+              <Route path="steps" element={<StepsPageGrid />} />
+              <Route path="steps/:id" element={<StepDetailPage />} />
               <Route path="users" element={
                 <AdminRoute>
                   <UsersPage />
@@ -213,13 +214,13 @@ function App() {
                 <div className="text-center">
                   <h1 className="text-2xl font-bold text-gray-900 mb-4">Unauthorized</h1>
                   <p className="text-gray-600 mb-4">You don't have permission to access this resource.</p>
-                  <Navigate to="/dashboard" />
+                  <Navigate to="/timeline" />
                 </div>
               </div>
             } />
             
             {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/timeline" replace />} />
           </Routes>
           </BrowserRouter>
           <ReactQueryDevtools initialIsOpen={false} />

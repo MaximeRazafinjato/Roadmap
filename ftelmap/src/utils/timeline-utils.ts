@@ -1,7 +1,7 @@
 import { scaleTime } from 'd3-scale';
 import { addDays, differenceInDays, startOfDay, endOfDay, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import type { Project } from '../types/entities';
+import type { Step } from '../types/entities';
 
 export interface TimelineViewport {
   startDate: Date;
@@ -10,7 +10,7 @@ export interface TimelineViewport {
   zoomLevel: number; // 1 = normal, >1 = zoomed in, <1 = zoomed out
 }
 
-export interface ProjectPosition {
+export interface StepPosition {
   left: number;
   width: number;
   top: number;
@@ -18,10 +18,10 @@ export interface ProjectPosition {
 }
 
 // Constantes pour la timeline
-export const PROJECT_HEIGHT = 50; // Hauteur d'un projet
-export const PROJECT_MARGIN = 5; // Marge entre les projets empilés
+export const PROJECT_HEIGHT = 50; // Hauteur d'une étape
+export const PROJECT_MARGIN = 5; // Marge entre les étapes empilées
 export const TIMELINE_PADDING_TOP = 60; // Padding en haut de la timeline
-export const MIN_PROJECT_WIDTH = 50; // Largeur minimale d'un projet
+export const MIN_PROJECT_WIDTH = 50; // Largeur minimale d'une étape
 export const RESIZE_HANDLE_WIDTH = 10; // Largeur de la zone de redimensionnement
 
 // Niveaux de zoom prédéfinis
@@ -40,37 +40,37 @@ export function createTimeScale(viewport: TimelineViewport) {
     .range([0, viewport.width]);
 }
 
-// Vérifie si deux projets se chevauchent dans le temps
-export function projectsOverlap(project1: Project, project2: Project): boolean {
-  const start1 = new Date(project1.startDate).getTime();
-  const end1 = new Date(project1.endDate).getTime();
-  const start2 = new Date(project2.startDate).getTime();
-  const end2 = new Date(project2.endDate).getTime();
+// Vérifie si deux étapes se chevauchent dans le temps
+export function stepsOverlap(step1: Step, step2: Step): boolean {
+  const start1 = new Date(step1.startDate).getTime();
+  const end1 = new Date(step1.endDate).getTime();
+  const start2 = new Date(step2.startDate).getTime();
+  const end2 = new Date(step2.endDate).getTime();
   
   return !(end1 < start2 || end2 < start1);
 }
 
-// Calcule les positions de tous les projets avec gestion des chevauchements
-export function calculateProjectsPositions(
-  projects: Project[],
+// Calcule les positions de toutes les étapes avec gestion des chevauchements
+export function calculateStepsPositions(
+  steps: Step[],
   viewport: TimelineViewport
-): Map<string, ProjectPosition> {
-  const positions = new Map<string, ProjectPosition>();
+): Map<string, StepPosition> {
+  const positions = new Map<string, StepPosition>();
   const scale = createTimeScale(viewport);
   
-  // Trier les projets par date de début
-  const sortedProjects = [...projects].sort((a, b) => 
+  // Trier les étapes par date de début
+  const sortedSteps = [...steps].sort((a, b) => 
     new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
   );
   
   // Tableau de pistes, chaque piste contient les projets qui y sont placés
-  const tracks: Project[][] = [];
+  const tracks: Step[][] = [];
   
-  sortedProjects.forEach(project => {
-    const projectStart = new Date(project.startDate);
-    const projectEnd = new Date(project.endDate);
-    const left = scale(projectStart);
-    const right = scale(projectEnd);
+  sortedSteps.forEach(step => {
+    const stepStart = new Date(step.startDate);
+    const stepEnd = new Date(step.endDate);
+    const left = scale(stepStart);
+    const right = scale(stepEnd);
     const width = Math.max(right - left, MIN_PROJECT_WIDTH);
     
     // Trouver la première piste disponible (sans chevauchement)
@@ -80,9 +80,9 @@ export function calculateProjectsPositions(
       const track = tracks[i];
       let canFit = true;
       
-      // Vérifier si le projet chevauche avec un projet existant dans cette piste
-      for (const existingProject of track) {
-        if (projectsOverlap(project, existingProject)) {
+      // Vérifier si l'étape chevauche avec une étape existante dans cette piste
+      for (const existingStep of track) {
+        if (stepsOverlap(step, existingStep)) {
           canFit = false;
           break;
         }
@@ -90,21 +90,21 @@ export function calculateProjectsPositions(
       
       if (canFit) {
         trackIndex = i;
-        tracks[i].push(project);
+        tracks[i].push(step);
         break;
       }
     }
     
     // Si aucune piste disponible, créer une nouvelle piste
     if (trackIndex === -1) {
-      tracks.push([project]);
+      tracks.push([step]);
       trackIndex = tracks.length - 1;
     }
     
     // Calculer la position verticale
     const top = TIMELINE_PADDING_TOP + (trackIndex * (PROJECT_HEIGHT + PROJECT_MARGIN));
     
-    positions.set(project.id, {
+    positions.set(step.id, {
       left,
       width,
       top,
@@ -115,17 +115,17 @@ export function calculateProjectsPositions(
   return positions;
 }
 
-// Calcule la position d'un projet sur la timeline (pour compatibilité)
-export function calculateProjectPosition(
-  project: Project,
+// Calcule la position d'une étape sur la timeline (pour compatibilité)
+export function calculateStepPosition(
+  step: Step,
   viewport: TimelineViewport
-): ProjectPosition {
+): StepPosition {
   const scale = createTimeScale(viewport);
-  const projectStart = new Date(project.startDate);
-  const projectEnd = new Date(project.endDate);
+  const stepStart = new Date(step.startDate);
+  const stepEnd = new Date(step.endDate);
   
-  const left = scale(projectStart);
-  const right = scale(projectEnd);
+  const left = scale(stepStart);
+  const right = scale(stepEnd);
   const width = Math.max(right - left, MIN_PROJECT_WIDTH);
   
   return {
@@ -150,14 +150,14 @@ export function dateToPixel(date: Date, viewport: TimelineViewport): number {
 
 // Calcule les nouvelles dates d'un projet après déplacement
 export function calculateNewDates(
-  project: Project,
+  step: Step,
   deltaX: number,
   viewport: TimelineViewport
 ): { startDate: Date; endDate: Date } {
-  const duration = differenceInDays(new Date(project.endDate), new Date(project.startDate));
+  const duration = differenceInDays(new Date(step.endDate), new Date(step.startDate));
   const scale = createTimeScale(viewport);
   
-  const currentLeft = scale(new Date(project.startDate));
+  const currentLeft = scale(new Date(step.startDate));
   const newLeft = currentLeft + deltaX;
   const newStartDate = scale.invert(newLeft);
   const newEndDate = addDays(newStartDate, duration);
@@ -170,14 +170,14 @@ export function calculateNewDates(
 
 // Calcule les nouvelles dates lors du redimensionnement
 export function calculateResizedDates(
-  project: Project,
+  step: Step,
   deltaX: number,
   side: 'left' | 'right',
   viewport: TimelineViewport
 ): { startDate: Date; endDate: Date } {
   const scale = createTimeScale(viewport);
-  const currentStart = new Date(project.startDate);
-  const currentEnd = new Date(project.endDate);
+  const currentStart = new Date(step.startDate);
+  const currentEnd = new Date(step.endDate);
   
   if (side === 'left') {
     const currentLeft = scale(currentStart);
@@ -290,12 +290,12 @@ export function generateTimeMarkers(viewport: TimelineViewport): Array<{
   return markers;
 }
 
-// Vérifie si un projet est visible dans le viewport
-export function isProjectVisible(project: Project, viewport: TimelineViewport): boolean {
-  const projectStart = new Date(project.startDate);
-  const projectEnd = new Date(project.endDate);
+// Vérifie si une étape est visible dans le viewport
+export function isStepVisible(step: Step, viewport: TimelineViewport): boolean {
+  const stepStart = new Date(step.startDate);
+  const stepEnd = new Date(step.endDate);
   
-  return !(projectEnd < viewport.startDate || projectStart > viewport.endDate);
+  return !(stepEnd < viewport.startDate || stepStart > viewport.endDate);
 }
 
 // Clamp une valeur entre min et max

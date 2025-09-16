@@ -9,8 +9,8 @@ public class Milestone : BaseEntity
     public bool IsCompleted { get; set; }
     
     // Foreign keys
-    public Guid ProjectId { get; set; }
+    public Guid StepId { get; set; }
     
     // Navigation properties
-    public virtual Project Project { get; set; } = null!;
+    public virtual Step Step { get; set; } = null!;
 }

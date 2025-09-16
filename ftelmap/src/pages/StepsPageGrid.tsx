@@ -46,19 +46,19 @@ import {
   Sort as SortIcon,
   Clear as ClearIcon
 } from '@mui/icons-material';
-import { useProjects, useDeleteProject } from '../hooks/use-projects';
-import ProjectForm from '../components/ProjectForm';
-import type { Project } from '../types/entities';
+import { useSteps, useDeleteStep } from '../hooks/use-steps';
+import StepForm from '../components/StepForm';
+import type { Step } from '../types/entities';
 
-const ProjectsPageGrid = () => {
+const StepsPageGrid = () => {
   const navigate = useNavigate();
-  const { data: projects, isLoading, error } = useProjects();
-  const deleteProject = useDeleteProject();
+  const { data: steps, isLoading, error } = useSteps();
+  const deleteStep = useDeleteStep();
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedStep, setSelectedStep] = useState<Step | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(viewModeCookie.get());
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedProjectMenu, setSelectedProjectMenu] = useState<string | null>(null);
+  const [selectedStepMenu, setSelectedStepMenu] = useState<string | null>(null);
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,25 +72,25 @@ const ProjectsPageGrid = () => {
   }, [viewMode]);
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
-      await deleteProject.mutateAsync(id);
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette étape ?')) {
+      await deleteStep.mutateAsync(id);
     }
     handleCloseMenu();
   };
 
   const handleView = (id: string) => {
-    navigate(`/projects/${id}`);
+    navigate(`/steps/${id}`);
   };
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, projectId: string) => {
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, stepId: string) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
-    setSelectedProjectMenu(projectId);
+    setSelectedStepMenu(stepId);
   };
 
   const handleCloseMenu = () => {
     setAnchorEl(null);
-    setSelectedProjectMenu(null);
+    setSelectedStepMenu(null);
   };
 
   const calculateProgress = (startDate: Date, endDate: Date): number => {
@@ -106,7 +106,7 @@ const ProjectsPageGrid = () => {
     return Math.round((elapsed / total) * 100);
   };
 
-  const getProjectStatus = (startDate: Date, endDate: Date): { label: string; color: 'default' | 'primary' | 'success' | 'warning' | 'error' } => {
+  const getStepStatus = (startDate: Date, endDate: Date): { label: string; color: 'default' | 'primary' | 'success' | 'warning' | 'error' } => {
     const now = new Date();
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -123,17 +123,17 @@ const ProjectsPageGrid = () => {
     return `${Math.round(days / 30)} mois`;
   };
 
-  // Filter and sort projects
-  const filteredAndSortedProjects = projects?.filter(project => {
+  // Filter and sort steps
+  const filteredAndSortedSteps = steps?.filter(step => {
     // Search filter
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = step.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         step.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
     // Status filter
     let matchesStatus = true;
     const now = new Date();
-    const start = new Date(project.startDate);
-    const end = new Date(project.endDate);
+    const start = new Date(step.startDate);
+    const end = new Date(step.endDate);
     
     switch (statusFilter) {
       case 'upcoming':
@@ -171,7 +171,7 @@ const ProjectsPageGrid = () => {
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
-        <Typography>Chargement des projets...</Typography>
+        <Typography>Chargement des étapes...</Typography>
       </Box>
     );
   }
@@ -179,7 +179,7 @@ const ProjectsPageGrid = () => {
   if (error) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
-        <Typography color="error">Échec du chargement des projets</Typography>
+        <Typography color="error">Échec du chargement des étapes</Typography>
       </Box>
     );
   }
@@ -189,7 +189,7 @@ const ProjectsPageGrid = () => {
       {/* Header */}
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" fontWeight="bold">
-          Gestion des Projets
+          Gestion des Étapes
         </Typography>
         <Stack direction="row" spacing={2}>
           <ToggleButtonGroup
@@ -219,7 +219,7 @@ const ProjectsPageGrid = () => {
               fontWeight: 600
             }}
           >
-            Nouveau Projet
+            Nouvelle Étape
           </Button>
         </Stack>
       </Stack>
@@ -229,7 +229,7 @@ const ProjectsPageGrid = () => {
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
           {/* Search Bar */}
           <TextField
-            placeholder="Rechercher un projet..."
+            placeholder="Rechercher une étape..."
             size="small"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -331,52 +331,52 @@ const ProjectsPageGrid = () => {
       <Stack direction="row" spacing={2} mb={3}>
         <Paper sx={{ p: 2, flex: 1, borderRadius: 2 }}>
           <Typography variant="body2" color="text.secondary">Total</Typography>
-          <Typography variant="h5" fontWeight="bold">{projects?.length || 0}</Typography>
+          <Typography variant="h5" fontWeight="bold">{steps?.length || 0}</Typography>
         </Paper>
         <Paper sx={{ p: 2, flex: 1, borderRadius: 2 }}>
           <Typography variant="body2" color="text.secondary">En cours</Typography>
           <Typography variant="h5" fontWeight="bold" color="primary">
-            {projects?.filter(p => {
+            {steps?.filter(s => {
               const now = new Date();
-              return new Date(p.startDate) <= now && new Date(p.endDate) >= now;
+              return new Date(s.startDate) <= now && new Date(s.endDate) >= now;
             }).length || 0}
           </Typography>
         </Paper>
         <Paper sx={{ p: 2, flex: 1, borderRadius: 2 }}>
           <Typography variant="body2" color="text.secondary">À venir</Typography>
           <Typography variant="h5" fontWeight="bold" color="text.secondary">
-            {projects?.filter(p => new Date(p.startDate) > new Date()).length || 0}
+            {steps?.filter(s => new Date(s.startDate) > new Date()).length || 0}
           </Typography>
         </Paper>
         <Paper sx={{ p: 2, flex: 1, borderRadius: 2 }}>
           <Typography variant="body2" color="text.secondary">Terminés</Typography>
           <Typography variant="h5" fontWeight="bold" color="success.main">
-            {projects?.filter(p => new Date(p.endDate) < new Date()).length || 0}
+            {steps?.filter(s => new Date(s.endDate) < new Date()).length || 0}
           </Typography>
         </Paper>
       </Stack>
 
-      {/* Project Form Modal */}
+      {/* Step Form Modal */}
       {showCreateForm && (
-        <ProjectForm
-          project={selectedProject}
+        <StepForm
+          step={selectedStep}
           onClose={() => {
             setShowCreateForm(false);
-            setSelectedProject(null);
+            setSelectedStep(null);
           }}
         />
       )}
 
-      {/* Projects Grid/List */}
-      {filteredAndSortedProjects && filteredAndSortedProjects.length > 0 ? (
+      {/* Steps Grid/List */}
+      {filteredAndSortedSteps && filteredAndSortedSteps.length > 0 ? (
         viewMode === 'grid' ? (
           <Grid container spacing={3}>
-            {filteredAndSortedProjects.map((project) => {
-              const status = getProjectStatus(project.startDate, project.endDate);
-              const progress = calculateProgress(project.startDate, project.endDate);
+            {filteredAndSortedSteps.map((step) => {
+              const status = getStepStatus(step.startDate, step.endDate);
+              const progress = calculateProgress(step.startDate, step.endDate);
               
               return (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={project.id}>
+                <Grid item xs={12} sm={6} md={4} lg={3} key={step.id}>
                   <Card 
                     sx={{ 
                       height: '100%',
@@ -385,13 +385,13 @@ const ProjectsPageGrid = () => {
                       borderRadius: 3,
                       cursor: 'pointer',
                       transition: 'all 0.2s',
-                      borderTop: `4px solid ${project.backgroundColor || '#2563eb'}`,
+                      borderTop: `4px solid ${step.backgroundColor || '#2563eb'}`,
                       '&:hover': {
                         transform: 'translateY(-4px)',
                         boxShadow: 4,
                       }
                     }}
-                    onClick={() => handleView(project.id)}
+                    onClick={() => handleView(step.id)}
                   >
                     <CardContent sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
                       {/* Header */}
@@ -409,7 +409,7 @@ const ProjectsPageGrid = () => {
                               WebkitBoxOrient: 'vertical',
                             }}
                           >
-                            {project.title}
+                            {step.title}
                           </Typography>
                           <Chip 
                             label={status.label} 
@@ -420,7 +420,7 @@ const ProjectsPageGrid = () => {
                         </Box>
                         <IconButton 
                           size="small"
-                          onClick={(e) => handleMenuClick(e, project.id)}
+                          onClick={(e) => handleMenuClick(e, step.id)}
                         >
                           <MoreVertIcon fontSize="small" />
                         </IconButton>
@@ -441,7 +441,7 @@ const ProjectsPageGrid = () => {
                           minHeight: '3em'
                         }}
                       >
-                        {project.description || 'Pas de description'}
+                        {step.description || 'Pas de description'}
                       </Typography>
 
                       {/* Progress */}
@@ -470,7 +470,7 @@ const ProjectsPageGrid = () => {
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <CalendarIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                           <Typography variant="caption" color="text.secondary">
-                            {new Date(project.startDate).toLocaleDateString('fr-FR', { 
+                            {new Date(step.startDate).toLocaleDateString('fr-FR', { 
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric'
@@ -480,7 +480,7 @@ const ProjectsPageGrid = () => {
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <ScheduleIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                           <Typography variant="caption" color="text.secondary">
-                            {formatDuration(project.startDate, project.endDate)}
+                            {formatDuration(step.startDate, step.endDate)}
                           </Typography>
                         </Stack>
                       </Stack>
@@ -493,7 +493,7 @@ const ProjectsPageGrid = () => {
                           startIcon={<EditIcon />}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedProject(project);
+                            setSelectedStep(step);
                             setShowCreateForm(true);
                           }}
                           sx={{ 
@@ -509,7 +509,7 @@ const ProjectsPageGrid = () => {
                           color="error"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDelete(project.id);
+                            handleDelete(step.id);
                           }}
                         >
                           <DeleteIcon />
@@ -524,31 +524,31 @@ const ProjectsPageGrid = () => {
         ) : (
           // List View
           <Stack spacing={2}>
-            {filteredAndSortedProjects.map((project) => {
-              const status = getProjectStatus(project.startDate, project.endDate);
-              const progress = calculateProgress(project.startDate, project.endDate);
+            {filteredAndSortedSteps.map((step) => {
+              const status = getStepStatus(step.startDate, step.endDate);
+              const progress = calculateProgress(step.startDate, step.endDate);
               
               return (
                 <Paper
-                  key={project.id}
+                  key={step.id}
                   sx={{
                     p: 3,
                     borderRadius: 2,
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    borderLeft: `4px solid ${project.backgroundColor || '#2563eb'}`,
+                    borderLeft: `4px solid ${step.backgroundColor || '#2563eb'}`,
                     '&:hover': {
                       backgroundColor: 'action.hover',
                     }
                   }}
-                  onClick={() => handleView(project.id)}
+                  onClick={() => handleView(step.id)}
                 >
                   <Grid container spacing={3} alignItems="center">
                     <Grid item xs={12} md={4}>
                       <Stack spacing={1}>
                         <Stack direction="row" alignItems="center" spacing={2}>
                           <Typography variant="h6" fontWeight="bold">
-                            {project.title}
+                            {step.title}
                           </Typography>
                           <Chip 
                             label={status.label} 
@@ -557,7 +557,7 @@ const ProjectsPageGrid = () => {
                           />
                         </Stack>
                         <Typography variant="body2" color="text.secondary">
-                          {project.description || 'Pas de description'}
+                          {step.description || 'Pas de description'}
                         </Typography>
                       </Stack>
                     </Grid>
@@ -567,13 +567,13 @@ const ProjectsPageGrid = () => {
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <CalendarIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                           <Typography variant="body2">
-                            {new Date(project.startDate).toLocaleDateString('fr-FR')} - {new Date(project.endDate).toLocaleDateString('fr-FR')}
+                            {new Date(step.startDate).toLocaleDateString('fr-FR')} - {new Date(step.endDate).toLocaleDateString('fr-FR')}
                           </Typography>
                         </Stack>
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <ScheduleIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                           <Typography variant="body2" color="text.secondary">
-                            {formatDuration(project.startDate, project.endDate)}
+                            {formatDuration(step.startDate, step.endDate)}
                           </Typography>
                         </Stack>
                       </Stack>
@@ -606,7 +606,7 @@ const ProjectsPageGrid = () => {
                           size="small"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleView(project.id);
+                            handleView(step.id);
                           }}
                         >
                           <ViewIcon />
@@ -615,7 +615,7 @@ const ProjectsPageGrid = () => {
                           size="small"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedProject(project);
+                            setSelectedStep(step);
                             setShowCreateForm(true);
                           }}
                         >
@@ -626,7 +626,7 @@ const ProjectsPageGrid = () => {
                           color="error"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDelete(project.id);
+                            handleDelete(step.id);
                           }}
                         >
                           <DeleteIcon />
@@ -651,19 +651,19 @@ const ProjectsPageGrid = () => {
           }}
         >
           <Typography variant="h6" color="text.secondary">
-            {projects?.length === 0 ? 'Aucun projet trouvé' : 'Aucun projet ne correspond aux filtres'}
+            {steps?.length === 0 ? 'Aucune étape trouvée' : 'Aucune étape ne correspond aux filtres'}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {projects?.length === 0 ? 'Créez votre premier projet pour commencer !' : 'Essayez de modifier les filtres de recherche'}
+            {steps?.length === 0 ? 'Créez votre première étape pour commencer !' : 'Essayez de modifier les filtres de recherche'}
           </Typography>
-          {projects?.length === 0 ? (
+          {steps?.length === 0 ? (
             <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={() => setShowCreateForm(true)}
               sx={{ mt: 2 }}
             >
-              Créer un Projet
+              Créer une Étape
             </Button>
           ) : (
             <Button
@@ -691,7 +691,7 @@ const ProjectsPageGrid = () => {
       >
         <MenuItem 
           onClick={() => {
-            handleView(selectedProjectMenu!);
+            handleView(selectedStepMenu!);
             handleCloseMenu();
           }}
         >
@@ -700,9 +700,9 @@ const ProjectsPageGrid = () => {
         </MenuItem>
         <MenuItem 
           onClick={() => {
-            const project = projects?.find(p => p.id === selectedProjectMenu);
-            if (project) {
-              setSelectedProject(project);
+            const step = steps?.find(s => s.id === selectedStepMenu);
+            if (step) {
+              setSelectedStep(step);
               setShowCreateForm(true);
             }
             handleCloseMenu();
@@ -714,7 +714,7 @@ const ProjectsPageGrid = () => {
         <Divider />
         <MenuItem 
           onClick={() => {
-            handleDelete(selectedProjectMenu!);
+            handleDelete(selectedStepMenu!);
           }}
           sx={{ color: 'error.main' }}
         >
@@ -726,4 +726,4 @@ const ProjectsPageGrid = () => {
   );
 };
 
-export default ProjectsPageGrid;
+export default StepsPageGrid;

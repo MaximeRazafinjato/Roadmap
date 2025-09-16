@@ -1,59 +1,59 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useProject } from '../hooks/use-projects';
+import { useStep } from '../hooks/use-steps';
 
-const ProjectDetailPage = () => {
+const StepDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: project, isLoading, error } = useProject(id);
+  const { data: step, isLoading, error } = useStep(id);
 
-  if (isLoading) return <div className="loading">Chargement des détails du projet...</div>;
-  if (error) return <div className="error">Échec du chargement des détails du projet</div>;
-  if (!project) return <div className="error">Projet introuvable</div>;
+  if (isLoading) return <div className="loading">Chargement des détails de l'étape...</div>;
+  if (error) return <div className="error">Échec du chargement des détails de l'étape</div>;
+  if (!step) return <div className="error">Étape introuvable</div>;
 
   return (
-    <div className="project-detail-page">
+    <div className="step-detail-page">
       <div className="page-header">
         <button 
           className="btn btn-link"
-          onClick={() => navigate('/projects')}
+          onClick={() => navigate('/steps')}
         >
-          ← Retour aux Projets
+          ← Retour aux Étapes
         </button>
       </div>
 
-      <div className="project-detail">
+      <div className="step-detail">
         <div className="detail-header">
-          <h1>{project.title}</h1>
+          <h1>{step.title}</h1>
           <div 
             style={{
-              backgroundColor: project.backgroundColor,
-              color: project.textColor,
+              backgroundColor: step.backgroundColor,
+              color: step.textColor,
               padding: '4px 12px',
               borderRadius: '4px',
               display: 'inline-block'
             }}
           >
-            Projet
+            Étape
           </div>
         </div>
 
         <div className="detail-section">
           <h3>Description</h3>
-          <p>{project.description}</p>
+          <p>{step.description}</p>
         </div>
 
         <div className="detail-grid">
           <div className="detail-item">
             <label>Date de Début</label>
-            <p>{new Date(project.startDate).toLocaleDateString()}</p>
+            <p>{new Date(step.startDate).toLocaleDateString()}</p>
           </div>
           <div className="detail-item">
             <label>Date de Fin</label>
-            <p>{new Date(project.endDate).toLocaleDateString()}</p>
+            <p>{new Date(step.endDate).toLocaleDateString()}</p>
           </div>
           <div className="detail-item">
             <label>Durée</label>
-            <p>{Math.ceil((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24))} jours</p>
+            <p>{Math.ceil((new Date(step.endDate).getTime() - new Date(step.startDate).getTime()) / (1000 * 60 * 60 * 24))} jours</p>
           </div>
           <div className="detail-item">
             <label>Couleurs</label>
@@ -61,14 +61,14 @@ const ProjectDetailPage = () => {
               <div style={{ 
                 width: '24px', 
                 height: '24px', 
-                backgroundColor: project.backgroundColor,
+                backgroundColor: step.backgroundColor,
                 border: '1px solid #ccc',
                 borderRadius: '4px'
               }} />
               <div style={{ 
                 width: '24px', 
                 height: '24px', 
-                backgroundColor: project.textColor,
+                backgroundColor: step.textColor,
                 border: '1px solid #ccc',
                 borderRadius: '4px'
               }} />
@@ -76,11 +76,11 @@ const ProjectDetailPage = () => {
           </div>
           <div className="detail-item">
             <label>Créé</label>
-            <p>{new Date(project.createdAt).toLocaleString()}</p>
+            <p>{new Date(step.createdAt).toLocaleString()}</p>
           </div>
           <div className="detail-item">
             <label>Dernière mise à jour</label>
-            <p>{new Date(project.updatedAt).toLocaleString()}</p>
+            <p>{new Date(step.updatedAt).toLocaleString()}</p>
           </div>
         </div>
 
@@ -108,15 +108,15 @@ const ProjectDetailPage = () => {
               left: '20px',
               right: '20px',
               top: '25px',
-              backgroundColor: project.backgroundColor,
-              color: project.textColor,
+              backgroundColor: step.backgroundColor,
+              color: step.textColor,
               padding: '8px 16px',
               borderRadius: '6px',
               boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }}>
-              <strong>{project.title}</strong>
+              <strong>{step.title}</strong>
               <br />
-              <small>{new Date(project.startDate).toLocaleDateString()} - {new Date(project.endDate).toLocaleDateString()}</small>
+              <small>{new Date(step.startDate).toLocaleDateString()} - {new Date(step.endDate).toLocaleDateString()}</small>
             </div>
           </div>
         </div>
@@ -125,4 +125,4 @@ const ProjectDetailPage = () => {
   );
 };
 
-export default ProjectDetailPage;
+export default StepDetailPage;

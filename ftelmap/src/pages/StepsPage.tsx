@@ -1,60 +1,60 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProjects, useDeleteProject } from '../hooks/use-projects';
-import ProjectForm from '../components/ProjectForm';
-import type { Project } from '../types/entities';
+import { useSteps, useDeleteStep } from '../hooks/use-steps';
+import StepForm from '../components/StepForm';
+import type { Step } from '../types/entities';
 
-const ProjectsPage = () => {
+const StepsPage = () => {
   const navigate = useNavigate();
-  const { data: projects, isLoading, error } = useProjects();
-  const deleteProject = useDeleteProject();
+  const { data: steps, isLoading, error } = useSteps();
+  const deleteStep = useDeleteStep();
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedStep, setSelectedStep] = useState<Step | null>(null);
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
-      await deleteProject.mutateAsync(id);
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette étape ?')) {
+      await deleteStep.mutateAsync(id);
     }
   };
 
   const handleView = (id: string) => {
-    navigate(`/projects/${id}`);
+    navigate(`/steps/${id}`);
   };
 
-  if (isLoading) return <div className="loading">Chargement des projets...</div>;
-  if (error) return <div className="error">Échec du chargement des projets</div>;
+  if (isLoading) return <div className="loading">Chargement des étapes...</div>;
+  if (error) return <div className="error">Échec du chargement des étapes</div>;
 
   return (
-    <div className="projects-page">
+    <div className="steps-page">
       <div className="page-header">
-        <h2>Projets</h2>
+        <h2>Étapes</h2>
         <button 
           className="btn btn-primary"
           onClick={() => setShowCreateForm(true)}
         >
-          Créer un Nouveau Projet
+          Créer une Nouvelle Étape
         </button>
       </div>
 
       {showCreateForm && (
-        <ProjectForm
-          project={selectedProject}
+        <StepForm
+          step={selectedStep}
           onClose={() => {
             setShowCreateForm(false);
-            setSelectedProject(null);
+            setSelectedStep(null);
           }}
         />
       )}
 
-      {projects && projects.length > 0 ? (
-        <div className="projects-grid">
-          {projects.map((project) => (
+      {steps && steps.length > 0 ? (
+        <div className="steps-grid">
+          {steps.map((step) => (
             <div 
-              key={project.id} 
-              className="project-card"
-              onClick={() => handleView(project.id)}
+              key={step.id} 
+              className="step-card"
+              onClick={() => handleView(step.id)}
               style={{
-                borderLeft: `4px solid ${project.backgroundColor}`,
+                borderLeft: `4px solid ${step.backgroundColor}`,
                 cursor: 'pointer',
                 transition: 'transform 0.2s, box-shadow 0.2s',
               }}
@@ -67,29 +67,29 @@ const ProjectsPage = () => {
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              <div className="project-card-header">
-                <h3>{project.title}</h3>
+              <div className="step-card-header">
+                <h3>{step.title}</h3>
               </div>
-              <p className="project-description">{project.description}</p>
-              <div className="project-meta">
+              <p className="step-description">{step.description}</p>
+              <div className="step-meta">
                 <div>
-                  <strong>Date de Début :</strong> {new Date(project.startDate).toLocaleDateString()}
+                  <strong>Date de Début :</strong> {new Date(step.startDate).toLocaleDateString()}
                 </div>
                 <div>
-                  <strong>Date de Fin :</strong> {new Date(project.endDate).toLocaleDateString()}
+                  <strong>Date de Fin :</strong> {new Date(step.endDate).toLocaleDateString()}
                 </div>
                 <div>
-                  <strong>Durée :</strong> {Math.ceil((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24))} jours
+                  <strong>Durée :</strong> {Math.ceil((new Date(step.endDate).getTime() - new Date(step.startDate).getTime()) / (1000 * 60 * 60 * 24))} jours
                 </div>
               </div>
-              <div className="project-actions" onClick={(e) => e.stopPropagation()}>
+              <div className="step-actions" onClick={(e) => e.stopPropagation()}>
                 <button 
                   className="action-btn edit-btn"
                   onClick={() => {
-                    setSelectedProject(project);
+                    setSelectedStep(step);
                     setShowCreateForm(true);
                   }}
-                  title="Modifier le projet"
+                  title="Modifier l'étape"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -99,9 +99,9 @@ const ProjectsPage = () => {
                 </button>
                 <button 
                   className="action-btn delete-btn"
-                  onClick={() => handleDelete(project.id)}
-                  disabled={deleteProject.isPending}
-                  title="Supprimer le projet"
+                  onClick={() => handleDelete(step.id)}
+                  disabled={deleteStep.isPending}
+                  title="Supprimer l'étape"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="3 6 5 6 21 6"></polyline>
@@ -117,11 +117,11 @@ const ProjectsPage = () => {
         </div>
       ) : (
         <div className="empty-state">
-          <p>Aucun projet trouvé. Créez votre premier projet pour commencer !</p>
+          <p>Aucune étape trouvée. Créez votre première étape pour commencer !</p>
         </div>
       )}
     </div>
   );
 };
 
-export default ProjectsPage;
+export default StepsPage;

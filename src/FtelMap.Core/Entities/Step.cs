@@ -1,6 +1,6 @@
 namespace FtelMap.Core.Entities;
 
-public class Project : BaseEntity
+public class Step : BaseEntity
 {
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;

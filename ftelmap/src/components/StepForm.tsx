@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
-import { useCreateProject, useUpdateProject } from '../hooks/use-projects';
-import { type Project, type CreateProjectForm, type UpdateProjectForm } from '../types/entities';
+import { useCreateStep, useUpdateStep } from '../hooks/use-steps';
+import { type Step, type CreateStepForm, type UpdateStepForm } from '../types/entities';
 
-interface ProjectFormProps {
-  project?: Project | null;
+interface StepFormProps {
+  step?: Step | null;
   onClose: () => void;
   ownerId?: string;
 }
 
-const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose, ownerId }) => {
-  const createProject = useCreateProject();
-  const updateProject = useUpdateProject();
-  const isEditing = !!project?.id; // Only consider it editing if project has an ID
+const StepForm: React.FC<StepFormProps> = ({ step, onClose, ownerId }) => {
+  const createStep = useCreateStep();
+  const updateStep = useUpdateStep();
+  const isEditing = !!step?.id; // Only consider it editing if step has an ID
 
-  const [formData, setFormData] = useState<CreateProjectForm>({
+  const [formData, setFormData] = useState<CreateStepForm>({
     title: '',
     description: '',
     startDate: new Date().toISOString().split('T')[0],
@@ -36,15 +36,15 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose, ownerId }) 
   ];
 
   useEffect(() => {
-    if (project) {
+    if (step) {
       setFormData({
-        title: project.title || '',
-        description: project.description || '',
-        startDate: project.startDate ? project.startDate.split('T')[0] : new Date().toISOString().split('T')[0],
-        endDate: project.endDate ? project.endDate.split('T')[0] : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        backgroundColor: project.backgroundColor || '#3B82F6',
-        textColor: project.textColor || '#FFFFFF',
-        ownerId: project.ownerId || ownerId || '00000000-0000-0000-0000-000000000001',
+        title: step.title || '',
+        description: step.description || '',
+        startDate: step.startDate ? step.startDate.split('T')[0] : new Date().toISOString().split('T')[0],
+        endDate: step.endDate ? step.endDate.split('T')[0] : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        backgroundColor: step.backgroundColor || '#3B82F6',
+        textColor: step.textColor || '#FFFFFF',
+        ownerId: step.ownerId || ownerId || '00000000-0000-0000-0000-000000000001',
       });
     } else if (ownerId) {
       setFormData(prev => ({
@@ -52,24 +52,24 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose, ownerId }) 
         ownerId: ownerId,
       }));
     }
-  }, [project, ownerId]);
+  }, [step, ownerId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
-      if (isEditing && project?.id) {
-        const updateData: UpdateProjectForm = {
+      if (isEditing && step?.id) {
+        const updateData: UpdateStepForm = {
           ...formData,
-          id: project.id,
+          id: step.id,
         };
-        await updateProject.mutateAsync(updateData);
+        await updateStep.mutateAsync(updateData);
       } else {
-        await createProject.mutateAsync(formData);
+        await createStep.mutateAsync(formData);
       }
       onClose();
     } catch (error) {
-      console.error('Failed to save project:', error);
+      console.error('Failed to save step:', error);
     }
   };
 
@@ -93,27 +93,27 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose, ownerId }) 
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-header">
-          <h3>{isEditing ? 'Modifier le Projet' : 'Créer un Nouveau Projet'}</h3>
+          <h3>{isEditing ? 'Modifier l\'Étape' : 'Créer une Nouvelle Étape'}</h3>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <button 
               type="submit"
-              form="project-form"
+              form="step-form"
               className="btn btn-primary"
-              disabled={createProject.isPending || updateProject.isPending}
+              disabled={createStep.isPending || updateStep.isPending}
             >
-              {createProject.isPending || updateProject.isPending
+              {createStep.isPending || updateStep.isPending
                 ? 'Enregistrement...'
                 : isEditing
-                ? 'Mettre à jour le Projet'
-                : 'Créer le Projet'}
+                ? 'Mettre à jour l\'Étape'
+                : 'Créer l\'Étape'}
             </button>
             <button className="btn-close" onClick={onClose}>×</button>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="project-form" id="project-form">
+        <form onSubmit={handleSubmit} className="step-form" id="step-form">
           <div className="form-group">
-            <label htmlFor="title">Titre du Projet *</label>
+            <label htmlFor="title">Titre de l'Étape *</label>
             <input
               type="text"
               id="title"
@@ -121,7 +121,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose, ownerId }) 
               value={formData.title}
               onChange={handleChange}
               required
-              placeholder="Entrez le titre du projet"
+              placeholder="Entrez le titre de l'étape"
             />
           </div>
 
@@ -133,7 +133,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose, ownerId }) 
               value={formData.description}
               onChange={handleChange}
               required
-              placeholder="Entrez la description du projet"
+              placeholder="Entrez la description de l'étape"
               rows={3}
             />
           </div>
@@ -219,4 +219,4 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onClose, ownerId }) 
   );
 };
 
-export default ProjectForm;
+export default StepForm;

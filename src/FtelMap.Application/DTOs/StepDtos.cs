@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FtelMap.Application.DTOs;
 
-public class CreateProjectDto
+public class CreateStepDto
 {
     [Required]
     [StringLength(200, MinimumLength = 1)]
@@ -30,11 +30,11 @@ public class CreateProjectDto
     public Guid OwnerId { get; set; }
 }
 
-public class UpdateProjectDto : CreateProjectDto
+public class UpdateStepDto : CreateStepDto
 {
 }
 
-public class ProjectDto
+public class StepDto
 {
     public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;

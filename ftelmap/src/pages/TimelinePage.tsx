@@ -12,77 +12,77 @@ import {
   Button,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { useProjects, useUpdateProject, useDeleteProject } from '../hooks/use-projects';
+import { useSteps, useUpdateStep, useDeleteStep } from '../hooks/use-steps';
 import { TimelineSimple } from '../components/timeline/TimelineSimple';
-import ProjectForm from '../components/ProjectForm';
-import type { Project, UpdateProjectForm } from '../types/entities';
+import StepForm from '../components/StepForm';
+import type { Step, UpdateStepForm } from '../types/entities';
 import { useAuth } from '../contexts/auth-context';
 
 const TimelinePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { data: projects, isLoading, error } = useProjects();
-  const updateProject = useUpdateProject();
-  const deleteProject = useDeleteProject();
+  const { data: steps, isLoading, error } = useSteps();
+  const updateStep = useUpdateStep();
+  const deleteStep = useDeleteStep();
   
-  const [openProjectDialog, setOpenProjectDialog] = useState(false);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [deleteConfirmProject, setDeleteConfirmProject] = useState<Project | null>(null);
+  const [openStepDialog, setOpenStepDialog] = useState(false);
+  const [editingStep, setEditingStep] = useState<Step | null>(null);
+  const [deleteConfirmStep, setDeleteConfirmStep] = useState<Step | null>(null);
   
-  // Gestion de la mise à jour d'un projet
-  const handleProjectUpdate = async (project: Project, updates: Partial<Project>) => {
-    const updateData: UpdateProjectForm = {
-      id: project.id,
-      title: updates.title ?? project.title,
-      description: updates.description ?? project.description,
-      startDate: updates.startDate ?? project.startDate,
-      endDate: updates.endDate ?? project.endDate,
-      backgroundColor: updates.backgroundColor ?? project.backgroundColor,
-      textColor: updates.textColor ?? project.textColor,
-      ownerId: project.ownerId,
+  // Gestion de la mise à jour d'une étape
+  const handleStepUpdate = async (step: Step, updates: Partial<Step>) => {
+    const updateData: UpdateStepForm = {
+      id: step.id,
+      title: updates.title ?? step.title,
+      description: updates.description ?? step.description,
+      startDate: updates.startDate ?? step.startDate,
+      endDate: updates.endDate ?? step.endDate,
+      backgroundColor: updates.backgroundColor ?? step.backgroundColor,
+      textColor: updates.textColor ?? step.textColor,
+      ownerId: step.ownerId,
     };
     
-    await updateProject.mutateAsync(updateData);
+    await updateStep.mutateAsync(updateData);
   };
   
-  // Gestion de l'édition d'un projet
-  const handleProjectEdit = (project: Project) => {
-    setEditingProject(project);
-    setOpenProjectDialog(true);
+  // Gestion de l'édition d'une étape
+  const handleStepEdit = (step: Step) => {
+    setEditingStep(step);
+    setOpenStepDialog(true);
   };
   
-  // Gestion de la suppression d'un projet
-  const handleProjectDelete = (project: Project) => {
-    setDeleteConfirmProject(project);
+  // Gestion de la suppression d'une étape
+  const handleStepDelete = (step: Step) => {
+    setDeleteConfirmStep(step);
   };
   
   const confirmDelete = async () => {
-    if (deleteConfirmProject) {
-      await deleteProject.mutateAsync(deleteConfirmProject.id);
-      setDeleteConfirmProject(null);
+    if (deleteConfirmStep) {
+      await deleteStep.mutateAsync(deleteConfirmStep.id);
+      setDeleteConfirmStep(null);
     }
   };
   
-  // Gestion de l'ajout d'un projet
-  const handleProjectAdd = () => {
-    setEditingProject(null);
-    setOpenProjectDialog(true);
+  // Gestion de l'ajout d'une étape
+  const handleStepAdd = () => {
+    setEditingStep(null);
+    setOpenStepDialog(true);
   };
   
-  // Gestion de l'ajout d'un projet avec dates préremplies
-  const handleProjectAddWithDates = (startDate: Date, endDate: Date) => {
-    const newProject: Partial<Project> = {
+  // Gestion de l'ajout d'une étape avec dates préremplies
+  const handleStepAddWithDates = (startDate: Date, endDate: Date) => {
+    const newStep: Partial<Step> = {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
     };
-    setEditingProject(newProject as Project);
-    setOpenProjectDialog(true);
+    setEditingStep(newStep as Step);
+    setOpenStepDialog(true);
   };
   
   // Fermeture du dialogue
   const handleCloseDialog = () => {
-    setOpenProjectDialog(false);
-    setEditingProject(null);
+    setOpenStepDialog(false);
+    setEditingStep(null);
   };
   
   if (isLoading) {
@@ -99,7 +99,7 @@ const TimelinePage = () => {
       <Fade in={true}>
         <Alert severity="error" sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
           <AlertTitle>Erreur de chargement de la timeline</AlertTitle>
-          Impossible de charger les projets. Veuillez réessayer plus tard.
+          Impossible de charger les étapes. Veuillez réessayer plus tard.
         </Alert>
       </Fade>
     );
@@ -111,16 +111,16 @@ const TimelinePage = () => {
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
           <Box>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              Timeline des Projets
+              Timeline des Étapes
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Visualisez et gérez vos projets sur une frise chronologique interactive
+              Visualisez et gérez vos étapes sur une frise chronologique interactive
             </Typography>
           </Box>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={handleProjectAdd}
+            onClick={handleStepAdd}
             sx={{
               borderRadius: 2,
               px: 3,
@@ -129,20 +129,20 @@ const TimelinePage = () => {
               fontWeight: 600,
             }}
           >
-            Nouveau Projet
+            Nouvelle Étape
           </Button>
         </Stack>
         
         {/* Timeline */}
         <Box sx={{ flex: 1, minHeight: 0 }}>
-          {projects && projects.length > 0 ? (
+          {steps && steps.length > 0 ? (
             <TimelineSimple
-              projects={projects}
-              onProjectUpdate={handleProjectUpdate}
-              onProjectEdit={handleProjectEdit}
-              onProjectDelete={handleProjectDelete}
-              onProjectAdd={handleProjectAdd}
-              onProjectAddWithDates={handleProjectAddWithDates}
+              steps={steps}
+              onStepUpdate={handleStepUpdate}
+              onStepEdit={handleStepEdit}
+              onStepDelete={handleStepDelete}
+              onStepAdd={handleStepAdd}
+              onStepAddWithDates={handleStepAddWithDates}
             />
           ) : (
             <Box
@@ -160,36 +160,36 @@ const TimelinePage = () => {
             >
               <Box textAlign="center">
                 <Typography variant="h6" color="text.secondary" gutterBottom>
-                  Aucun projet pour le moment
+                  Aucune étape pour le moment
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mb={3}>
-                  Créez votre premier projet pour commencer à utiliser la timeline
+                  Créez votre première étape pour commencer à utiliser la timeline
                 </Typography>
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
-                  onClick={handleProjectAdd}
+                  onClick={handleStepAdd}
                   sx={{
                     borderRadius: 2,
                     textTransform: 'none',
                   }}
                 >
-                  Créer un Projet
+                  Créer une Étape
                 </Button>
               </Box>
             </Box>
           )}
         </Box>
         
-        {/* Dialogue de formulaire de projet */}
+        {/* Dialogue de formulaire d'étape */}
         <Dialog
-          open={openProjectDialog}
+          open={openStepDialog}
           onClose={handleCloseDialog}
           maxWidth="sm"
           fullWidth
         >
-          <ProjectForm
-            project={editingProject}
+          <StepForm
+            step={editingStep}
             onClose={handleCloseDialog}
             ownerId={user?.id || ''}
           />
@@ -197,8 +197,8 @@ const TimelinePage = () => {
         
         {/* Dialogue de confirmation de suppression */}
         <Dialog
-          open={!!deleteConfirmProject}
-          onClose={() => setDeleteConfirmProject(null)}
+          open={!!deleteConfirmStep}
+          onClose={() => setDeleteConfirmStep(null)}
           maxWidth="xs"
           fullWidth
         >
@@ -207,12 +207,12 @@ const TimelinePage = () => {
               Confirmer la suppression
             </Typography>
             <Typography variant="body2" color="text.secondary" mb={3}>
-              Êtes-vous sûr de vouloir supprimer le projet "{deleteConfirmProject?.title}" ?
+              Êtes-vous sûr de vouloir supprimer l'étape "{deleteConfirmStep?.title}" ?
               Cette action est irréversible.
             </Typography>
             <Stack direction="row" spacing={2} justifyContent="flex-end">
               <Button
-                onClick={() => setDeleteConfirmProject(null)}
+                onClick={() => setDeleteConfirmStep(null)}
                 variant="outlined"
               >
                 Annuler

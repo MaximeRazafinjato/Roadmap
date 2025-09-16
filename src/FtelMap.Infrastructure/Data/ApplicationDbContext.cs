@@ -11,7 +11,7 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
-    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<Step> Steps => Set<Step>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -20,8 +20,8 @@ public class ApplicationDbContext : DbContext
         // Apply all configurations from assembly
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
-        // Project configuration
-        modelBuilder.Entity<Project>(entity =>
+        // Step configuration
+        modelBuilder.Entity<Step>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
@@ -29,7 +29,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.BackgroundColor).IsRequired().HasMaxLength(7);
             entity.Property(e => e.TextColor).IsRequired().HasMaxLength(7);
             entity.HasOne(e => e.Owner)
-                .WithMany(u => u.Projects)
+                .WithMany(u => u.Steps)
                 .HasForeignKey(e => e.OwnerId)
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasQueryFilter(e => !e.IsDeleted);

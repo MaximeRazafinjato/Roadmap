@@ -11,11 +11,11 @@ public class Task : BaseEntity
     public int ActualHours { get; set; }
     
     // Foreign keys
-    public Guid ProjectId { get; set; }
+    public Guid StepId { get; set; }
     public Guid? AssignedToId { get; set; }
     
     // Navigation properties
-    public virtual Project Project { get; set; } = null!;
+    public virtual Step Step { get; set; } = null!;
     public virtual User? AssignedTo { get; set; }
 }
 

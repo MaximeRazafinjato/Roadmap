@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import type { Project } from '../types/entities';
+import type { Step } from '../types/entities';
 
 export class TimelineExportService {
   /**
@@ -77,32 +77,32 @@ export class TimelineExportService {
   }
 
   /**
-   * Export projects data as Excel file
+   * Export steps data as Excel file
    */
-  static exportAsExcel(projects: Project[], filename: string = 'timeline.xlsx'): void {
+  static exportAsExcel(steps: Step[], filename: string = 'timeline.xlsx'): void {
     const wb = XLSX.utils.book_new();
     
     // Trier les projets par date de début
-    const sortedProjects = [...projects].sort(
+    const sortedSteps = [...steps].sort(
       (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
     );
     
     // Calculer les dates min et max
-    const allDates = sortedProjects.flatMap(p => [new Date(p.startDate), new Date(p.endDate)]);
+    const allDates = sortedSteps.flatMap(p => [new Date(s.startDate), new Date(s.endDate)]);
     const minDate = allDates.length > 0 ? new Date(Math.min(...allDates.map(d => d.getTime()))) : new Date();
     const maxDate = allDates.length > 0 ? new Date(Math.max(...allDates.map(d => d.getTime()))) : new Date();
     
     // Feuille 1 : Données détaillées
-    const detailsData = sortedProjects.map((project) => {
-      const start = new Date(project.startDate);
-      const end = new Date(project.endDate);
+    const detailsData = sortedSteps.map((step) => {
+      const start = new Date(step.startDate);
+      const end = new Date(step.endDate);
       const duration = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      const status = this.getProjectStatus(project);
-      const progress = this.calculateProgress(project);
+      const status = this.getStepStatus(step);
+      const progress = this.calculateProgress(step);
       
       return {
-        'Nom du projet': project.title,
-        'Description': project.description || '',
+        'Nom de l\'étape': step.title,
+        'Description': step.description || '',
         'Date de début': format(start, 'dd/MM/yyyy', { locale: fr }),
         'Date de fin': format(end, 'dd/MM/yyyy', { locale: fr }),
         'Durée (jours)': duration,
@@ -129,21 +129,21 @@ export class TimelineExportService {
       { 'Métrique': 'TABLEAU DE BORD PROJETS', 'Valeur': '', 'Détail': '' },
       { 'Métrique': '', 'Valeur': '', 'Détail': '' },
       { 'Métrique': '═══ Vue d\'ensemble ═══', 'Valeur': '', 'Détail': '' },
-      { 'Métrique': 'Nombre total de projets', 'Valeur': projects.length, 'Détail': '' },
-      { 'Métrique': 'Projets en cours', 'Valeur': projects.filter(p => this.getProjectStatus(p) === 'En cours').length, 'Détail': projects.length > 0 ? `${Math.round(projects.filter(p => this.getProjectStatus(p) === 'En cours').length / projects.length * 100)}%` : '0%' },
-      { 'Métrique': 'Projets terminés', 'Valeur': projects.filter(p => this.getProjectStatus(p) === 'Terminé').length, 'Détail': projects.length > 0 ? `${Math.round(projects.filter(p => this.getProjectStatus(p) === 'Terminé').length / projects.length * 100)}%` : '0%' },
-      { 'Métrique': 'Projets à venir', 'Valeur': projects.filter(p => this.getProjectStatus(p) === 'À venir').length, 'Détail': projects.length > 0 ? `${Math.round(projects.filter(p => this.getProjectStatus(p) === 'À venir').length / projects.length * 100)}%` : '0%' },
+      { 'Métrique': 'Nombre total d\'étapes', 'Valeur': steps.length, 'Détail': '' },
+      { 'Métrique': 'Étapes en cours', 'Valeur': steps.filter(s => this.getStepStatus(s) === 'En cours').length, 'Détail': steps.length > 0 ? `${Math.round(steps.filter(s => this.getStepStatus(s) === 'En cours').length / steps.length * 100)}%` : '0%' },
+      { 'Métrique': 'Étapes terminées', 'Valeur': steps.filter(s => this.getStepStatus(s) === 'Terminé').length, 'Détail': steps.length > 0 ? `${Math.round(steps.filter(s => this.getStepStatus(s) === 'Terminé').length / steps.length * 100)}%` : '0%' },
+      { 'Métrique': 'Étapes à venir', 'Valeur': steps.filter(s => this.getStepStatus(s) === 'À venir').length, 'Détail': steps.length > 0 ? `${Math.round(steps.filter(s => this.getStepStatus(s) === 'À venir').length / steps.length * 100)}%` : '0%' },
       { 'Métrique': '', 'Valeur': '', 'Détail': '' },
       { 'Métrique': '═══ Métriques temporelles ═══', 'Valeur': '', 'Détail': '' },
-      { 'Métrique': 'Durée moyenne (jours)', 'Valeur': projects.length > 0 ? Math.round(projects.reduce((sum, p) => {
-        const duration = Math.ceil((new Date(p.endDate).getTime() - new Date(p.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      { 'Métrique': 'Durée moyenne (jours)', 'Valeur': steps.length > 0 ? Math.round(steps.reduce((sum, s) => {
+        const duration = Math.ceil((new Date(s.endDate).getTime() - new Date(s.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1;
         return sum + duration;
-      }, 0) / projects.length) : 0, 'Détail': '' },
-      { 'Métrique': 'Durée totale cumulée (jours)', 'Valeur': projects.reduce((sum, p) => {
-        const duration = Math.ceil((new Date(p.endDate).getTime() - new Date(p.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      }, 0) / steps.length) : 0, 'Détail': '' },
+      { 'Métrique': 'Durée totale cumulée (jours)', 'Valeur': steps.reduce((sum, s) => {
+        const duration = Math.ceil((new Date(s.endDate).getTime() - new Date(s.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1;
         return sum + duration;
       }, 0), 'Détail': '' },
-      { 'Métrique': 'Progression moyenne (%)', 'Valeur': projects.length > 0 ? Math.round(projects.reduce((sum, p) => sum + this.calculateProgress(p), 0) / projects.length) : 0, 'Détail': '' },
+      { 'Métrique': 'Progression moyenne (%)', 'Valeur': steps.length > 0 ? Math.round(steps.reduce((sum, s) => sum + this.calculateProgress(s), 0) / steps.length) : 0, 'Détail': '' },
       { 'Métrique': '', 'Valeur': '', 'Détail': '' },
       { 'Métrique': '═══ Période couverte ═══', 'Valeur': '', 'Détail': '' },
       { 'Métrique': 'Date de début la plus ancienne', 'Valeur': format(minDate, 'dd/MM/yyyy', { locale: fr }), 'Détail': '' },
@@ -151,18 +151,18 @@ export class TimelineExportService {
       { 'Métrique': 'Période totale (jours)', 'Valeur': Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24)) + 1, 'Détail': '' },
       { 'Métrique': '', 'Valeur': '', 'Détail': '' },
       { 'Métrique': '═══ Analyse ═══', 'Valeur': '', 'Détail': '' },
-      { 'Métrique': 'Projets en retard (< 50% progression)', 'Valeur': projects.filter(p => {
-        const status = this.getProjectStatus(p);
-        const progress = this.calculateProgress(p);
+      { 'Métrique': 'Projets en retard (< 50% progression)', 'Valeur': steps.filter(s => {
+        const status = this.getStepStatus(s);
+        const progress = this.calculateProgress(s);
         return status === 'En cours' && progress < 50;
       }).length, 'Détail': '' },
-      { 'Métrique': 'Projets presque terminés (> 80%)', 'Valeur': projects.filter(p => {
-        const status = this.getProjectStatus(p);
-        const progress = this.calculateProgress(p);
+      { 'Métrique': 'Projets presque terminés (> 80%)', 'Valeur': steps.filter(s => {
+        const status = this.getStepStatus(s);
+        const progress = this.calculateProgress(s);
         return status === 'En cours' && progress > 80;
       }).length, 'Détail': '' },
-      { 'Métrique': 'Projets démarrant dans 7 jours', 'Valeur': projects.filter(p => {
-        const start = new Date(p.startDate);
+      { 'Métrique': 'Projets démarrant dans 7 jours', 'Valeur': steps.filter(s => {
+        const start = new Date(s.startDate);
         const now = new Date();
         const daysUntilStart = Math.ceil((start.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
         return daysUntilStart > 0 && daysUntilStart <= 7;
@@ -183,9 +183,9 @@ export class TimelineExportService {
     
     // Générer un planning pour chaque mois couvert
     const monthsToShow = new Set<string>();
-    sortedProjects.forEach(project => {
-      const start = new Date(project.startDate);
-      const end = new Date(project.endDate);
+    sortedSteps.forEach(step => {
+      const start = new Date(step.startDate);
+      const end = new Date(step.endDate);
       const current = new Date(start);
       
       while (current <= end) {
@@ -200,13 +200,13 @@ export class TimelineExportService {
       const monthEnd = new Date(year, month, 0);
       
       // Lister les projets actifs ce mois
-      const activeProjects = sortedProjects.filter(project => {
-        const start = new Date(project.startDate);
-        const end = new Date(project.endDate);
+      const activeSteps = sortedSteps.filter(step => {
+        const start = new Date(step.startDate);
+        const end = new Date(step.endDate);
         return start <= monthEnd && end >= monthDate;
       });
       
-      if (activeProjects.length > 0) {
+      if (activeSteps.length > 0) {
         monthlyData.push({ 
           'Mois': format(monthDate, 'MMMM yyyy', { locale: fr }).toUpperCase(),
           'Projet': '',
@@ -215,10 +215,10 @@ export class TimelineExportService {
           'Progression': ''
         });
         
-        activeProjects.forEach(project => {
-          const start = new Date(project.startDate);
-          const end = new Date(project.endDate);
-          const status = this.getProjectStatus(project);
+        activeSteps.forEach(step => {
+          const start = new Date(step.startDate);
+          const end = new Date(step.endDate);
+          const status = this.getStepStatus(step);
           
           let dateRange = '';
           if (start >= monthDate && start.getMonth() === month - 1) {
@@ -235,10 +235,10 @@ export class TimelineExportService {
           
           monthlyData.push({
             'Mois': '',
-            'Projet': project.title,
+            'Projet': step.title,
             'Période': dateRange,
             'Statut': status,
-            'Progression': `${this.calculateProgress(project)}%`
+            'Progression': `${this.calculateProgress(step)}%`
           });
         });
         
@@ -283,18 +283,18 @@ export class TimelineExportService {
   /**
    * Export projects data as CSV file
    */
-  static exportAsCSV(projects: Project[], filename: string = 'timeline.csv'): void {
-    const data = projects.map(project => ({
-      'Nom du projet': project.title,
-      'Description': project.description || '',
-      'Date de début': format(new Date(project.startDate), 'yyyy-MM-dd'),
-      'Date de fin': format(new Date(project.endDate), 'yyyy-MM-dd'),
+  static exportAsCSV(steps: Step[], filename: string = 'timeline.csv'): void {
+    const data = steps.map(step => ({
+      'Nom du projet': step.title,
+      'Description': step.description || '',
+      'Date de début': format(new Date(step.startDate), 'yyyy-MM-dd'),
+      'Date de fin': format(new Date(step.endDate), 'yyyy-MM-dd'),
       'Durée (jours)': Math.ceil(
-        (new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / 
+        (new Date(step.endDate).getTime() - new Date(step.startDate).getTime()) / 
         (1000 * 60 * 60 * 24)
       ),
-      'Statut': this.getProjectStatus(project),
-      'Progression (%)': this.calculateProgress(project),
+      'Statut': this.getStepStatus(step),
+      'Progression (%)': this.calculateProgress(step),
     }));
 
     const ws = XLSX.utils.json_to_sheet(data);
@@ -307,26 +307,26 @@ export class TimelineExportService {
   /**
    * Export as MS Project XML format
    */
-  static exportAsMSProjectXML(projects: Project[], filename: string = 'timeline.xml'): void {
+  static exportAsMSProjectXML(steps: Step[], filename: string = 'timeline.xml'): void {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <Project xmlns="http://schemas.microsoft.com/project">
   <Name>Timeline Export</Name>
   <Title>Projets exportés depuis FtelMap</Title>
   <CreationDate>${new Date().toISOString()}</CreationDate>
   <Tasks>
-    ${projects.map((project, index) => `
+    ${steps.map((project, index) => `
     <Task>
       <UID>${index + 1}</UID>
       <ID>${index + 1}</ID>
-      <Name>${this.escapeXml(project.title)}</Name>
-      <Notes>${this.escapeXml(project.description || '')}</Notes>
-      <Start>${new Date(project.startDate).toISOString()}</Start>
-      <Finish>${new Date(project.endDate).toISOString()}</Finish>
+      <Name>${this.escapeXml(step.title)}</Name>
+      <Notes>${this.escapeXml(step.description || '')}</Notes>
+      <Start>${new Date(step.startDate).toISOString()}</Start>
+      <Finish>${new Date(step.endDate).toISOString()}</Finish>
       <Duration>PT${Math.ceil(
-        (new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / 
+        (new Date(step.endDate).getTime() - new Date(step.startDate).getTime()) / 
         (1000 * 60 * 60 * 24)
       ) * 8}H0M0S</Duration>
-      <PercentComplete>${this.calculateProgress(project)}</PercentComplete>
+      <PercentComplete>${this.calculateProgress(step)}</PercentComplete>
       <Priority>500</Priority>
     </Task>`).join('')}
   </Tasks>
@@ -339,18 +339,18 @@ export class TimelineExportService {
   /**
    * Export projects as JSON
    */
-  static exportAsJSON(projects: Project[], filename: string = 'timeline.json'): void {
+  static exportAsJSON(steps: Step[], filename: string = 'timeline.json'): void {
     const data = {
       exportDate: new Date().toISOString(),
-      projectCount: projects.length,
-      projects: projects.map(project => ({
+      projectCount: steps.length,
+      steps: steps.map(step => ({
         ...project,
         duration: Math.ceil(
-          (new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / 
+          (new Date(step.endDate).getTime() - new Date(step.startDate).getTime()) / 
           (1000 * 60 * 60 * 24)
         ),
-        status: this.getProjectStatus(project),
-        progress: this.calculateProgress(project),
+        status: this.getStepStatus(step),
+        progress: this.calculateProgress(step),
       })),
     };
 
@@ -363,8 +363,8 @@ export class TimelineExportService {
   /**
    * Export as interactive HTML Gantt chart
    */
-  static exportAsHTMLGantt(projects: Project[], filename: string = 'timeline.html'): void {
-    const sortedProjects = [...projects].sort(
+  static exportAsHTMLGantt(steps: Step[], filename: string = 'timeline.html'): void {
+    const sortedSteps = [...steps].sort(
       (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
     );
 
@@ -410,7 +410,7 @@ export class TimelineExportService {
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: transform 0.2s;
         }
-        .project:hover {
+        .step:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
@@ -467,34 +467,34 @@ export class TimelineExportService {
         <div class="stats">
             <div class="stat">
                 <div class="stat-label">Total des projets</div>
-                <div class="stat-value">${projects.length}</div>
+                <div class="stat-value">${steps.length}</div>
             </div>
             <div class="stat">
                 <div class="stat-label">En cours</div>
-                <div class="stat-value">${projects.filter(p => this.getProjectStatus(p) === 'En cours').length}</div>
+                <div class="stat-value">${steps.filter(s => this.getStepStatus(s) === 'En cours').length}</div>
             </div>
             <div class="stat">
                 <div class="stat-label">À venir</div>
-                <div class="stat-value">${projects.filter(p => this.getProjectStatus(p) === 'À venir').length}</div>
+                <div class="stat-value">${steps.filter(s => this.getStepStatus(s) === 'À venir').length}</div>
             </div>
             <div class="stat">
                 <div class="stat-label">Terminés</div>
-                <div class="stat-value">${projects.filter(p => this.getProjectStatus(p) === 'Terminé').length}</div>
+                <div class="stat-value">${steps.filter(s => this.getStepStatus(s) === 'Terminé').length}</div>
             </div>
         </div>
         
         <div class="timeline">
-            ${sortedProjects.map(project => {
+            ${sortedSteps.map(step => {
               const duration = Math.ceil(
-                (new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / 
+                (new Date(step.endDate).getTime() - new Date(step.startDate).getTime()) / 
                 (1000 * 60 * 60 * 24)
               );
               return `
-            <div class="project" style="background: ${project.backgroundColor}; color: ${project.textColor}">
-                <div class="project-title">${this.escapeHtml(project.title)}</div>
+            <div class="project" style="background: ${step.backgroundColor}; color: ${step.textColor}">
+                <div class="project-title">${this.escapeHtml(step.title)}</div>
                 <div class="project-dates">
-                    ${format(new Date(project.startDate), 'dd MMM yyyy', { locale: fr })} → 
-                    ${format(new Date(project.endDate), 'dd MMM yyyy', { locale: fr })}
+                    ${format(new Date(step.startDate), 'dd MMM yyyy', { locale: fr })} → 
+                    ${format(new Date(step.endDate), 'dd MMM yyyy', { locale: fr })}
                 </div>
                 <div class="project-duration">${duration} jour${duration > 1 ? 's' : ''}</div>
             </div>`;
@@ -516,8 +516,8 @@ export class TimelineExportService {
   /**
    * Export as Markdown
    */
-  static exportAsMarkdown(projects: Project[], filename: string = 'timeline.md'): void {
-    const sortedProjects = [...projects].sort(
+  static exportAsMarkdown(steps: Step[], filename: string = 'timeline.md'): void {
+    const sortedSteps = [...steps].sort(
       (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
     );
 
@@ -525,27 +525,27 @@ export class TimelineExportService {
 *Exporté le ${format(new Date(), 'dd MMMM yyyy à HH:mm', { locale: fr })}*
 
 ## 📊 Statistiques
-- **Total des projets :** ${projects.length}
-- **En cours :** ${projects.filter(p => this.getProjectStatus(p) === 'En cours').length}
-- **À venir :** ${projects.filter(p => this.getProjectStatus(p) === 'À venir').length}
-- **Terminés :** ${projects.filter(p => this.getProjectStatus(p) === 'Terminé').length}
+- **Total des projets :** ${steps.length}
+- **En cours :** ${steps.filter(s => this.getStepStatus(s) === 'En cours').length}
+- **À venir :** ${steps.filter(s => this.getStepStatus(s) === 'À venir').length}
+- **Terminés :** ${steps.filter(s => this.getStepStatus(s) === 'Terminé').length}
 
 ## 📅 Liste des Projets
 
-${sortedProjects.map(project => {
+${sortedSteps.map(step => {
   const duration = Math.ceil(
-    (new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / 
+    (new Date(step.endDate).getTime() - new Date(step.startDate).getTime()) / 
     (1000 * 60 * 60 * 24)
   );
-  const status = this.getProjectStatus(project);
-  const progress = this.calculateProgress(project);
+  const status = this.getStepStatus(step);
+  const progress = this.calculateProgress(step);
   
-  return `### ${project.title}
+  return `### ${step.title}
 - **Statut :** ${status}
-- **Dates :** ${format(new Date(project.startDate), 'dd/MM/yyyy')} → ${format(new Date(project.endDate), 'dd/MM/yyyy')}
+- **Dates :** ${format(new Date(step.startDate), 'dd/MM/yyyy')} → ${format(new Date(step.endDate), 'dd/MM/yyyy')}
 - **Durée :** ${duration} jour${duration > 1 ? 's' : ''}
 - **Progression :** ${progress}%
-${project.description ? `- **Description :** ${project.description}` : ''}
+${step.description ? `- **Description :** ${step.description}` : ''}
 `;
 }).join('\n---\n\n')}
 
@@ -557,20 +557,20 @@ ${project.description ? `- **Description :** ${project.description}` : ''}
   }
 
   // Méthodes utilitaires
-  private static getProjectStatus(project: Project): string {
+  private static getStepStatus(step: Project): string {
     const now = new Date();
-    const start = new Date(project.startDate);
-    const end = new Date(project.endDate);
+    const start = new Date(step.startDate);
+    const end = new Date(step.endDate);
     
     if (now < start) return 'À venir';
     if (now > end) return 'Terminé';
     return 'En cours';
   }
 
-  private static calculateProgress(project: Project): number {
+  private static calculateProgress(step: Project): number {
     const now = new Date();
-    const start = new Date(project.startDate);
-    const end = new Date(project.endDate);
+    const start = new Date(step.startDate);
+    const end = new Date(step.endDate);
     
     if (now < start) return 0;
     if (now > end) return 100;

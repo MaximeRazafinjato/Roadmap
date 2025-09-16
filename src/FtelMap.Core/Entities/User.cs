@@ -15,6 +15,6 @@ namespace FtelMap.Core.Entities
         public bool IsActive { get; set; } = true;
         public string? Role { get; set; } = "User";
         
-        public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
+        public virtual ICollection<Step> Steps { get; set; } = new List<Step>();
     }
 }

@@ -10,35 +10,35 @@ import { DndContext } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import type { Project } from '../../types/entities';
-import { TimelineProject } from './TimelineProject';
+import type { Step } from '../../types/entities';
+import { TimelineStep } from './TimelineStep';
 import { useTimelineZoom } from '../../hooks/use-timeline-zoom';
 import { useTimelinePan } from '../../hooks/use-timeline-pan';
 import { useTimelineDrag } from '../../hooks/use-timeline-drag';
 import {
-  calculateProjectPosition,
+  calculateStepPosition,
   calculateViewportDates,
   generateTimeMarkers,
-  isProjectVisible,
+  isStepVisible,
   calculateResizedDates,
   TIMELINE_HEIGHT,
   type TimelineViewport,
 } from '../../utils/timeline-utils';
 
 interface TimelineProps {
-  projects: Project[];
-  onProjectUpdate?: (project: Project, updates: Partial<Project>) => void;
-  onProjectEdit?: (project: Project) => void;
-  onProjectDelete?: (project: Project) => void;
-  onProjectAdd?: () => void;
+  steps: Step[];
+  onStepUpdate?: (step: Step, updates: Partial<Step>) => void;
+  onStepEdit?: (step: Step) => void;
+  onStepDelete?: (step: Step) => void;
+  onStepAdd?: () => void;
 }
 
 export const Timeline = ({
-  projects,
-  onProjectUpdate,
-  onProjectEdit,
-  onProjectDelete,
-  onProjectAdd,
+  steps,
+  onStepUpdate,
+  onStepEdit,
+  onStepDelete,
+  onStepAdd,
 }: TimelineProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(1200);
@@ -47,8 +47,8 @@ export const Timeline = ({
   const { zoomLevel, zoomIn, zoomOut, resetZoom, canZoomIn, canZoomOut } = useTimelineZoom();
   const { centerDate, isPanning, startPan, handlePanMove, endPan, panToToday } = useTimelinePan();
   const { isDragging, handleDragStart, handleDragEnd, handleDragCancel } = useTimelineDrag({
-    onProjectMove: (project, newDates) => {
-      onProjectUpdate?.(project, {
+    onStepMove: (step, newDates) => {
+      onStepUpdate?.(step, {
         startDate: newDates.startDate.toISOString(),
         endDate: newDates.endDate.toISOString(),
       });
@@ -73,13 +73,13 @@ export const Timeline = ({
   
   // Filtrer et positionner les projets visibles
   const visibleProjects = useMemo(() => {
-    return projects
-      .filter((project) => isProjectVisible(project, viewport))
-      .map((project) => ({
-        project,
-        position: calculateProjectPosition(project, viewport),
+    return steps
+      .filter((step) => isStepVisible(step, viewport))
+      .map((step) => ({
+        step,
+        position: calculateStepPosition(step, viewport),
       }));
-  }, [projects, viewport]);
+  }, [steps, viewport]);
   
   // Mise à jour de la largeur du container
   useEffect(() => {
@@ -111,16 +111,16 @@ export const Timeline = ({
   }, [isPanning, handlePanMove, endPan]);
   
   // État pour suivre le projet en cours de redimensionnement
-  const [resizingProject, setResizingProject] = useState<string | null>(null);
+  const [resizingStep, setResizingStep] = useState<string | null>(null);
   
   // Gestion du redimensionnement des projets
-  const handleProjectResize = (project: Project, deltaX: number, side: 'left' | 'right') => {
-    if (!resizingProject) {
-      setResizingProject(project.id);
+  const handleProjectResize = (step: Project, deltaX: number, side: 'left' | 'right') => {
+    if (!resizingStep) {
+      setResizingStep(step.id);
     }
     
-    const newDates = calculateResizedDates(project, deltaX, side, viewport);
-    onProjectUpdate?.(project, {
+    const newDates = calculateResizedDates(step, deltaX, side, viewport);
+    onStepUpdate?.(step, {
       startDate: newDates.startDate.toISOString(),
       endDate: newDates.endDate.toISOString(),
     });
@@ -129,14 +129,14 @@ export const Timeline = ({
   // Réinitialiser l'état de redimensionnement quand on relâche la souris
   useEffect(() => {
     const handleMouseUp = () => {
-      if (resizingProject) {
-        setResizingProject(null);
+      if (resizingStep) {
+        setResizingStep(null);
       }
     };
     
     window.addEventListener('mouseup', handleMouseUp);
     return () => window.removeEventListener('mouseup', handleMouseUp);
-  }, [resizingProject]);
+  }, [resizingStep]);
   
   // Gestion du drag & drop
   const handleDragEndWrapper = (event: DragEndEvent) => {
@@ -223,9 +223,9 @@ export const Timeline = ({
             Aujourd'hui
           </IconButton>
           
-          {onProjectAdd && (
+          {onStepAdd && (
             <IconButton
-              onClick={onProjectAdd}
+              onClick={onStepAdd}
               color="primary"
               size="small"
               title="Ajouter un projet"
@@ -248,7 +248,7 @@ export const Timeline = ({
         }}
         onMouseDown={(e) => {
           // Ne pas démarrer le pan si on clique sur un projet
-          if ((e.target as HTMLElement).closest('[data-project]')) return;
+          if ((e.target as HTMLElement).closest('[data-step]')) return;
           startPan(e);
         }}
       >
@@ -396,20 +396,20 @@ export const Timeline = ({
             onDragEnd={handleDragEndWrapper}
             onDragCancel={handleDragCancel}
           >
-            {visibleProjects.map(({ project, position }) => (
+            {visibleProjects.map(({ step, position }) => (
               <Box
-                key={project.id}
-                data-project
+                key={step.id}
+                data-step
                 sx={{ position: 'absolute' }}
               >
-                <TimelineProject
-                  project={project}
+                <TimelineStep
+                  step={step}
                   position={position}
-                  onEdit={onProjectEdit}
-                  onDelete={onProjectDelete}
+                  onEdit={onStepEdit}
+                  onDelete={onStepDelete}
                   onResize={handleProjectResize}
                   isDragging={isDragging}
-                  isResizing={resizingProject === project.id}
+                  isResizing={resizingStep === step.id}
                 />
               </Box>
             ))}

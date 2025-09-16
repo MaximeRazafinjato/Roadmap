@@ -14,7 +14,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly ConcurrentDictionary<Type, object> _repositories;
 
     private IRepository<User>? _users;
-    private IRepository<Project>? _projects;
+    private IRepository<Step>? _steps;
     private IRepository<Core.Entities.Task>? _tasks;
     private IRepository<Milestone>? _milestones;
 
@@ -30,7 +30,7 @@ public class UnitOfWork : IUnitOfWork
     }
 
     public IRepository<User> Users => _users ??= new Repository<User>(_context);
-    public IRepository<Project> Projects => _projects ??= new Repository<Project>(_context);
+    public IRepository<Step> Steps => _steps ??= new Repository<Step>(_context);
     public IRepository<Core.Entities.Task> Tasks => _tasks ??= new Repository<Core.Entities.Task>(_context);
     public IRepository<Milestone> Milestones => _milestones ??= new Repository<Milestone>(_context);
 

@@ -37,13 +37,13 @@ interface NavItem {
 
 const allNavItems: NavItem[] = [
   {
-    title: 'Tableau de bord',
-    path: '/dashboard',
+    title: 'Timeline',
+    path: '/timeline',
     icon: <DashboardIcon />,
   },
   {
-    title: 'Projets',
-    path: '/projects',
+    title: 'Étapes',
+    path: '/steps',
     icon: <FolderIcon />,
   },
   {

@@ -25,7 +25,7 @@ import {
   TrendingUp as TrendingUpIcon,
   Folder as FolderIcon,
 } from '@mui/icons-material';
-import { useProjects } from '../hooks/use-projects';
+import { useSteps } from '../hooks/use-steps';
 
 interface StatCardProps {
   title: string;
@@ -92,12 +92,12 @@ const StatCard = ({ title, value, icon, color, trend }: StatCardProps) => (
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const { data: projects, isLoading, error } = useProjects();
+  const { data: steps, isLoading, error } = useSteps();
 
-  const projectsOnTop = projects?.filter(p => p.position === 0).length || 0;
-  const projectsOnBottom = projects?.filter(p => p.position === 1).length || 0;
-  // const upcomingProjects = projects?.filter(p => new Date(p.startDate) > new Date()).length || 0;
-  const activeProjects = projects?.filter(p => {
+  const stepsOnTop = steps?.filter(p => p.position === 0).length || 0;
+  const stepsOnBottom = steps?.filter(p => p.position === 1).length || 0;
+  // const upcomingProjects = steps?.filter(p => new Date(p.startDate) > new Date()).length || 0;
+  const activeSteps = steps?.filter(p => {
     const now = new Date();
     return new Date(p.startDate) <= now && new Date(p.endDate) >= now;
   }).length || 0;
@@ -146,13 +146,13 @@ const DashboardPage = () => {
               Tableau de bord
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Vue d'ensemble de votre système de gestion de projets
+              Vue d'ensemble de votre système de gestion des étapes
             </Typography>
           </Box>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => navigate('/projects')}
+            onClick={() => navigate('/steps')}
             sx={{
               borderRadius: 2,
               px: 3,
@@ -161,7 +161,7 @@ const DashboardPage = () => {
               fontWeight: 600,
             }}
           >
-            Nouveau Projet
+            Nouvelle Étape
           </Button>
         </Stack>
 
@@ -178,28 +178,28 @@ const DashboardPage = () => {
           }}
         >
           <StatCard
-            title="Total des Projets"
-            value={projects?.length || 0}
+            title="Total des Étapes"
+            value={steps?.length || 0}
             icon={<FolderIcon />}
             color="primary"
             trend={12}
           />
           <StatCard
-            title="Projets Actifs"
-            value={activeProjects}
+            title="Étapes Actives"
+            value={activeSteps}
             icon={<PlayArrowIcon />}
             color="success"
             trend={8}
           />
           <StatCard
             title="Position Haute"
-            value={projectsOnTop}
+            value={stepsOnTop}
             icon={<TrendingUpIcon />}
             color="warning"
           />
           <StatCard
             title="Position Basse"
-            value={projectsOnBottom}
+            value={stepsOnBottom}
             icon={<CheckCircleIcon />}
             color="info"
           />
@@ -216,20 +216,20 @@ const DashboardPage = () => {
         >
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h6" fontWeight="600">
-              Projets Récents
+              Étapes Récentes
             </Typography>
             <Button
               endIcon={<ArrowForwardIcon />}
-              onClick={() => navigate('/projects')}
+              onClick={() => navigate('/steps')}
               sx={{ textTransform: 'none' }}
             >
               Voir Tout
             </Button>
           </Stack>
 
-          {projects && projects.length > 0 ? (
+          {steps && steps.length > 0 ? (
             <Stack spacing={2}>
-              {projects.slice(0, 5).map((project, index) => (
+              {steps.slice(0, 5).map((project, index) => (
                 <Fade key={project.id} in={true} timeout={300 * (index + 1)}>
                   <Paper
                     elevation={0}
@@ -246,7 +246,7 @@ const DashboardPage = () => {
                         transform: 'translateX(8px)',
                       },
                     }}
-                    onClick={() => navigate(`/projects/${project.id}`)}
+                    onClick={() => navigate(`/steps/${project.id}`)}
                   >
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                       <Stack direction="row" spacing={2} alignItems="center">
@@ -327,21 +327,21 @@ const DashboardPage = () => {
             >
               <FolderIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
               <Typography variant="h6" color="text.secondary" gutterBottom>
-                Aucun projet pour le moment
+                Aucune étape pour le moment
               </Typography>
               <Typography variant="body2" color="text.secondary" mb={3}>
-                Créez votre premier projet pour commencer
+                Créez votre première étape pour commencer
               </Typography>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
-                onClick={() => navigate('/projects')}
+                onClick={() => navigate('/steps')}
                 sx={{
                   borderRadius: 2,
                   textTransform: 'none',
                 }}
               >
-                Créer un Projet
+                Créer une Étape
               </Button>
             </Paper>
           )}
