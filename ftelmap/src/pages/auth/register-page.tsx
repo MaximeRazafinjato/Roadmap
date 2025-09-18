@@ -49,7 +49,7 @@ export default function RegisterPage() {
     
     try {
       await register.mutateAsync(formData);
-      navigate('/dashboard', { replace: true });
+      navigate('/timeline', { replace: true });
     } catch (error) {
       console.error('Registration failed:', error);
     }

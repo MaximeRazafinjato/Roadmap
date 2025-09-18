@@ -31,14 +31,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
       const response = await AuthService.login(credentials);
-      
+
       // API returns with capital letters
       const tokenData: TokenData = {
         token: (response as any).Token || response.token,
         refreshToken: (response as any).RefreshToken || response.refreshToken,
         expiresAt: (response as any).Expiration ? new Date((response as any).Expiration).getTime() : Date.now() + 3600000,
       };
-      
+
       TokenStorage.setTokenData(tokenData);
       const userData = (response as any).User || response.user;
       TokenStorage.setCachedUser(userData);

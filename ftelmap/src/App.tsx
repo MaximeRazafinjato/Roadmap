@@ -6,9 +6,8 @@ import { AuthProvider } from './contexts/auth-context';
 import { ProtectedRoute, PublicRoute } from './components/auth/protected-route';
 import { AdminRoute } from './components/auth/AdminRoute';
 import Layout from './components/Layout';
-import StepsPageGrid from './pages/StepsPageGrid';
+import StepsPageTable from './pages/StepsPageTable';
 import StepDetailPage from './pages/StepDetailPage';
-import DashboardPage from './pages/DashboardPage';
 import TimelinePage from './pages/TimelinePage';
 import UsersPage from './pages/UsersPage';
 import LoginPage from './pages/auth/login-page';
@@ -197,9 +196,8 @@ function App() {
               </ProtectedRoute>
             }>
               <Route index element={<Navigate to="/timeline" replace />} />
-              <Route path="dashboard" element={<DashboardPage />} />
               <Route path="timeline" element={<TimelinePage />} />
-              <Route path="steps" element={<StepsPageGrid />} />
+              <Route path="steps" element={<StepsPageTable />} />
               <Route path="steps/:id" element={<StepDetailPage />} />
               <Route path="users" element={
                 <AdminRoute>

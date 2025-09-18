@@ -328,6 +328,6 @@ docker-compose down
 3. Résumé des risques, limites, dettes techniques et pistes d’amélioration.
 4. Lignes directrices pour l’observabilité si pertinent (logs structurés, traces).
 
-## Instruction Puppeteer
+## Configuration du Puppeteer MCP
 
-1. Lance toujours le navigateur en plein écran
+-   Lance toujours le navigateur avec l'argument "args: ["--start-maximized"]" et en 1920x1080

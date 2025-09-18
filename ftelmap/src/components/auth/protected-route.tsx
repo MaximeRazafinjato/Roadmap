@@ -59,7 +59,7 @@ export function ProtectedRoute({
 
   // If user is authenticated but shouldn't access this route (e.g., login page)
   if (!requireAuth && isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/timeline" replace />;
   }
 
   return <>{children}</>;

@@ -27,7 +27,9 @@
       "mcp__puppeteer__puppeteer_click",
       "mcp__puppeteer__puppeteer_evaluate",
       "Bash(curl:*)",
-      "Bash(dotnet run:*)"
+      "Bash(dotnet run:*)",
+      "Bash(findstr:*)",
+      "Bash(del \"C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\pages\\DashboardPage.tsx\")"
     ],
     "deny": [],
     "ask": [],

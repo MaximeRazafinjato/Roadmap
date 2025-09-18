@@ -23,6 +23,7 @@ export function useLogin() {
       // Invalidate user-related queries
       queryClient.invalidateQueries({ queryKey: authKeys.all });
     },
+    retry: false, // Don't retry on error
   });
 }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -34,28 +34,84 @@ export default function LoginPage() {
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const theme = useTheme();
 
   const navigate = useNavigate();
   const location = useLocation();
   const login = useLogin();
 
-  const from = location.state?.from?.pathname || '/dashboard';
+  // Keep the error visible after it's set
+  const [persistentError, setPersistentError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  useEffect(() => {
+    if (loginError) {
+      setPersistentError(loginError);
+    }
+  }, [loginError]);
+
+  const from = location.state?.from?.pathname || '/timeline';
+
+  const handleSubmit = async (e?: React.FormEvent | React.MouseEvent | React.KeyboardEvent) => {
+    // Prevent any default behavior
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    console.log('HandleSubmit called with formData:', formData);
+
+    // Clear previous errors
+    setLoginError(null);
+    setPersistentError(null);
+    setErrors({});
+
+    // Validation côté client
+    const newErrors: { email?: string; password?: string } = {};
+
+    if (!formData.email) {
+      newErrors.email = 'L\'adresse e-mail est requise';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Adresse e-mail invalide';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Le mot de passe est requis';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    console.log('Calling login mutation with:', formData);
+
     try {
       await login.mutateAsync(formData);
+      console.log('Login successful!');
       navigate(from, { replace: true });
-    } catch (error) {
-      console.error('Login failed:', error);
+    } catch (error: any) {
+      console.log('Login failed:', error);
+      setAttemptCount(prev => prev + 1);
+
+      // Set error message
+      const errorMessage = error?.message || 'E-mail ou mot de passe incorrect';
+      setLoginError(errorMessage);
+      setPersistentError(errorMessage);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error for this field when user starts typing
+    if (errors[name as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
   };
 
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -110,14 +166,38 @@ export default function LoginPage() {
               }}
             >
               <CardContent sx={{ p: 4 }}>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} noValidate>
                   <Stack spacing={3}>
-                    {login.error && (
+                    {(loginError || persistentError) && (
                       <Fade in={true}>
-                        <Alert severity="error" variant="outlined">
-                          {login.error instanceof Error 
-                            ? login.error.message 
-                            : 'Échec de la connexion. Veuillez vérifier vos identifiants.'}
+                        <Alert
+                          severity="error"
+                          variant="filled"
+                          onClose={() => {
+                            setLoginError(null);
+                            setPersistentError(null);
+                          }}
+                          sx={{
+                            borderRadius: 2,
+                            '& .MuiAlert-message': {
+                              fontWeight: 500
+                            }
+                          }}
+                        >
+                          {loginError || persistentError}
+                        </Alert>
+                      </Fade>
+                    )}
+
+                    {attemptCount >= 3 && (
+                      <Fade in={true}>
+                        <Alert
+                          severity="warning"
+                          variant="outlined"
+                          sx={{ borderRadius: 2 }}
+                        >
+                          Après plusieurs tentatives infructueuses, vérifiez que vous utilisez les bons identifiants.
+                          Si vous avez oublié votre mot de passe, utilisez le lien "Mot de passe oublié ?" ci-dessous.
                         </Alert>
                       </Fade>
                     )}
@@ -134,17 +214,19 @@ export default function LoginPage() {
                       value={formData.email}
                       onChange={handleChange}
                       disabled={login.isPending}
+                      error={!!errors.email}
+                      helperText={errors.email}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <EmailIcon color="action" />
+                            <EmailIcon color={errors.email ? "error" : "action"} />
                           </InputAdornment>
                         ),
                       }}
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           '&:hover fieldset': {
-                            borderColor: 'primary.main',
+                            borderColor: errors.email ? 'error.main' : 'primary.main',
                           },
                         },
                       }}
@@ -162,10 +244,12 @@ export default function LoginPage() {
                       value={formData.password}
                       onChange={handleChange}
                       disabled={login.isPending}
+                      error={!!errors.password}
+                      helperText={errors.password}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <LockIcon color="action" />
+                            <LockIcon color={errors.password ? "error" : "action"} />
                           </InputAdornment>
                         ),
                         endAdornment: (
@@ -175,6 +259,7 @@ export default function LoginPage() {
                               onClick={() => setShowPassword(!showPassword)}
                               onMouseDown={handleMouseDownPassword}
                               edge="end"
+                              size="small"
                             >
                               {showPassword ? <VisibilityOff /> : <Visibility />}
                             </IconButton>
@@ -184,7 +269,7 @@ export default function LoginPage() {
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           '&:hover fieldset': {
-                            borderColor: 'primary.main',
+                            borderColor: errors.password ? 'error.main' : 'primary.main',
                           },
                         },
                       }}
@@ -232,8 +317,8 @@ export default function LoginPage() {
                         textTransform: 'none',
                         fontWeight: 600,
                         fontSize: '1rem',
-                        background: login.isPending 
-                          ? undefined 
+                        background: login.isPending
+                          ? undefined
                           : `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                         '&:hover': {
                           background: login.isPending

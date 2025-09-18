@@ -1,7 +1,7 @@
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
 import { TokenStorage } from './token-storage';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5095/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5094/api';
 
 class ApiClient {
   private instance: AxiosInstance;
@@ -45,7 +45,12 @@ class ApiClient {
       async (error: AxiosError) => {
         const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // Don't attempt token refresh for auth endpoints (login, register, etc.)
+        const isAuthEndpoint = originalRequest.url?.includes('/auth/login') ||
+                              originalRequest.url?.includes('/auth/register') ||
+                              originalRequest.url?.includes('/auth/refresh');
+
+        if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
           if (this.isRefreshing) {
             // If already refreshing, add to queue
             return new Promise((resolve, reject) => {
@@ -158,12 +163,39 @@ export const apiClient = new ApiClient();
 
 export const handleApiError = (error: unknown): string => {
   if (error instanceof AxiosError) {
+    // Handle specific error messages from API
     if (error.response?.data?.message) {
       return error.response.data.message;
     }
+
+    // Handle common HTTP error codes with French messages
+    if (error.response?.status === 401) {
+      return 'E-mail ou mot de passe incorrect';
+    }
+    if (error.response?.status === 400) {
+      return 'Les informations fournies sont invalides';
+    }
+    if (error.response?.status === 404) {
+      return 'Ressource non trouvée';
+    }
+    if (error.response?.status === 500) {
+      return 'Une erreur serveur est survenue. Veuillez réessayer plus tard';
+    }
+    if (error.response?.status === 503) {
+      return 'Service temporairement indisponible';
+    }
+
+    // Network errors
+    if (error.code === 'ERR_NETWORK') {
+      return 'Erreur de connexion au serveur. Vérifiez votre connexion internet';
+    }
+    if (error.code === 'ECONNABORTED') {
+      return 'La requête a expiré. Veuillez réessayer';
+    }
+
     if (error.message) {
       return error.message;
     }
   }
-  return 'An unexpected error occurred';
+  return 'Une erreur inattendue est survenue';
 };

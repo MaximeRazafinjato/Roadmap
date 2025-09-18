@@ -22,7 +22,7 @@ export function AdminRoute({ children }: AdminRouteProps) {
   }
 
   if (user?.role !== 'Admin') {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/timeline" replace />;
   }
 
   return <>{children}</>;

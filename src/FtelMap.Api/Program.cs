@@ -1,5 +1,6 @@
 using FtelMap.Infrastructure;
 using FtelMap.Infrastructure.Data;
+using FtelMap.Api.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -89,12 +90,15 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Add error handling middleware FIRST, before other middlewares
+app.UseErrorHandling();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    
+
     // Apply migrations automatically in development and seed data
     using (var scope = app.Services.CreateScope())
     {

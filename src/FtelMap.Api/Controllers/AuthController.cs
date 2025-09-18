@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FtelMap.Application.DTOs.Authentication;
 using FtelMap.Application.Interfaces;
+using FtelMap.Application.Exceptions;
 using System.Security.Claims;
 
 namespace FtelMap.Api.Controllers
@@ -45,7 +46,7 @@ namespace FtelMap.Api.Controllers
             var result = await _authenticationService.LoginAsync(loginDto);
             if (result == null)
             {
-                return Unauthorized(new { message = "E-mail ou mot de passe invalide" });
+                throw new InvalidCredentialsException();
             }
 
             return Ok(result);
