@@ -46,7 +46,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       await register.mutateAsync(formData);
       navigate('/timeline', { replace: true });
@@ -57,7 +57,7 @@ export default function RegisterPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -117,8 +117,8 @@ export default function RegisterPage() {
                     {register.error && (
                       <Fade in={true}>
                         <Alert severity="error" variant="outlined">
-                          {register.error instanceof Error 
-                            ? register.error.message 
+                          {register.error instanceof Error
+                            ? register.error.message
                             : 'Inscription échouée. Veuillez réessayer.'}
                         </Alert>
                       </Fade>
@@ -126,57 +126,57 @@ export default function RegisterPage() {
 
                     <Box sx={{ display: 'flex', gap: 2 }}>
                       <TextField
-                          id="firstName"
-                          name="firstName"
-                          type="text"
-                          label="Prénom"
-                          placeholder="Entrez votre prénom"
-                          fullWidth
-                          required
-                          value={formData.firstName}
-                          onChange={handleChange}
-                          disabled={register.isPending}
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <PersonIcon color="action" />
-                              </InputAdornment>
-                            ),
-                          }}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              '&:hover fieldset': {
-                                borderColor: 'primary.main',
-                              },
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        label="Prénom"
+                        placeholder="Entrez votre prénom"
+                        fullWidth
+                        required
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        disabled={register.isPending}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <PersonIcon color="action" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                              borderColor: 'primary.main',
                             },
-                          }}
-                        />
+                          },
+                        }}
+                      />
                       <TextField
-                          id="lastName"
-                          name="lastName"
-                          type="text"
-                          label="Nom"
-                          placeholder="Entrez votre nom"
-                          fullWidth
-                          required
-                          value={formData.lastName}
-                          onChange={handleChange}
-                          disabled={register.isPending}
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <PersonIcon color="action" />
-                              </InputAdornment>
-                            ),
-                          }}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              '&:hover fieldset': {
-                                borderColor: 'primary.main',
-                              },
+                        id="lastName"
+                        name="lastName"
+                        type="text"
+                        label="Nom"
+                        placeholder="Entrez votre nom"
+                        fullWidth
+                        required
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        disabled={register.isPending}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <PersonIcon color="action" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                              borderColor: 'primary.main',
                             },
-                          }}
-                        />
+                          },
+                        }}
+                      />
                     </Box>
 
                     <TextField
@@ -294,8 +294,8 @@ export default function RegisterPage() {
                         textTransform: 'none',
                         fontWeight: 600,
                         fontSize: '1rem',
-                        background: register.isPending 
-                          ? undefined 
+                        background: register.isPending
+                          ? undefined
                           : `linear-gradient(45deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.dark})`,
                         '&:hover': {
                           background: register.isPending
@@ -349,7 +349,8 @@ export default function RegisterPage() {
 
             <Box sx={{ mt: 4, textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">
-                En vous inscrivant, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité
+                En vous inscrivant, vous acceptez nos Conditions d'utilisation et notre Politique de
+                confidentialité
               </Typography>
             </Box>
           </Box>

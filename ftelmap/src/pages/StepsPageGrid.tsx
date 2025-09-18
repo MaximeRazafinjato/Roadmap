@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { viewMode as viewModeCookie } from '../lib/cookies';
-import { 
-  Box, 
+import {
+  Box,
   Card,
   CardContent,
   Grid,
@@ -19,12 +19,11 @@ import {
   Menu,
   MenuItem,
   Divider,
-  Avatar,
   TextField,
   InputAdornment,
   FormControl,
   InputLabel,
-  Select
+  Select,
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import {
@@ -37,14 +36,10 @@ import {
   MoreVert as MoreVertIcon,
   CalendarToday as CalendarIcon,
   Schedule as ScheduleIcon,
-  Person as PersonIcon,
-  CheckCircle as CheckCircleIcon,
-  RadioButtonUnchecked as PendingIcon,
-  PlayArrow as InProgressIcon,
   Search as SearchIcon,
   FilterList as FilterIcon,
   Sort as SortIcon,
-  Clear as ClearIcon
+  Clear as ClearIcon,
 } from '@mui/icons-material';
 import { useSteps, useDeleteStep } from '../hooks/use-steps';
 import StepForm from '../components/StepForm';
@@ -59,10 +54,12 @@ const StepsPageGrid = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(viewModeCookie.get());
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedStepMenu, setSelectedStepMenu] = useState<string | null>(null);
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'upcoming' | 'inprogress' | 'completed'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'upcoming' | 'inprogress' | 'completed'>(
+    'all'
+  );
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'progress'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
@@ -97,80 +94,91 @@ const StepsPageGrid = () => {
     const start = new Date(startDate).getTime();
     const end = new Date(endDate).getTime();
     const now = new Date().getTime();
-    
+
     if (now < start) return 0;
     if (now > end) return 100;
-    
+
     const total = end - start;
     const elapsed = now - start;
     return Math.round((elapsed / total) * 100);
   };
 
-  const getStepStatus = (startDate: Date, endDate: Date): { label: string; color: 'default' | 'primary' | 'success' | 'warning' | 'error' } => {
+  const getStepStatus = (
+    startDate: Date,
+    endDate: Date
+  ): { label: string; color: 'default' | 'primary' | 'success' | 'warning' | 'error' } => {
     const now = new Date();
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     if (now < start) return { label: 'À venir', color: 'default' };
     if (now > end) return { label: 'Terminé', color: 'success' };
     return { label: 'En cours', color: 'primary' };
   };
 
   const formatDuration = (startDate: Date, endDate: Date): string => {
-    const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
+    const days = Math.ceil(
+      (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)
+    );
     if (days < 7) return `${days} jours`;
     if (days < 30) return `${Math.round(days / 7)} semaines`;
     return `${Math.round(days / 30)} mois`;
   };
 
   // Filter and sort steps
-  const filteredAndSortedSteps = steps?.filter(step => {
-    // Search filter
-    const matchesSearch = step.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         step.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Status filter
-    let matchesStatus = true;
-    const now = new Date();
-    const start = new Date(step.startDate);
-    const end = new Date(step.endDate);
-    
-    switch (statusFilter) {
-      case 'upcoming':
-        matchesStatus = now < start;
-        break;
-      case 'inprogress':
-        matchesStatus = now >= start && now <= end;
-        break;
-      case 'completed':
-        matchesStatus = now > end;
-        break;
-    }
-    
-    return matchesSearch && matchesStatus;
-  }).sort((a, b) => {
-    let compareValue = 0;
-    
-    switch (sortBy) {
-      case 'name':
-        compareValue = a.title.localeCompare(b.title);
-        break;
-      case 'date':
-        compareValue = new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-        break;
-      case 'progress':
-        const progressA = calculateProgress(a.startDate, a.endDate);
-        const progressB = calculateProgress(b.startDate, b.endDate);
-        compareValue = progressA - progressB;
-        break;
-    }
-    
-    return sortOrder === 'asc' ? compareValue : -compareValue;
-  });
+  const filteredAndSortedSteps = steps
+    ?.filter((step) => {
+      // Search filter
+      const matchesSearch =
+        step.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        step.description?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // Status filter
+      let matchesStatus = true;
+      const now = new Date();
+      const start = new Date(step.startDate);
+      const end = new Date(step.endDate);
+
+      switch (statusFilter) {
+        case 'upcoming':
+          matchesStatus = now < start;
+          break;
+        case 'inprogress':
+          matchesStatus = now >= start && now <= end;
+          break;
+        case 'completed':
+          matchesStatus = now > end;
+          break;
+      }
+
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      let compareValue = 0;
+
+      switch (sortBy) {
+        case 'name':
+          compareValue = a.title.localeCompare(b.title);
+          break;
+        case 'date':
+          compareValue = new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+          break;
+        case 'progress': {
+          const progressA = calculateProgress(a.startDate, a.endDate);
+          const progressB = calculateProgress(b.startDate, b.endDate);
+          compareValue = progressA - progressB;
+          break;
+        }
+      }
+
+      return sortOrder === 'asc' ? compareValue : -compareValue;
+    });
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}
+      >
         <Typography>Chargement des étapes...</Typography>
       </Box>
     );
@@ -178,7 +186,9 @@ const StepsPageGrid = () => {
 
   if (error) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}
+      >
         <Typography color="error">Échec du chargement des étapes</Typography>
       </Box>
     );
@@ -213,10 +223,10 @@ const StepsPageGrid = () => {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setShowCreateForm(true)}
-            sx={{ 
+            sx={{
               borderRadius: 2,
               textTransform: 'none',
-              fontWeight: 600
+              fontWeight: 600,
             }}
           >
             Nouvelle Étape
@@ -246,7 +256,7 @@ const StepsPageGrid = () => {
                     <ClearIcon fontSize="small" />
                   </IconButton>
                 </InputAdornment>
-              )
+              ),
             }}
           />
 
@@ -256,7 +266,9 @@ const StepsPageGrid = () => {
             <Select
               value={statusFilter}
               label="Statut"
-              onChange={(e: SelectChangeEvent) => setStatusFilter(e.target.value as any)}
+              onChange={(e: SelectChangeEvent) =>
+                setStatusFilter(e.target.value as 'all' | 'upcoming' | 'inprogress' | 'completed')
+              }
               startAdornment={
                 <InputAdornment position="start">
                   <FilterIcon sx={{ color: 'text.secondary', ml: 1 }} />
@@ -276,7 +288,9 @@ const StepsPageGrid = () => {
             <Select
               value={sortBy}
               label="Trier par"
-              onChange={(e: SelectChangeEvent) => setSortBy(e.target.value as any)}
+              onChange={(e: SelectChangeEvent) =>
+                setSortBy(e.target.value as 'name' | 'date' | 'progress')
+              }
               startAdornment={
                 <InputAdornment position="start">
                   <SortIcon sx={{ color: 'text.secondary', ml: 1 }} />
@@ -330,28 +344,38 @@ const StepsPageGrid = () => {
       {/* Statistics Bar */}
       <Stack direction="row" spacing={2} mb={3}>
         <Paper sx={{ p: 2, flex: 1, borderRadius: 2 }}>
-          <Typography variant="body2" color="text.secondary">Total</Typography>
-          <Typography variant="h5" fontWeight="bold">{steps?.length || 0}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Total
+          </Typography>
+          <Typography variant="h5" fontWeight="bold">
+            {steps?.length || 0}
+          </Typography>
         </Paper>
         <Paper sx={{ p: 2, flex: 1, borderRadius: 2 }}>
-          <Typography variant="body2" color="text.secondary">En cours</Typography>
+          <Typography variant="body2" color="text.secondary">
+            En cours
+          </Typography>
           <Typography variant="h5" fontWeight="bold" color="primary">
-            {steps?.filter(s => {
+            {steps?.filter((s) => {
               const now = new Date();
               return new Date(s.startDate) <= now && new Date(s.endDate) >= now;
             }).length || 0}
           </Typography>
         </Paper>
         <Paper sx={{ p: 2, flex: 1, borderRadius: 2 }}>
-          <Typography variant="body2" color="text.secondary">À venir</Typography>
+          <Typography variant="body2" color="text.secondary">
+            À venir
+          </Typography>
           <Typography variant="h5" fontWeight="bold" color="text.secondary">
-            {steps?.filter(s => new Date(s.startDate) > new Date()).length || 0}
+            {steps?.filter((s) => new Date(s.startDate) > new Date()).length || 0}
           </Typography>
         </Paper>
         <Paper sx={{ p: 2, flex: 1, borderRadius: 2 }}>
-          <Typography variant="body2" color="text.secondary">Terminés</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Terminés
+          </Typography>
           <Typography variant="h5" fontWeight="bold" color="success.main">
-            {steps?.filter(s => new Date(s.endDate) < new Date()).length || 0}
+            {steps?.filter((s) => new Date(s.endDate) < new Date()).length || 0}
           </Typography>
         </Paper>
       </Stack>
@@ -374,11 +398,11 @@ const StepsPageGrid = () => {
             {filteredAndSortedSteps.map((step) => {
               const status = getStepStatus(step.startDate, step.endDate);
               const progress = calculateProgress(step.startDate, step.endDate);
-              
+
               return (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={step.id}>
-                  <Card 
-                    sx={{ 
+                  <Card
+                    sx={{
                       height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
@@ -389,18 +413,23 @@ const StepsPageGrid = () => {
                       '&:hover': {
                         transform: 'translateY(-4px)',
                         boxShadow: 4,
-                      }
+                      },
                     }}
                     onClick={() => handleView(step.id)}
                   >
                     <CardContent sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
                       {/* Header */}
-                      <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={2}>
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="flex-start"
+                        mb={2}
+                      >
                         <Box flex={1}>
-                          <Typography 
-                            variant="h6" 
+                          <Typography
+                            variant="h6"
                             fontWeight="bold"
-                            sx={{ 
+                            sx={{
                               mb: 0.5,
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
@@ -411,26 +440,23 @@ const StepsPageGrid = () => {
                           >
                             {step.title}
                           </Typography>
-                          <Chip 
-                            label={status.label} 
-                            size="small" 
+                          <Chip
+                            label={status.label}
+                            size="small"
                             color={status.color}
                             sx={{ height: 20 }}
                           />
                         </Box>
-                        <IconButton 
-                          size="small"
-                          onClick={(e) => handleMenuClick(e, step.id)}
-                        >
+                        <IconButton size="small" onClick={(e) => handleMenuClick(e, step.id)}>
                           <MoreVertIcon fontSize="small" />
                         </IconButton>
                       </Stack>
 
                       {/* Description */}
-                      <Typography 
-                        variant="body2" 
+                      <Typography
+                        variant="body2"
                         color="text.secondary"
-                        sx={{ 
+                        sx={{
                           mb: 2,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -438,7 +464,7 @@ const StepsPageGrid = () => {
                           WebkitLineClamp: 3,
                           WebkitBoxOrient: 'vertical',
                           flex: 1,
-                          minHeight: '3em'
+                          minHeight: '3em',
                         }}
                       >
                         {step.description || 'Pas de description'}
@@ -454,13 +480,13 @@ const StepsPageGrid = () => {
                             {progress}%
                           </Typography>
                         </Stack>
-                        <LinearProgress 
-                          variant="determinate" 
+                        <LinearProgress
+                          variant="determinate"
                           value={progress}
-                          sx={{ 
+                          sx={{
                             height: 6,
                             borderRadius: 3,
-                            backgroundColor: 'grey.200'
+                            backgroundColor: 'grey.200',
                           }}
                         />
                       </Box>
@@ -470,10 +496,10 @@ const StepsPageGrid = () => {
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <CalendarIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                           <Typography variant="caption" color="text.secondary">
-                            {new Date(step.startDate).toLocaleDateString('fr-FR', { 
+                            {new Date(step.startDate).toLocaleDateString('fr-FR', {
                               day: 'numeric',
                               month: 'short',
-                              year: 'numeric'
+                              year: 'numeric',
                             })}
                           </Typography>
                         </Stack>
@@ -486,7 +512,12 @@ const StepsPageGrid = () => {
                       </Stack>
 
                       {/* Actions */}
-                      <Stack direction="row" spacing={1} mt={2} onClick={(e) => e.stopPropagation()}>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        mt={2}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button
                           size="small"
                           variant="outlined"
@@ -496,10 +527,10 @@ const StepsPageGrid = () => {
                             setSelectedStep(step);
                             setShowCreateForm(true);
                           }}
-                          sx={{ 
+                          sx={{
                             flex: 1,
                             textTransform: 'none',
-                            borderRadius: 2
+                            borderRadius: 2,
                           }}
                         >
                           Modifier
@@ -527,7 +558,7 @@ const StepsPageGrid = () => {
             {filteredAndSortedSteps.map((step) => {
               const status = getStepStatus(step.startDate, step.endDate);
               const progress = calculateProgress(step.startDate, step.endDate);
-              
+
               return (
                 <Paper
                   key={step.id}
@@ -539,7 +570,7 @@ const StepsPageGrid = () => {
                     borderLeft: `4px solid ${step.backgroundColor || '#2563eb'}`,
                     '&:hover': {
                       backgroundColor: 'action.hover',
-                    }
+                    },
                   }}
                   onClick={() => handleView(step.id)}
                 >
@@ -550,24 +581,21 @@ const StepsPageGrid = () => {
                           <Typography variant="h6" fontWeight="bold">
                             {step.title}
                           </Typography>
-                          <Chip 
-                            label={status.label} 
-                            size="small" 
-                            color={status.color}
-                          />
+                          <Chip label={status.label} size="small" color={status.color} />
                         </Stack>
                         <Typography variant="body2" color="text.secondary">
                           {step.description || 'Pas de description'}
                         </Typography>
                       </Stack>
                     </Grid>
-                    
+
                     <Grid item xs={12} md={3}>
                       <Stack spacing={1}>
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <CalendarIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                           <Typography variant="body2">
-                            {new Date(step.startDate).toLocaleDateString('fr-FR')} - {new Date(step.endDate).toLocaleDateString('fr-FR')}
+                            {new Date(step.startDate).toLocaleDateString('fr-FR')} -{' '}
+                            {new Date(step.endDate).toLocaleDateString('fr-FR')}
                           </Typography>
                         </Stack>
                         <Stack direction="row" alignItems="center" spacing={1}>
@@ -589,19 +617,24 @@ const StepsPageGrid = () => {
                             {progress}%
                           </Typography>
                         </Stack>
-                        <LinearProgress 
-                          variant="determinate" 
+                        <LinearProgress
+                          variant="determinate"
                           value={progress}
-                          sx={{ 
+                          sx={{
                             height: 8,
-                            borderRadius: 4
+                            borderRadius: 4,
                           }}
                         />
                       </Box>
                     </Grid>
 
                     <Grid item xs={12} md={2}>
-                      <Stack direction="row" spacing={1} justifyContent="flex-end" onClick={(e) => e.stopPropagation()}>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        justifyContent="flex-end"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <IconButton
                           size="small"
                           onClick={(e) => {
@@ -640,21 +673,25 @@ const StepsPageGrid = () => {
           </Stack>
         )
       ) : (
-        <Box 
-          sx={{ 
+        <Box
+          sx={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             height: '400px',
-            gap: 2
+            gap: 2,
           }}
         >
           <Typography variant="h6" color="text.secondary">
-            {steps?.length === 0 ? 'Aucune étape trouvée' : 'Aucune étape ne correspond aux filtres'}
+            {steps?.length === 0
+              ? 'Aucune étape trouvée'
+              : 'Aucune étape ne correspond aux filtres'}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {steps?.length === 0 ? 'Créez votre première étape pour commencer !' : 'Essayez de modifier les filtres de recherche'}
+            {steps?.length === 0
+              ? 'Créez votre première étape pour commencer !'
+              : 'Essayez de modifier les filtres de recherche'}
           </Typography>
           {steps?.length === 0 ? (
             <Button
@@ -684,12 +721,8 @@ const StepsPageGrid = () => {
       )}
 
       {/* Context Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleCloseMenu}
-      >
-        <MenuItem 
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
+        <MenuItem
           onClick={() => {
             handleView(selectedStepMenu!);
             handleCloseMenu();
@@ -698,9 +731,9 @@ const StepsPageGrid = () => {
           <ViewIcon sx={{ mr: 1, fontSize: 20 }} />
           Voir
         </MenuItem>
-        <MenuItem 
+        <MenuItem
           onClick={() => {
-            const step = steps?.find(s => s.id === selectedStepMenu);
+            const step = steps?.find((s) => s.id === selectedStepMenu);
             if (step) {
               setSelectedStep(step);
               setShowCreateForm(true);
@@ -712,7 +745,7 @@ const StepsPageGrid = () => {
           Modifier
         </MenuItem>
         <Divider />
-        <MenuItem 
+        <MenuItem
           onClick={() => {
             handleDelete(selectedStepMenu!);
           }}

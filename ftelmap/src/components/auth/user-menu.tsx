@@ -11,10 +11,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
-import {
-  Logout as LogoutIcon,
-  KeyboardArrowDown as ArrowDownIcon,
-} from '@mui/icons-material';
+import { Logout as LogoutIcon, KeyboardArrowDown as ArrowDownIcon } from '@mui/icons-material';
 import { useAuth, useLogout } from '../../hooks/use-auth';
 
 export function UserMenu() {
@@ -141,20 +138,14 @@ export function UserMenu() {
             {user.email}
           </Typography>
         </Box>
-        
+
         <Divider sx={{ my: 1 }} />
-        
+
         <MenuItem onClick={handleLogout} disabled={logout.isPending}>
           <ListItemIcon>
-            {logout.isPending ? (
-              <CircularProgress size={18} />
-            ) : (
-              <LogoutIcon fontSize="small" />
-            )}
+            {logout.isPending ? <CircularProgress size={18} /> : <LogoutIcon fontSize="small" />}
           </ListItemIcon>
-          <ListItemText>
-            {logout.isPending ? 'Déconnexion...' : 'Se déconnecter'}
-          </ListItemText>
+          <ListItemText>{logout.isPending ? 'Déconnexion...' : 'Se déconnecter'}</ListItemText>
         </MenuItem>
       </Menu>
     </>

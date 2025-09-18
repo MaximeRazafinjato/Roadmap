@@ -1,10 +1,10 @@
 import { apiClient, handleApiError } from '../lib/api-client';
-import type { 
-  LoginRequest, 
-  RegisterRequest, 
-  LoginResponse, 
+import type {
+  LoginRequest,
+  RegisterRequest,
+  LoginResponse,
   RefreshTokenResponse,
-  AuthUser 
+  AuthUser,
 } from '../types/auth';
 import type { ApiResponse } from '../types/entities';
 

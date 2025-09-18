@@ -16,7 +16,7 @@ import {
   Stack,
   TextField,
   InputAdornment,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -24,7 +24,7 @@ import {
   Delete as DeleteIcon,
   Visibility as ViewIcon,
   Search as SearchIcon,
-  Clear as ClearIcon
+  Clear as ClearIcon,
 } from '@mui/icons-material';
 import { useSteps, useDeleteStep } from '../hooks/use-steps';
 import StepForm from '../components/StepForm';
@@ -65,21 +65,22 @@ const StepsPageTable = () => {
   };
 
   // Filter steps based on search term
-  const filteredSteps = steps?.filter(step =>
-    step.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    step.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    step.location?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredSteps =
+    steps?.filter(
+      (step) =>
+        step.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        step.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        step.location?.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
 
   // Paginate the filtered steps
-  const paginatedSteps = filteredSteps.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const paginatedSteps = filteredSteps.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}
+      >
         <Typography>Chargement des étapes...</Typography>
       </Box>
     );
@@ -87,7 +88,9 @@ const StepsPageTable = () => {
 
   if (error) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}
+      >
         <Typography color="error">Échec du chargement des étapes</Typography>
       </Box>
     );
@@ -107,7 +110,7 @@ const StepsPageTable = () => {
           sx={{
             borderRadius: 2,
             textTransform: 'none',
-            fontWeight: 600
+            fontWeight: 600,
           }}
         >
           Nouvelle Étape
@@ -134,7 +137,7 @@ const StepsPageTable = () => {
                   <ClearIcon fontSize="small" />
                 </IconButton>
               </InputAdornment>
-            )
+            ),
           }}
         />
       </Paper>
@@ -151,7 +154,9 @@ const StepsPageTable = () => {
               <TableCell sx={{ fontWeight: 'bold' }}>Lieu</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Participants</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Budget</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }} align="center">Actions</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="center">
+                Actions
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -160,7 +165,7 @@ const StepsPageTable = () => {
                 <TableRow
                   key={step.id}
                   sx={{
-                    '&:hover': { backgroundColor: 'action.hover' }
+                    '&:hover': { backgroundColor: 'action.hover' },
                   }}
                 >
                   <TableCell>
@@ -171,7 +176,7 @@ const StepsPageTable = () => {
                         maxWidth: 200,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {step.title}
@@ -184,18 +189,14 @@ const StepsPageTable = () => {
                         maxWidth: 250,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {step.description || '-'}
                     </Typography>
                   </TableCell>
-                  <TableCell>
-                    {new Date(step.startDate).toLocaleDateString('fr-FR')}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(step.endDate).toLocaleDateString('fr-FR')}
-                  </TableCell>
+                  <TableCell>{new Date(step.startDate).toLocaleDateString('fr-FR')}</TableCell>
+                  <TableCell>{new Date(step.endDate).toLocaleDateString('fr-FR')}</TableCell>
                   <TableCell>
                     <Typography
                       variant="body2"
@@ -203,33 +204,25 @@ const StepsPageTable = () => {
                         maxWidth: 150,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {step.location || '-'}
                     </Typography>
                   </TableCell>
-                  <TableCell>
-                    {step.participants || '-'}
-                  </TableCell>
+                  <TableCell>{step.participants || '-'}</TableCell>
                   <TableCell>
                     {step.budget ? `${step.budget.toLocaleString('fr-FR')} €` : '-'}
                   </TableCell>
                   <TableCell align="center">
                     <Stack direction="row" spacing={0.5} justifyContent="center">
                       <Tooltip title="Voir">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleView(step.id)}
-                        >
+                        <IconButton size="small" onClick={() => handleView(step.id)}>
                           <ViewIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Modifier">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleEdit(step)}
-                        >
+                        <IconButton size="small" onClick={() => handleEdit(step)}>
                           <EditIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>

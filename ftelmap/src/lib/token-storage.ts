@@ -10,7 +10,7 @@ export class TokenStorage {
     try {
       localStorage.setItem(TOKEN_KEY, tokenData.token);
       localStorage.setItem(TOKEN_EXPIRY_KEY, tokenData.expiresAt.toString());
-      
+
       if (tokenData.refreshToken) {
         localStorage.setItem(REFRESH_TOKEN_KEY, tokenData.refreshToken);
       }
@@ -48,7 +48,7 @@ export class TokenStorage {
       }
 
       const expiresAt = parseInt(expiryStr, 10);
-      
+
       return {
         token,
         refreshToken: refreshToken || undefined,
@@ -63,7 +63,7 @@ export class TokenStorage {
   static isTokenValid(): boolean {
     try {
       const tokenData = this.getTokenData();
-      
+
       if (!tokenData) {
         return false;
       }
@@ -71,8 +71,8 @@ export class TokenStorage {
       // Check if token is expired (with 5 minute buffer)
       const now = Date.now();
       const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
-      
-      return tokenData.expiresAt > (now + bufferTime);
+
+      return tokenData.expiresAt > now + bufferTime;
     } catch (error) {
       console.error('Failed to validate token:', error);
       return false;
@@ -111,15 +111,15 @@ export class TokenStorage {
   static willTokenExpireSoon(minutesBeforeExpiry: number = 5): boolean {
     try {
       const tokenData = this.getTokenData();
-      
+
       if (!tokenData) {
         return true;
       }
 
       const now = Date.now();
       const warningTime = minutesBeforeExpiry * 60 * 1000;
-      
-      return tokenData.expiresAt <= (now + warningTime);
+
+      return tokenData.expiresAt <= now + warningTime;
     } catch (error) {
       console.error('Failed to check token expiry:', error);
       return true;

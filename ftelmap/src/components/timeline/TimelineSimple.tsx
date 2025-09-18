@@ -1,15 +1,15 @@
 import { useRef, useEffect, useState, useMemo } from 'react';
-import { 
-  Box, 
-  Paper, 
-  Typography, 
-  IconButton, 
+import {
+  Box,
+  Paper,
+  Typography,
+  IconButton,
   ButtonGroup,
   Menu,
   MenuItem,
   ListItemIcon,
   ListItemText,
-  Divider
+  Divider,
 } from '@mui/material';
 import {
   ZoomIn as ZoomInIcon,
@@ -40,7 +40,6 @@ import {
   dateToPixel,
   TIMELINE_PADDING_TOP,
   PROJECT_HEIGHT,
-  PROJECT_MARGIN,
   type TimelineViewport,
 } from '../../utils/timeline-utils';
 
@@ -65,27 +64,27 @@ export const TimelineSimple = ({
   const timelineRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(1200);
   const [selectedStep, setSelectedStep] = useState<string | null>(null);
-  
+
   // État pour la sélection de dates
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectionStart, setSelectionStart] = useState<number | null>(null);
   const [selectionEnd, setSelectionEnd] = useState<number | null>(null);
-  
+
   // État pour le menu d'export
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
-  
+
   // État local pour les projets avec mises à jour optimistes
   const [localSteps, setLocalSteps] = useState<Step[]>(steps || []);
-  
+
   // Synchroniser avec les projets externes
   useEffect(() => {
     setLocalSteps(steps || []);
   }, [steps]);
-  
+
   // Hooks pour la gestion de la timeline
   const { zoomLevel, zoomIn, zoomOut, resetZoom, canZoomIn, canZoomOut } = useTimelineZoom();
   const { centerDate, isPanning, startPan, handlePanMove, endPan, panToToday } = useTimelinePan();
-  
+
   // Calcul du viewport
   const viewport: TimelineViewport = useMemo(() => {
     const { startDate, endDate } = calculateViewportDates(centerDate, zoomLevel, containerWidth);
@@ -96,17 +95,17 @@ export const TimelineSimple = ({
       zoomLevel,
     };
   }, [centerDate, zoomLevel, containerWidth]);
-  
+
   // Calcul des marqueurs de temps
   const timeMarkers = useMemo(() => {
     return generateTimeMarkers(viewport);
   }, [viewport]);
-  
+
   // Filtrer et positionner les projets visibles avec gestion des chevauchements
   const visibleSteps = useMemo(() => {
     const visible = localSteps.filter((step) => isStepVisible(step, viewport));
     const positions = calculateStepsPositions(visible, viewport);
-    
+
     return visible.map((step) => ({
       step,
       position: positions.get(step.id) || {
@@ -117,7 +116,7 @@ export const TimelineSimple = ({
       },
     }));
   }, [localSteps, viewport]);
-  
+
   // Mise à jour de la largeur du container
   useEffect(() => {
     const updateWidth = () => {
@@ -125,78 +124,74 @@ export const TimelineSimple = ({
         setContainerWidth(containerRef.current.clientWidth);
       }
     };
-    
+
     updateWidth();
     window.addEventListener('resize', updateWidth);
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
-  
+
   // Gestion des événements de pan avec la souris
   useEffect(() => {
     if (isPanning) {
       const handleMouseMove = (e: MouseEvent) => handlePanMove(e);
       const handleMouseUp = () => endPan();
-      
+
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
-      
+
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
   }, [isPanning, handlePanMove, endPan]);
-  
+
   // Gestion du drag des projets avec mise à jour optimiste
   const handleStepDrag = (step: Step, deltaX: number) => {
-    const currentPos = visibleSteps.find(p => p.step.id === step.id)?.position;
+    const currentPos = visibleSteps.find((p) => p.step.id === step.id)?.position;
     if (!currentPos) return;
-    
+
     const newLeft = currentPos.left + deltaX;
     const newStartDate = pixelToDate(newLeft, viewport);
     const newEndDate = pixelToDate(newLeft + currentPos.width, viewport);
-    
+
     // Mise à jour optimiste locale immédiate
     const updatedStep = {
       ...step,
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString(),
     };
-    
-    setLocalSteps(prev => 
-      prev.map(p => p.id === step.id ? updatedStep : p)
-    );
-    
+
+    setLocalSteps((prev) => prev.map((p) => (p.id === step.id ? updatedStep : p)));
+
     // Puis envoyer la mise à jour au serveur
     onStepUpdate?.(step, {
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString(),
     });
   };
-  
+
   // Gestion du redimensionnement des projets avec mise à jour optimiste
   const handleStepResize = (step: Step, newPosition: { left: number; width: number }) => {
     const newStartDate = pixelToDate(newPosition.left, viewport);
     const newEndDate = pixelToDate(newPosition.left + newPosition.width, viewport);
-    
+
     // Mise à jour optimiste locale immédiate
     const updatedStep = {
       ...step,
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString(),
     };
-    
-    setLocalSteps(prev => 
-      prev.map(p => p.id === step.id ? updatedStep : p)
-    );
-    
+
+    setLocalSteps((prev) => prev.map((p) => (p.id === step.id ? updatedStep : p)));
+
     // Puis envoyer la mise à jour au serveur
     onStepUpdate?.(step, {
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString(),
     });
   };
-  
+
   // Ligne "Aujourd'hui"
   const todayPosition = useMemo(() => {
     const today = new Date();
@@ -205,20 +200,20 @@ export const TimelineSimple = ({
     }
     return null;
   }, [viewport]);
-  
+
   // Gestionnaires d'export
   const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setExportMenuAnchor(event.currentTarget);
   };
-  
+
   const handleExportMenuClose = () => {
     setExportMenuAnchor(null);
   };
-  
+
   const handleExport = async (exportFormat: string) => {
     try {
       const filename = `timeline_${format(new Date(), 'yyyy-MM-dd')}`;
-      
+
       switch (exportFormat) {
         case 'png':
           if (timelineRef.current) {
@@ -254,13 +249,13 @@ export const TimelineSimple = ({
           TimelineExportService.exportAsMarkdown(localSteps, `${filename}.md`);
           break;
       }
-      
+
       handleExportMenuClose();
     } catch (error) {
-      console.error('Erreur lors de l\'export:', error);
+      console.error("Erreur lors de l'export:", error);
     }
   };
-  
+
   return (
     <Paper
       ref={timelineRef}
@@ -295,68 +290,40 @@ export const TimelineSimple = ({
             Maintenez Shift + Glissez pour créer une nouvelle étape
           </Typography>
         </Box>
-        
+
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <Typography variant="body2" color="text.secondary">
             {format(centerDate, 'MMMM yyyy', { locale: fr })}
           </Typography>
-          
+
           <ButtonGroup size="small" variant="outlined">
-            <IconButton
-              onClick={zoomOut}
-              disabled={!canZoomOut}
-              size="small"
-              title="Dézoomer"
-            >
+            <IconButton onClick={zoomOut} disabled={!canZoomOut} size="small" title="Dézoomer">
               <ZoomOutIcon />
             </IconButton>
-            <IconButton
-              onClick={resetZoom}
-              size="small"
-              title="Réinitialiser le zoom"
-            >
+            <IconButton onClick={resetZoom} size="small" title="Réinitialiser le zoom">
               <CenterIcon />
             </IconButton>
-            <IconButton
-              onClick={zoomIn}
-              disabled={!canZoomIn}
-              size="small"
-              title="Zoomer"
-            >
+            <IconButton onClick={zoomIn} disabled={!canZoomIn} size="small" title="Zoomer">
               <ZoomInIcon />
             </IconButton>
           </ButtonGroup>
-          
-          <IconButton
-            onClick={panToToday}
-            size="small"
-            color="primary"
-            title="Aller à aujourd'hui"
-          >
+
+          <IconButton onClick={panToToday} size="small" color="primary" title="Aller à aujourd'hui">
             Aujourd'hui
           </IconButton>
-          
+
           {onStepAdd && (
-            <IconButton
-              onClick={onStepAdd}
-              color="primary"
-              size="small"
-              title="Ajouter un projet"
-            >
+            <IconButton onClick={onStepAdd} color="primary" size="small" title="Ajouter un projet">
               <AddIcon />
             </IconButton>
           )}
-          
-          <IconButton
-            onClick={handleExportMenuOpen}
-            size="small"
-            title="Exporter la timeline"
-          >
+
+          <IconButton onClick={handleExportMenuOpen} size="small" title="Exporter la timeline">
             <DownloadIcon />
           </IconButton>
         </Box>
       </Box>
-      
+
       {/* Zone de la timeline */}
       <Box
         ref={containerRef}
@@ -370,12 +337,12 @@ export const TimelineSimple = ({
         onMouseDown={(e) => {
           // Ne pas démarrer le pan si on clique sur un projet
           if ((e.target as HTMLElement).closest('[data-step]')) return;
-          
+
           // Si on tient Shift, on démarre une sélection
           if (e.shiftKey) {
             const rect = containerRef.current?.getBoundingClientRect();
             if (!rect) return;
-            
+
             const x = e.clientX - rect.left;
             setIsSelecting(true);
             setSelectionStart(x);
@@ -389,7 +356,7 @@ export const TimelineSimple = ({
           if (isSelecting && selectionStart !== null) {
             const rect = containerRef.current?.getBoundingClientRect();
             if (!rect) return;
-            
+
             const x = e.clientX - rect.left;
             setSelectionEnd(x);
           }
@@ -398,14 +365,14 @@ export const TimelineSimple = ({
           if (isSelecting && selectionStart !== null && selectionEnd !== null) {
             const minX = Math.min(selectionStart, selectionEnd);
             const maxX = Math.max(selectionStart, selectionEnd);
-            
+
             // Ne créer un projet que si la sélection est assez large (au moins 20px)
             if (maxX - minX > 20) {
               const startDate = pixelToDate(minX, viewport);
               const endDate = pixelToDate(maxX, viewport);
               onStepAddWithDates?.(startDate, endDate);
             }
-            
+
             // Réinitialiser la sélection
             setIsSelecting(false);
             setSelectionStart(null);
@@ -428,9 +395,9 @@ export const TimelineSimple = ({
             zIndex: 2,
           }}
         >
-          {timeMarkers.map((marker, index) => (
+          {timeMarkers.map((marker) => (
             <Box
-              key={index}
+              key={marker.date.getTime()}
               sx={{
                 position: 'absolute',
                 left: marker.x,
@@ -458,7 +425,7 @@ export const TimelineSimple = ({
             </Box>
           ))}
         </Box>
-        
+
         {/* Zone des projets */}
         <Box
           sx={{
@@ -470,7 +437,6 @@ export const TimelineSimple = ({
             bgcolor: 'background.paper',
           }}
         >
-          
           {/* Zone de sélection */}
           {isSelecting && selectionStart !== null && selectionEnd !== null && (
             <Box
@@ -490,7 +456,7 @@ export const TimelineSimple = ({
               }}
             />
           )}
-          
+
           {/* Ligne verticale pour aujourd'hui */}
           {todayPosition !== null && (
             <Box
@@ -521,7 +487,7 @@ export const TimelineSimple = ({
               </Typography>
             </Box>
           )}
-          
+
           {/* Projets */}
           {visibleSteps.map(({ step, position }) => (
             <Box
@@ -546,7 +512,7 @@ export const TimelineSimple = ({
           ))}
         </Box>
       </Box>
-      
+
       {/* Menu d'export */}
       <Menu
         anchorEl={exportMenuAnchor}
@@ -571,9 +537,9 @@ export const TimelineSimple = ({
           </ListItemIcon>
           <ListItemText>Export PDF</ListItemText>
         </MenuItem>
-        
+
         <Divider />
-        
+
         <MenuItem onClick={() => handleExport('excel')}>
           <ListItemIcon>
             <ExcelIcon fontSize="small" />
@@ -586,9 +552,9 @@ export const TimelineSimple = ({
           </ListItemIcon>
           <ListItemText>Export CSV</ListItemText>
         </MenuItem>
-        
+
         <Divider />
-        
+
         <MenuItem onClick={() => handleExport('msstep')}>
           <ListItemIcon>
             <ExcelIcon fontSize="small" />

@@ -1,0 +1,5 @@
+{
+  "hooks": {
+    "pre-commit": "cd ftelmap && pnpm run lint:fix && pnpm run format"
+  }
+}

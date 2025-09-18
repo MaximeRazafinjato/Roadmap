@@ -26,7 +26,7 @@ import {
   People as PeopleIcon,
 } from '@mui/icons-material';
 import { UserMenu } from './auth/user-menu';
-import { useAuth } from '../contexts/auth-context';
+import { useAuth } from '../hooks/use-auth-context';
 
 interface NavItem {
   title: string;
@@ -63,7 +63,7 @@ const Layout = () => {
   const { user } = useAuth();
 
   // Filter nav items based on user role
-  const navItems = allNavItems.filter(item => {
+  const navItems = allNavItems.filter((item) => {
     if (item.adminOnly && user?.role !== 'Admin') {
       return false;
     }
@@ -86,8 +86,8 @@ const Layout = () => {
   const drawer = (
     <Box sx={{ width: 280, pt: 3 }}>
       <Box sx={{ px: 3, pb: 3 }}>
-        <Typography 
-          variant="h5" 
+        <Typography
+          variant="h5"
           fontWeight="bold"
           sx={{
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -169,7 +169,7 @@ const Layout = () => {
               <MenuIcon />
             </IconButton>
           )}
-          
+
           <Typography
             variant="h6"
             noWrap
@@ -203,9 +203,7 @@ const Layout = () => {
                     backgroundColor: isActive(item.path) ? 'primary.main' + '15' : 'transparent',
                     fontWeight: isActive(item.path) ? 600 : 400,
                     '&:hover': {
-                      backgroundColor: isActive(item.path) 
-                        ? 'primary.main' + '25'
-                        : 'action.hover',
+                      backgroundColor: isActive(item.path) ? 'primary.main' + '25' : 'action.hover',
                     },
                   }}
                 >
@@ -251,14 +249,17 @@ const Layout = () => {
           flexDirection: 'column',
         }}
       >
-        <Container maxWidth="xl" sx={{ 
-          height: 'calc(100vh - 64px)', 
-          pt: 3, 
-          pb: 3,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
+        <Container
+          maxWidth="xl"
+          sx={{
+            height: 'calc(100vh - 64px)',
+            pt: 3,
+            pb: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
           <Outlet />
         </Container>
       </Box>

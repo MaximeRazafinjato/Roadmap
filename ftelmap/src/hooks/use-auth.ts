@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth as useAuthContext } from '../contexts/auth-context';
+import { useAuth as useAuthContext } from './use-auth-context';
 import { AuthService } from '../services/auth-service';
 import type { LoginRequest, RegisterRequest } from '../types/auth';
 
-// Re-export the main useAuth hook from context
-export { useAuth } from '../contexts/auth-context';
+// Re-export the main useAuth hook
+export { useAuth } from './use-auth-context';
 
 // Query keys
 export const authKeys = {
@@ -60,8 +60,13 @@ export function useLogout() {
 // Hook for change password mutation
 export function useChangePassword() {
   return useMutation({
-    mutationFn: ({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }) =>
-      AuthService.changePassword(currentPassword, newPassword),
+    mutationFn: ({
+      currentPassword,
+      newPassword,
+    }: {
+      currentPassword: string;
+      newPassword: string;
+    }) => AuthService.changePassword(currentPassword, newPassword),
   });
 }
 

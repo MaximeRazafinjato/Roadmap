@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useMemo } from 'react';
-import { Box, Paper, Typography, IconButton, ButtonGroup, Divider } from '@mui/material';
+import { Box, Paper, Typography, IconButton, ButtonGroup } from '@mui/material';
 import {
   ZoomIn as ZoomInIcon,
   ZoomOut as ZoomOutIcon,
@@ -7,7 +7,7 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import { DndContext } from '@dnd-kit/core';
-import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { Step } from '../../types/entities';
@@ -42,7 +42,7 @@ export const Timeline = ({
 }: TimelineProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(1200);
-  
+
   // Hooks pour la gestion de la timeline
   const { zoomLevel, zoomIn, zoomOut, resetZoom, canZoomIn, canZoomOut } = useTimelineZoom();
   const { centerDate, isPanning, startPan, handlePanMove, endPan, panToToday } = useTimelinePan();
@@ -54,7 +54,7 @@ export const Timeline = ({
       });
     },
   });
-  
+
   // Calcul du viewport
   const viewport: TimelineViewport = useMemo(() => {
     const { startDate, endDate } = calculateViewportDates(centerDate, zoomLevel, containerWidth);
@@ -65,12 +65,12 @@ export const Timeline = ({
       zoomLevel,
     };
   }, [centerDate, zoomLevel, containerWidth]);
-  
+
   // Calcul des marqueurs de temps
   const timeMarkers = useMemo(() => {
     return generateTimeMarkers(viewport);
   }, [viewport]);
-  
+
   // Filtrer et positionner les projets visibles
   const visibleProjects = useMemo(() => {
     return steps
@@ -80,7 +80,7 @@ export const Timeline = ({
         position: calculateStepPosition(step, viewport),
       }));
   }, [steps, viewport]);
-  
+
   // Mise à jour de la largeur du container
   useEffect(() => {
     const updateWidth = () => {
@@ -88,44 +88,44 @@ export const Timeline = ({
         setContainerWidth(containerRef.current.clientWidth);
       }
     };
-    
+
     updateWidth();
     window.addEventListener('resize', updateWidth);
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
-  
+
   // Gestion des événements de pan avec la souris
   useEffect(() => {
     if (isPanning) {
       const handleMouseMove = (e: MouseEvent) => handlePanMove(e);
       const handleMouseUp = () => endPan();
-      
+
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
-      
+
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
   }, [isPanning, handlePanMove, endPan]);
-  
+
   // État pour suivre le projet en cours de redimensionnement
   const [resizingStep, setResizingStep] = useState<string | null>(null);
-  
+
   // Gestion du redimensionnement des projets
   const handleProjectResize = (step: Project, deltaX: number, side: 'left' | 'right') => {
     if (!resizingStep) {
       setResizingStep(step.id);
     }
-    
+
     const newDates = calculateResizedDates(step, deltaX, side, viewport);
     onStepUpdate?.(step, {
       startDate: newDates.startDate.toISOString(),
       endDate: newDates.endDate.toISOString(),
     });
   };
-  
+
   // Réinitialiser l'état de redimensionnement quand on relâche la souris
   useEffect(() => {
     const handleMouseUp = () => {
@@ -133,27 +133,28 @@ export const Timeline = ({
         setResizingStep(null);
       }
     };
-    
+
     window.addEventListener('mouseup', handleMouseUp);
     return () => window.removeEventListener('mouseup', handleMouseUp);
   }, [resizingStep]);
-  
+
   // Gestion du drag & drop
   const handleDragEndWrapper = (event: DragEndEvent) => {
     handleDragEnd(event, viewport);
   };
-  
+
   // Ligne "Aujourd'hui"
   const todayPosition = useMemo(() => {
     const today = new Date();
     if (today >= viewport.startDate && today <= viewport.endDate) {
-      const scale = (today.getTime() - viewport.startDate.getTime()) / 
-                   (viewport.endDate.getTime() - viewport.startDate.getTime());
+      const scale =
+        (today.getTime() - viewport.startDate.getTime()) /
+        (viewport.endDate.getTime() - viewport.startDate.getTime());
       return scale * containerWidth;
     }
     return null;
   }, [viewport, containerWidth]);
-  
+
   return (
     <Paper
       elevation={0}
@@ -182,60 +183,36 @@ export const Timeline = ({
         <Typography variant="h6" fontWeight="600">
           Timeline des Projets
         </Typography>
-        
+
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <Typography variant="body2" color="text.secondary">
             {format(centerDate, 'MMMM yyyy', { locale: fr })}
           </Typography>
-          
+
           <ButtonGroup size="small" variant="outlined">
-            <IconButton
-              onClick={zoomOut}
-              disabled={!canZoomOut}
-              size="small"
-              title="Dézoomer"
-            >
+            <IconButton onClick={zoomOut} disabled={!canZoomOut} size="small" title="Dézoomer">
               <ZoomOutIcon />
             </IconButton>
-            <IconButton
-              onClick={resetZoom}
-              size="small"
-              title="Réinitialiser le zoom"
-            >
+            <IconButton onClick={resetZoom} size="small" title="Réinitialiser le zoom">
               <CenterIcon />
             </IconButton>
-            <IconButton
-              onClick={zoomIn}
-              disabled={!canZoomIn}
-              size="small"
-              title="Zoomer"
-            >
+            <IconButton onClick={zoomIn} disabled={!canZoomIn} size="small" title="Zoomer">
               <ZoomInIcon />
             </IconButton>
           </ButtonGroup>
-          
-          <IconButton
-            onClick={panToToday}
-            size="small"
-            color="primary"
-            title="Aller à aujourd'hui"
-          >
+
+          <IconButton onClick={panToToday} size="small" color="primary" title="Aller à aujourd'hui">
             Aujourd'hui
           </IconButton>
-          
+
           {onStepAdd && (
-            <IconButton
-              onClick={onStepAdd}
-              color="primary"
-              size="small"
-              title="Ajouter un projet"
-            >
+            <IconButton onClick={onStepAdd} color="primary" size="small" title="Ajouter un projet">
               <AddIcon />
             </IconButton>
           )}
         </Box>
       </Box>
-      
+
       {/* Zone de la timeline */}
       <Box
         ref={containerRef}
@@ -296,7 +273,7 @@ export const Timeline = ({
             </Box>
           ))}
         </Box>
-        
+
         {/* Pistes de la timeline */}
         <Box
           sx={{
@@ -333,7 +310,7 @@ export const Timeline = ({
               Position Haute
             </Typography>
           </Box>
-          
+
           {/* Piste basse */}
           <Box
             sx={{
@@ -358,7 +335,7 @@ export const Timeline = ({
               Position Basse
             </Typography>
           </Box>
-          
+
           {/* Ligne verticale pour aujourd'hui */}
           {todayPosition !== null && (
             <Box
@@ -389,7 +366,7 @@ export const Timeline = ({
               </Typography>
             </Box>
           )}
-          
+
           {/* Projets */}
           <DndContext
             onDragStart={handleDragStart}
@@ -397,11 +374,7 @@ export const Timeline = ({
             onDragCancel={handleDragCancel}
           >
             {visibleProjects.map(({ step, position }) => (
-              <Box
-                key={step.id}
-                data-step
-                sx={{ position: 'absolute' }}
-              >
+              <Box key={step.id} data-step sx={{ position: 'absolute' }}>
                 <TimelineStep
                   step={step}
                   position={position}

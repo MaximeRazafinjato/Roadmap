@@ -176,50 +176,67 @@ function App() {
         <CssBaseline />
         <AuthProvider>
           <BrowserRouter>
-          <Routes>
-            {/* Public routes (only accessible when not authenticated) */}
-            <Route path="/login" element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            } />
-            <Route path="/register" element={
-              <PublicRoute>
-                <RegisterPage />
-              </PublicRoute>
-            } />
-            
-            {/* Protected routes */}
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Layout />
-              </ProtectedRoute>
-            }>
-              <Route index element={<Navigate to="/timeline" replace />} />
-              <Route path="timeline" element={<TimelinePage />} />
-              <Route path="steps" element={<StepsPageTable />} />
-              <Route path="steps/:id" element={<StepDetailPage />} />
-              <Route path="users" element={
-                <AdminRoute>
-                  <UsersPage />
-                </AdminRoute>
-              } />
-            </Route>
-            
-            {/* Unauthorized page */}
-            <Route path="/unauthorized" element={
-              <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                  <h1 className="text-2xl font-bold text-gray-900 mb-4">Unauthorized</h1>
-                  <p className="text-gray-600 mb-4">You don't have permission to access this resource.</p>
-                  <Navigate to="/timeline" />
-                </div>
-              </div>
-            } />
-            
-            {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/timeline" replace />} />
-          </Routes>
+            <Routes>
+              {/* Public routes (only accessible when not authenticated) */}
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <LoginPage />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  <PublicRoute>
+                    <RegisterPage />
+                  </PublicRoute>
+                }
+              />
+
+              {/* Protected routes */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Navigate to="/timeline" replace />} />
+                <Route path="timeline" element={<TimelinePage />} />
+                <Route path="steps" element={<StepsPageTable />} />
+                <Route path="steps/:id" element={<StepDetailPage />} />
+                <Route
+                  path="users"
+                  element={
+                    <AdminRoute>
+                      <UsersPage />
+                    </AdminRoute>
+                  }
+                />
+              </Route>
+
+              {/* Unauthorized page */}
+              <Route
+                path="/unauthorized"
+                element={
+                  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                    <div className="text-center">
+                      <h1 className="text-2xl font-bold text-gray-900 mb-4">Unauthorized</h1>
+                      <p className="text-gray-600 mb-4">
+                        You don't have permission to access this resource.
+                      </p>
+                      <Navigate to="/timeline" />
+                    </div>
+                  </div>
+                }
+              />
+
+              {/* Catch all route */}
+              <Route path="*" element={<Navigate to="/timeline" replace />} />
+            </Routes>
           </BrowserRouter>
           <ReactQueryDevtools initialIsOpen={false} />
         </AuthProvider>

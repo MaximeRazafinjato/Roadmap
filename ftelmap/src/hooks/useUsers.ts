@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import type { 
-  User, 
-  UpdateUserRequest, 
-  UpdateUserRoleRequest, 
-  UpdateUserStatusRequest 
+import type {
+  User,
+  UpdateUserRequest,
+  UpdateUserRoleRequest,
+  UpdateUserStatusRequest,
 } from '../types/user-management';
 
 export const useUsers = () => {

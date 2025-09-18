@@ -29,7 +29,9 @@
       "Bash(curl:*)",
       "Bash(dotnet run:*)",
       "Bash(findstr:*)",
-      "Bash(del \"C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\pages\\DashboardPage.tsx\")"
+      "Bash(del \"C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\pages\\DashboardPage.tsx\")",
+      "Bash(npm install:*)",
+      "Bash(pnpm install:*)"
     ],
     "deny": [],
     "ask": [],

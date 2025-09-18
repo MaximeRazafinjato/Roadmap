@@ -1,6 +1,12 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useEffect, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import type { AuthContextType, AuthUser, LoginRequest, RegisterRequest, TokenData } from '../types/auth';
+import type {
+  AuthContextType,
+  AuthUser,
+  LoginRequest,
+  RegisterRequest,
+  TokenData,
+} from '../types/auth';
 import { AuthService } from '../services/auth-service';
 import { TokenStorage } from '../lib/token-storage';
 
@@ -18,7 +24,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
     return null;
   });
-  
+
   // Only show loading if we need to fetch user data
   const [isLoading, setIsLoading] = useState(() => {
     // If we have a valid token but no cached user, we need to load
@@ -36,7 +42,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const tokenData: TokenData = {
         token: (response as any).Token || response.token,
         refreshToken: (response as any).RefreshToken || response.refreshToken,
-        expiresAt: (response as any).Expiration ? new Date((response as any).Expiration).getTime() : Date.now() + 3600000,
+        expiresAt: (response as any).Expiration
+          ? new Date((response as any).Expiration).getTime()
+          : Date.now() + 3600000,
       };
 
       TokenStorage.setTokenData(tokenData);
@@ -56,14 +64,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
       const response = await AuthService.register(data);
-      
+
       // API returns with capital letters
       const tokenData: TokenData = {
         token: (response as any).Token || response.token,
         refreshToken: (response as any).RefreshToken || response.refreshToken,
-        expiresAt: (response as any).Expiration ? new Date((response as any).Expiration).getTime() : Date.now() + 3600000,
+        expiresAt: (response as any).Expiration
+          ? new Date((response as any).Expiration).getTime()
+          : Date.now() + 3600000,
       };
-      
+
       TokenStorage.setTokenData(tokenData);
       const userData = (response as any).User || response.user;
       TokenStorage.setCachedUser(userData);
@@ -92,20 +102,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const refreshUserToken = useCallback(async () => {
     const refreshToken = TokenStorage.getRefreshToken();
-    
+
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
 
     try {
       const response = await AuthService.refreshToken(refreshToken);
-      
+
       const tokenData: TokenData = {
         token: response.token,
         refreshToken: response.refreshToken,
-        expiresAt: Date.now() + (response.expiresIn * 1000),
+        expiresAt: Date.now() + response.expiresIn * 1000,
       };
-      
+
       TokenStorage.setTokenData(tokenData);
       return tokenData.token;
     } catch (error) {
@@ -118,7 +128,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const initializeAuth = useCallback(async () => {
     try {
       setIsLoading(true);
-      
+
       if (!TokenStorage.isTokenValid()) {
         // Try to refresh the token if we have a refresh token
         const refreshToken = TokenStorage.getRefreshToken();
@@ -189,17 +199,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     register,
   };
 
-  return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+// Moved to hooks/use-auth-context.ts to avoid react-refresh issues
+export { AuthContext };

@@ -1,0 +1,3 @@
+#!/bin/sh
+# Run lint-staged on frontend files only
+cd ftelmap && npx lint-staged

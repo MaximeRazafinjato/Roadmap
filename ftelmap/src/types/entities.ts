@@ -31,7 +31,6 @@ export interface Step extends BaseEntity {
   owner?: User;
 }
 
-
 // API Response types
 export interface ApiResponse<T> {
   data: T;

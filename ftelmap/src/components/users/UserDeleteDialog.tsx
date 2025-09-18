@@ -17,11 +17,7 @@ interface UserDeleteDialogProps {
   user: User | null;
 }
 
-export const UserDeleteDialog: React.FC<UserDeleteDialogProps> = ({
-  open,
-  onClose,
-  user,
-}) => {
+export const UserDeleteDialog: React.FC<UserDeleteDialogProps> = ({ open, onClose, user }) => {
   const deleteUser = useDeleteUser();
 
   const handleDelete = async () => {
@@ -44,7 +40,7 @@ export const UserDeleteDialog: React.FC<UserDeleteDialogProps> = ({
             Une erreur est survenue lors de la suppression
           </Alert>
         )}
-        
+
         <Typography>
           Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
           <strong>{user?.fullName || `${user?.firstName} ${user?.lastName}`}</strong> ?

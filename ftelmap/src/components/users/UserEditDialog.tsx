@@ -25,11 +25,7 @@ interface UserEditDialogProps {
   user: User | null;
 }
 
-export const UserEditDialog: React.FC<UserEditDialogProps> = ({
-  open,
-  onClose,
-  user,
-}) => {
+export const UserEditDialog: React.FC<UserEditDialogProps> = ({ open, onClose, user }) => {
   const updateUser = useUpdateUser();
   const {
     control,
@@ -81,7 +77,7 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
               Une erreur est survenue lors de la mise à jour
             </Alert>
           )}
-          
+
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Controller
               name="email"
@@ -183,11 +179,7 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Annuler</Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={updateUser.isPending}
-          >
+          <Button type="submit" variant="contained" disabled={updateUser.isPending}>
             {updateUser.isPending ? 'Enregistrement...' : 'Enregistrer'}
           </Button>
         </DialogActions>

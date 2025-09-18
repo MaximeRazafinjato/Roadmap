@@ -40,14 +40,18 @@ const StepForm: React.FC<StepFormProps> = ({ step, onClose, ownerId }) => {
       setFormData({
         title: step.title || '',
         description: step.description || '',
-        startDate: step.startDate ? step.startDate.split('T')[0] : new Date().toISOString().split('T')[0],
-        endDate: step.endDate ? step.endDate.split('T')[0] : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        startDate: step.startDate
+          ? step.startDate.split('T')[0]
+          : new Date().toISOString().split('T')[0],
+        endDate: step.endDate
+          ? step.endDate.split('T')[0]
+          : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         backgroundColor: step.backgroundColor || '#3B82F6',
         textColor: step.textColor || '#FFFFFF',
         ownerId: step.ownerId || ownerId || '00000000-0000-0000-0000-000000000001',
       });
     } else if (ownerId) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         ownerId: ownerId,
       }));
@@ -56,7 +60,7 @@ const StepForm: React.FC<StepFormProps> = ({ step, onClose, ownerId }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       if (isEditing && step?.id) {
         const updateData: UpdateStepForm = {
@@ -73,7 +77,9 @@ const StepForm: React.FC<StepFormProps> = ({ step, onClose, ownerId }) => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -93,9 +99,9 @@ const StepForm: React.FC<StepFormProps> = ({ step, onClose, ownerId }) => {
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-header">
-          <h3>{isEditing ? 'Modifier l\'Étape' : 'Créer une Nouvelle Étape'}</h3>
+          <h3>{isEditing ? "Modifier l'Étape" : 'Créer une Nouvelle Étape'}</h3>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <button 
+            <button
               type="submit"
               form="step-form"
               className="btn btn-primary"
@@ -104,10 +110,12 @@ const StepForm: React.FC<StepFormProps> = ({ step, onClose, ownerId }) => {
               {createStep.isPending || updateStep.isPending
                 ? 'Enregistrement...'
                 : isEditing
-                ? 'Mettre à jour l\'Étape'
-                : 'Créer l\'Étape'}
+                  ? "Mettre à jour l'Étape"
+                  : "Créer l'Étape"}
             </button>
-            <button className="btn-close" onClick={onClose}>×</button>
+            <button className="btn-close" onClick={onClose}>
+              ×
+            </button>
           </div>
         </div>
 
@@ -198,21 +206,20 @@ const StepForm: React.FC<StepFormProps> = ({ step, onClose, ownerId }) => {
                 onChange={handleChange}
                 title="Couleur du texte"
               />
-              <div 
-                className="color-preview" 
-                style={{ 
-                  backgroundColor: formData.backgroundColor, 
+              <div
+                className="color-preview"
+                style={{
+                  backgroundColor: formData.backgroundColor,
                   color: formData.textColor,
                   padding: '5px 10px',
                   borderRadius: '4px',
-                  marginLeft: '10px'
+                  marginLeft: '10px',
                 }}
               >
                 Aperçu
               </div>
             </div>
           </div>
-
         </form>
       </div>
     </div>

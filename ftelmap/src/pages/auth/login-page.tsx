@@ -72,7 +72,7 @@ export default function LoginPage() {
     const newErrors: { email?: string; password?: string } = {};
 
     if (!formData.email) {
-      newErrors.email = 'L\'adresse e-mail est requise';
+      newErrors.email = "L'adresse e-mail est requise";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Adresse e-mail invalide';
     }
@@ -94,12 +94,12 @@ export default function LoginPage() {
       await login.mutateAsync(formData);
       console.log('Login successful!');
       navigate(from, { replace: true });
-    } catch (error: any) {
+    } catch (error) {
       console.log('Login failed:', error);
-      setAttemptCount(prev => prev + 1);
+      setAttemptCount((prev) => prev + 1);
 
       // Set error message
-      const errorMessage = error?.message || 'E-mail ou mot de passe incorrect';
+      const errorMessage = (error as Error)?.message || 'E-mail ou mot de passe incorrect';
       setLoginError(errorMessage);
       setPersistentError(errorMessage);
     }
@@ -107,10 +107,10 @@ export default function LoginPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error for this field when user starts typing
     if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -180,8 +180,8 @@ export default function LoginPage() {
                           sx={{
                             borderRadius: 2,
                             '& .MuiAlert-message': {
-                              fontWeight: 500
-                            }
+                              fontWeight: 500,
+                            },
                           }}
                         >
                           {loginError || persistentError}
@@ -191,13 +191,10 @@ export default function LoginPage() {
 
                     {attemptCount >= 3 && (
                       <Fade in={true}>
-                        <Alert
-                          severity="warning"
-                          variant="outlined"
-                          sx={{ borderRadius: 2 }}
-                        >
-                          Après plusieurs tentatives infructueuses, vérifiez que vous utilisez les bons identifiants.
-                          Si vous avez oublié votre mot de passe, utilisez le lien "Mot de passe oublié ?" ci-dessous.
+                        <Alert severity="warning" variant="outlined" sx={{ borderRadius: 2 }}>
+                          Après plusieurs tentatives infructueuses, vérifiez que vous utilisez les
+                          bons identifiants. Si vous avez oublié votre mot de passe, utilisez le
+                          lien "Mot de passe oublié ?" ci-dessous.
                         </Alert>
                       </Fade>
                     )}
@@ -219,7 +216,7 @@ export default function LoginPage() {
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <EmailIcon color={errors.email ? "error" : "action"} />
+                            <EmailIcon color={errors.email ? 'error' : 'action'} />
                           </InputAdornment>
                         ),
                       }}
@@ -249,7 +246,7 @@ export default function LoginPage() {
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <LockIcon color={errors.password ? "error" : "action"} />
+                            <LockIcon color={errors.password ? 'error' : 'action'} />
                           </InputAdornment>
                         ),
                         endAdornment: (

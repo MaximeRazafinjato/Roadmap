@@ -46,31 +46,34 @@ class ApiClient {
         const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
         // Don't attempt token refresh for auth endpoints (login, register, etc.)
-        const isAuthEndpoint = originalRequest.url?.includes('/auth/login') ||
-                              originalRequest.url?.includes('/auth/register') ||
-                              originalRequest.url?.includes('/auth/refresh');
+        const isAuthEndpoint =
+          originalRequest.url?.includes('/auth/login') ||
+          originalRequest.url?.includes('/auth/register') ||
+          originalRequest.url?.includes('/auth/refresh');
 
         if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
           if (this.isRefreshing) {
             // If already refreshing, add to queue
             return new Promise((resolve, reject) => {
               this.failedQueue.push({ resolve, reject });
-            }).then(() => {
-              const token = TokenStorage.getToken();
-              if (token && originalRequest.headers) {
-                originalRequest.headers.Authorization = `Bearer ${token}`;
-              }
-              return this.instance(originalRequest);
-            }).catch(err => {
-              return Promise.reject(err);
-            });
+            })
+              .then(() => {
+                const token = TokenStorage.getToken();
+                if (token && originalRequest.headers) {
+                  originalRequest.headers.Authorization = `Bearer ${token}`;
+                }
+                return this.instance(originalRequest);
+              })
+              .catch((err) => {
+                return Promise.reject(err);
+              });
           }
 
           originalRequest._retry = true;
           this.isRefreshing = true;
 
           const refreshToken = TokenStorage.getRefreshToken();
-          
+
           if (refreshToken) {
             try {
               // Try to refresh token
@@ -83,7 +86,7 @@ class ApiClient {
               TokenStorage.setTokenData({
                 token,
                 refreshToken: newRefreshToken,
-                expiresAt: Date.now() + (expiresIn * 1000),
+                expiresAt: Date.now() + expiresIn * 1000,
               });
 
               // Process failed queue
@@ -94,7 +97,6 @@ class ApiClient {
                 originalRequest.headers.Authorization = `Bearer ${token}`;
               }
               return this.instance(originalRequest);
-
             } catch (refreshError) {
               // Refresh failed, clear tokens and redirect
               this.processQueue(refreshError);
@@ -132,7 +134,7 @@ class ApiClient {
     // Only redirect if we're not already on a public page
     const currentPath = window.location.pathname;
     const publicPaths = ['/login', '/register', '/forgot-password'];
-    
+
     if (!publicPaths.includes(currentPath)) {
       window.location.href = '/login';
     }

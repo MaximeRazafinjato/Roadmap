@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Box, Typography, Tooltip, IconButton } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useDraggable } from '@dnd-kit/core';
@@ -35,55 +35,54 @@ export const TimelineStep = ({
   const [isHovered, setIsHovered] = useState(false);
   const [localResizing, setLocalResizing] = useState(false);
   const resizeStartX = useRef<number>(0);
-  
+
   // Configuration du drag & drop - désactivé lors du redimensionnement local
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: step.id,
     data: { step },
     disabled: isResizing || localResizing,
   });
-  
+
   const style = {
     transform: CSS.Translate.toString(transform),
   };
-  
+
   // Gestion du redimensionnement
   const handleResizeStart = (e: React.MouseEvent, side: 'left' | 'right') => {
     e.stopPropagation();
     e.preventDefault();
     setLocalResizing(true);
     resizeStartX.current = e.clientX;
-    
+
     const handleMouseMove = (e: MouseEvent) => {
       e.stopPropagation();
       const deltaX = e.clientX - resizeStartX.current;
       onResize?.(step, deltaX, side);
       resizeStartX.current = e.clientX;
     };
-    
+
     const handleMouseUp = (e: MouseEvent) => {
       e.stopPropagation();
       setLocalResizing(false);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-    
+
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
   };
-  
+
   // Calcul de la durée
-  const duration = formatDuration(
-    new Date(step.startDate),
-    new Date(step.endDate)
-  );
-  
+  const duration = formatDuration(new Date(step.startDate), new Date(step.endDate));
+
   // Formatage des dates pour le tooltip
   const startDateFormatted = format(new Date(step.startDate), 'd MMMM yyyy', { locale: fr });
   const endDateFormatted = format(new Date(step.endDate), 'd MMMM yyyy', { locale: fr });
-  
+
   // Ne pas afficher le tooltip lors du redimensionnement
-  const tooltipContent = localResizing ? '' : (
+  const tooltipContent = localResizing ? (
+    ''
+  ) : (
     <Box>
       <Typography variant="body2" fontWeight="bold">
         {step.title}
@@ -101,14 +100,9 @@ export const TimelineStep = ({
       </Typography>
     </Box>
   );
-  
+
   return (
-    <Tooltip
-      title={tooltipContent}
-      placement="top"
-      arrow
-      disableHoverListener={localResizing}
-    >
+    <Tooltip title={tooltipContent} placement="top" arrow disableHoverListener={localResizing}>
       <Box
         ref={setNodeRef}
         {...(!localResizing ? attributes : {})}
@@ -156,7 +150,7 @@ export const TimelineStep = ({
             },
           }}
         />
-        
+
         {/* Contenu de l'étape */}
         <Box sx={{ flex: 1, overflow: 'hidden', pr: isHovered ? 8 : 0 }}>
           <Typography
@@ -182,7 +176,7 @@ export const TimelineStep = ({
             </Typography>
           )}
         </Box>
-        
+
         {/* Actions */}
         {isHovered && !isDragging && !isResizing && (
           <Box
@@ -229,7 +223,7 @@ export const TimelineStep = ({
             </IconButton>
           </Box>
         )}
-        
+
         {/* Poignée de redimensionnement droite */}
         <Box
           onMouseDown={(e) => handleResizeStart(e, 'right')}

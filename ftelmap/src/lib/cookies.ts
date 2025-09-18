@@ -19,7 +19,7 @@ export function setCookie(name: string, value: string, options: CookieOptions = 
     path = '/',
     domain,
     secure = window.location.protocol === 'https:',
-    sameSite = 'lax'
+    sameSite = 'lax',
   } = options;
 
   let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
@@ -129,7 +129,7 @@ export const preferences = {
    */
   has(key: string): boolean {
     return hasCookie(`pref_${key}`);
-  }
+  },
 };
 
 // View mode specific functions
@@ -147,5 +147,5 @@ export const viewMode = {
   get(): 'grid' | 'list' {
     const mode = preferences.get('view_mode');
     return mode === 'list' ? 'list' : 'grid'; // Default to grid
-  }
+  },
 };

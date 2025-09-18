@@ -26,18 +26,16 @@ export const RESIZE_HANDLE_WIDTH = 10; // Largeur de la zone de redimensionnemen
 
 // Niveaux de zoom prédéfinis
 export const ZOOM_LEVELS = {
-  YEAR: 0.25,    // Vue année
-  QUARTER: 0.5,  // Vue trimestre
-  MONTH: 1,      // Vue mois (par défaut)
-  WEEK: 2,       // Vue semaine
-  DAY: 4,        // Vue jour
+  YEAR: 0.25, // Vue année
+  QUARTER: 0.5, // Vue trimestre
+  MONTH: 1, // Vue mois (par défaut)
+  WEEK: 2, // Vue semaine
+  DAY: 4, // Vue jour
 } as const;
 
 // Calcule l'échelle de temps pour convertir dates en pixels
 export function createTimeScale(viewport: TimelineViewport) {
-  return scaleTime()
-    .domain([viewport.startDate, viewport.endDate])
-    .range([0, viewport.width]);
+  return scaleTime().domain([viewport.startDate, viewport.endDate]).range([0, viewport.width]);
 }
 
 // Vérifie si deux étapes se chevauchent dans le temps
@@ -46,7 +44,7 @@ export function stepsOverlap(step1: Step, step2: Step): boolean {
   const end1 = new Date(step1.endDate).getTime();
   const start2 = new Date(step2.startDate).getTime();
   const end2 = new Date(step2.endDate).getTime();
-  
+
   return !(end1 < start2 || end2 < start1);
 }
 
@@ -57,29 +55,29 @@ export function calculateStepsPositions(
 ): Map<string, StepPosition> {
   const positions = new Map<string, StepPosition>();
   const scale = createTimeScale(viewport);
-  
+
   // Trier les étapes par date de début
-  const sortedSteps = [...steps].sort((a, b) => 
-    new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+  const sortedSteps = [...steps].sort(
+    (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
   );
-  
+
   // Tableau de pistes, chaque piste contient les projets qui y sont placés
   const tracks: Step[][] = [];
-  
-  sortedSteps.forEach(step => {
+
+  sortedSteps.forEach((step) => {
     const stepStart = new Date(step.startDate);
     const stepEnd = new Date(step.endDate);
     const left = scale(stepStart);
     const right = scale(stepEnd);
     const width = Math.max(right - left, MIN_PROJECT_WIDTH);
-    
+
     // Trouver la première piste disponible (sans chevauchement)
     let trackIndex = -1;
-    
+
     for (let i = 0; i < tracks.length; i++) {
       const track = tracks[i];
       let canFit = true;
-      
+
       // Vérifier si l'étape chevauche avec une étape existante dans cette piste
       for (const existingStep of track) {
         if (stepsOverlap(step, existingStep)) {
@@ -87,23 +85,23 @@ export function calculateStepsPositions(
           break;
         }
       }
-      
+
       if (canFit) {
         trackIndex = i;
         tracks[i].push(step);
         break;
       }
     }
-    
+
     // Si aucune piste disponible, créer une nouvelle piste
     if (trackIndex === -1) {
       tracks.push([step]);
       trackIndex = tracks.length - 1;
     }
-    
+
     // Calculer la position verticale
-    const top = TIMELINE_PADDING_TOP + (trackIndex * (PROJECT_HEIGHT + PROJECT_MARGIN));
-    
+    const top = TIMELINE_PADDING_TOP + trackIndex * (PROJECT_HEIGHT + PROJECT_MARGIN);
+
     positions.set(step.id, {
       left,
       width,
@@ -111,23 +109,20 @@ export function calculateStepsPositions(
       height: PROJECT_HEIGHT,
     });
   });
-  
+
   return positions;
 }
 
 // Calcule la position d'une étape sur la timeline (pour compatibilité)
-export function calculateStepPosition(
-  step: Step,
-  viewport: TimelineViewport
-): StepPosition {
+export function calculateStepPosition(step: Step, viewport: TimelineViewport): StepPosition {
   const scale = createTimeScale(viewport);
   const stepStart = new Date(step.startDate);
   const stepEnd = new Date(step.endDate);
-  
+
   const left = scale(stepStart);
   const right = scale(stepEnd);
   const width = Math.max(right - left, MIN_PROJECT_WIDTH);
-  
+
   return {
     left,
     width,
@@ -156,12 +151,12 @@ export function calculateNewDates(
 ): { startDate: Date; endDate: Date } {
   const duration = differenceInDays(new Date(step.endDate), new Date(step.startDate));
   const scale = createTimeScale(viewport);
-  
+
   const currentLeft = scale(new Date(step.startDate));
   const newLeft = currentLeft + deltaX;
   const newStartDate = scale.invert(newLeft);
   const newEndDate = addDays(newStartDate, duration);
-  
+
   return {
     startDate: startOfDay(newStartDate),
     endDate: endOfDay(newEndDate),
@@ -178,12 +173,12 @@ export function calculateResizedDates(
   const scale = createTimeScale(viewport);
   const currentStart = new Date(step.startDate);
   const currentEnd = new Date(step.endDate);
-  
+
   if (side === 'left') {
     const currentLeft = scale(currentStart);
     const newLeft = currentLeft + deltaX;
     const newStartDate = scale.invert(newLeft);
-    
+
     // S'assurer que la durée minimale est d'un jour
     if (newStartDate >= currentEnd) {
       return {
@@ -191,7 +186,7 @@ export function calculateResizedDates(
         endDate: currentEnd,
       };
     }
-    
+
     return {
       startDate: startOfDay(newStartDate),
       endDate: currentEnd,
@@ -200,7 +195,7 @@ export function calculateResizedDates(
     const currentRight = scale(currentEnd);
     const newRight = currentRight + deltaX;
     const newEndDate = scale.invert(newRight);
-    
+
     // S'assurer que la durée minimale est d'un jour
     if (newEndDate <= currentStart) {
       return {
@@ -208,7 +203,7 @@ export function calculateResizedDates(
         endDate: addDays(currentStart, 1),
       };
     }
-    
+
     return {
       startDate: currentStart,
       endDate: endOfDay(newEndDate),
@@ -225,7 +220,7 @@ export function calculateViewportDates(
   // Base: 1 pixel = 1 jour au zoom 1
   const daysVisible = width / zoomLevel / 10; // Ajuster le facteur selon les besoins
   const halfDays = Math.floor(daysVisible / 2);
-  
+
   return {
     startDate: addDays(centerDate, -halfDays),
     endDate: addDays(centerDate, halfDays),
@@ -245,15 +240,15 @@ export function generateTimeMarkers(viewport: TimelineViewport): Array<{
     x: number;
     isMajor: boolean;
   }> = [];
-  
+
   const scale = createTimeScale(viewport);
   const daysDiff = differenceInDays(viewport.endDate, viewport.startDate);
-  
+
   // Adapter la granularité selon le zoom
   let step: number;
   let formatStr: string;
   let isMajorCheck: (date: Date) => boolean;
-  
+
   if (daysDiff > 365) {
     // Afficher par mois
     step = 30;
@@ -275,7 +270,7 @@ export function generateTimeMarkers(viewport: TimelineViewport): Array<{
     formatStr = 'd MMM';
     isMajorCheck = (date) => date.getDay() === 1; // Lundi
   }
-  
+
   let currentDate = new Date(viewport.startDate);
   while (currentDate <= viewport.endDate) {
     markers.push({
@@ -286,7 +281,7 @@ export function generateTimeMarkers(viewport: TimelineViewport): Array<{
     });
     currentDate = addDays(currentDate, step);
   }
-  
+
   return markers;
 }
 
@@ -294,7 +289,7 @@ export function generateTimeMarkers(viewport: TimelineViewport): Array<{
 export function isStepVisible(step: Step, viewport: TimelineViewport): boolean {
   const stepStart = new Date(step.startDate);
   const stepEnd = new Date(step.endDate);
-  
+
   return !(stepEnd < viewport.startDate || stepStart > viewport.endDate);
 }
 
@@ -306,18 +301,18 @@ export function clamp(value: number, min: number, max: number): number {
 // Formate une durée en jours
 export function formatDuration(startDate: Date, endDate: Date): string {
   const days = differenceInDays(endDate, startDate) + 1;
-  
+
   if (days === 1) return '1 jour';
   if (days < 7) return `${days} jours`;
   if (days < 30) return `${Math.floor(days / 7)} semaine${days >= 14 ? 's' : ''}`;
   if (days < 365) return `${Math.floor(days / 30)} mois`;
-  
+
   const years = Math.floor(days / 365);
   const remainingMonths = Math.floor((days % 365) / 30);
-  
+
   if (remainingMonths === 0) {
     return `${years} an${years > 1 ? 's' : ''}`;
   }
-  
+
   return `${years} an${years > 1 ? 's' : ''} et ${remainingMonths} mois`;
 }
