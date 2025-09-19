@@ -342,3 +342,4 @@ docker-compose down
     cd sdia-client && pnpm run lint && pnpm run format
     ```
 -   **ALWAYS** run puppeteer-navigate with the argument "args: ["--start-maximized"]" and with the resolution 1920x1080
+-   If you can, **ALWAYS** implement features on the backend so that computations are handled by the server rather than the client

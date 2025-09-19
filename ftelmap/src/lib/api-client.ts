@@ -1,7 +1,7 @@
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
 import { TokenStorage } from './token-storage';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5094/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 class ApiClient {
   private instance: AxiosInstance;

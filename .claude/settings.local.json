@@ -31,7 +31,12 @@
       "Bash(findstr:*)",
       "Bash(del \"C:\\Files\\Projects\\Roadmap\\ftelmap\\src\\pages\\DashboardPage.tsx\")",
       "Bash(npm install:*)",
-      "Bash(pnpm install:*)"
+      "Bash(pnpm install:*)",
+      "Bash(docker:*)",
+      "Bash(timeout:*)",
+      "Bash(pnpm run dev:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": [],
