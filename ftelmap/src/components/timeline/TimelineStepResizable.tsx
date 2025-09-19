@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, memo } from 'react';
 import { Box, Typography, Tooltip, IconButton } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import type { Step } from '../../types/entities';
@@ -21,7 +21,7 @@ interface TimelineStepResizableProps {
   isSelected?: boolean;
 }
 
-export const TimelineStepResizable = ({
+export const TimelineStepResizable = memo(({
   step,
   position,
   onEdit,
@@ -354,4 +354,18 @@ export const TimelineStepResizable = ({
       </Tooltip>
     </>
   );
-};
+}, (prevProps, nextProps) => {
+  // Comparaison personnalisée pour éviter les re-rendus inutiles
+  return (
+    prevProps.step.id === nextProps.step.id &&
+    prevProps.step.title === nextProps.step.title &&
+    prevProps.step.startDate === nextProps.step.startDate &&
+    prevProps.step.endDate === nextProps.step.endDate &&
+    prevProps.step.backgroundColor === nextProps.step.backgroundColor &&
+    prevProps.step.textColor === nextProps.step.textColor &&
+    prevProps.position.left === nextProps.position.left &&
+    prevProps.position.width === nextProps.position.width &&
+    prevProps.position.top === nextProps.position.top &&
+    prevProps.isSelected === nextProps.isSelected
+  );
+});

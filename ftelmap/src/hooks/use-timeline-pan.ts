@@ -25,7 +25,7 @@ export const useTimelinePan = ({ onPan }: UseTimelinePanOptions = {}) => {
     [centerDate]
   );
 
-  // Handle pan movement
+  // Handle pan movement - throttled for better performance
   const handlePanMove = useCallback(
     (event: MouseEvent) => {
       if (!isPanning) return;
@@ -34,10 +34,15 @@ export const useTimelinePan = ({ onPan }: UseTimelinePanOptions = {}) => {
       onPan?.(deltaX);
 
       // Calculate new center date based on pan distance
-      // Assuming 10 pixels = 1 day at zoom level 1
-      const daysMoved = -deltaX / 10;
+      // Adjust sensitivity based on viewport width for smoother pan
+      const pixelsPerDay = 15; // Increased for less sensitivity
+      const daysMoved = -deltaX / pixelsPerDay;
       const newCenterDate = addDays(panStartDate.current, daysMoved);
-      setCenterDate(newCenterDate);
+
+      // Use requestAnimationFrame for smoother updates
+      requestAnimationFrame(() => {
+        setCenterDate(newCenterDate);
+      });
     },
     [isPanning, onPan]
   );

@@ -19,7 +19,7 @@ export interface StepPosition {
 
 // Constantes pour la timeline
 export const PROJECT_HEIGHT = 50; // Hauteur d'une étape
-export const PROJECT_MARGIN = 5; // Marge entre les étapes empilées
+export const PROJECT_MARGIN = 10; // Marge entre les étapes empilées
 export const TIMELINE_PADDING_TOP = 60; // Padding en haut de la timeline
 export const MIN_PROJECT_WIDTH = 50; // Largeur minimale d'une étape
 export const RESIZE_HANDLE_WIDTH = 10; // Largeur de la zone de redimensionnement
@@ -51,7 +51,8 @@ export function stepsOverlap(step1: Step, step2: Step): boolean {
 // Calcule les positions de toutes les étapes avec gestion des chevauchements
 export function calculateStepsPositions(
   steps: Step[],
-  viewport: TimelineViewport
+  viewport: TimelineViewport,
+  trackCache?: Map<string, number>
 ): Map<string, StepPosition> {
   const positions = new Map<string, StepPosition>();
   const scale = createTimeScale(viewport);
@@ -71,32 +72,48 @@ export function calculateStepsPositions(
     const right = scale(stepEnd);
     const width = Math.max(right - left, MIN_PROJECT_WIDTH);
 
-    // Trouver la première piste disponible (sans chevauchement)
     let trackIndex = -1;
 
-    for (let i = 0; i < tracks.length; i++) {
-      const track = tracks[i];
-      let canFit = true;
+    // Vérifier d'abord si l'étape a une position mise en cache
+    if (trackCache && trackCache.has(step.id)) {
+      trackIndex = trackCache.get(step.id)!;
 
-      // Vérifier si l'étape chevauche avec une étape existante dans cette piste
-      for (const existingStep of track) {
-        if (stepsOverlap(step, existingStep)) {
-          canFit = false;
+      // S'assurer que la track existe
+      while (tracks.length <= trackIndex) {
+        tracks.push([]);
+      }
+      tracks[trackIndex].push(step);
+    } else {
+      // Sinon, trouver la première piste disponible (sans chevauchement)
+      for (let i = 0; i < tracks.length; i++) {
+        const track = tracks[i];
+        let canFit = true;
+
+        // Vérifier si l'étape chevauche avec une étape existante dans cette piste
+        for (const existingStep of track) {
+          if (stepsOverlap(step, existingStep)) {
+            canFit = false;
+            break;
+          }
+        }
+
+        if (canFit) {
+          trackIndex = i;
+          tracks[i].push(step);
           break;
         }
       }
 
-      if (canFit) {
-        trackIndex = i;
-        tracks[i].push(step);
-        break;
+      // Si aucune piste disponible, créer une nouvelle piste
+      if (trackIndex === -1) {
+        tracks.push([step]);
+        trackIndex = tracks.length - 1;
       }
-    }
 
-    // Si aucune piste disponible, créer une nouvelle piste
-    if (trackIndex === -1) {
-      tracks.push([step]);
-      trackIndex = tracks.length - 1;
+      // Mettre en cache la position de la piste
+      if (trackCache) {
+        trackCache.set(step.id, trackIndex);
+      }
     }
 
     // Calculer la position verticale

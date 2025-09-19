@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useMemo } from 'react';
+import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -40,6 +40,7 @@ import {
   dateToPixel,
   TIMELINE_PADDING_TOP,
   PROJECT_HEIGHT,
+  PROJECT_MARGIN,
   type TimelineViewport,
 } from '../../utils/timeline-utils';
 
@@ -65,10 +66,14 @@ export const TimelineSimple = ({
   const [containerWidth, setContainerWidth] = useState(1200);
   const [selectedStep, setSelectedStep] = useState<string | null>(null);
 
+  // Cache pour les positions verticales des étapes (pour éviter les sauts pendant le pan)
+  const stepTracksCache = useRef<Map<string, number>>(new Map());
+
   // État pour la sélection de dates
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectionStart, setSelectionStart] = useState<number | null>(null);
   const [selectionEnd, setSelectionEnd] = useState<number | null>(null);
+  const [selectionY, setSelectionY] = useState<number>(0);
 
   // État pour le menu d'export
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
@@ -76,8 +81,18 @@ export const TimelineSimple = ({
   // État local pour les projets avec mises à jour optimistes
   const [localSteps, setLocalSteps] = useState<Step[]>(steps || []);
 
-  // Synchroniser avec les projets externes
+  // Synchroniser avec les projets externes et nettoyer le cache si nécessaire
   useEffect(() => {
+    const prevStepIds = new Set(localSteps.map(s => s.id));
+    const newStepIds = new Set((steps || []).map(s => s.id));
+
+    // Nettoyer le cache pour les étapes supprimées
+    prevStepIds.forEach(id => {
+      if (!newStepIds.has(id)) {
+        stepTracksCache.current.delete(id);
+      }
+    });
+
     setLocalSteps(steps || []);
   }, [steps]);
 
@@ -104,7 +119,7 @@ export const TimelineSimple = ({
   // Filtrer et positionner les projets visibles avec gestion des chevauchements
   const visibleSteps = useMemo(() => {
     const visible = localSteps.filter((step) => isStepVisible(step, viewport));
-    const positions = calculateStepsPositions(visible, viewport);
+    const positions = calculateStepsPositions(visible, viewport, stepTracksCache.current);
 
     return visible.map((step) => ({
       step,
@@ -147,13 +162,16 @@ export const TimelineSimple = ({
   }, [isPanning, handlePanMove, endPan]);
 
   // Gestion du drag des projets avec mise à jour optimiste
-  const handleStepDrag = (step: Step, deltaX: number) => {
+  const handleStepDrag = useCallback((step: Step, deltaX: number) => {
     const currentPos = visibleSteps.find((p) => p.step.id === step.id)?.position;
     if (!currentPos) return;
 
     const newLeft = currentPos.left + deltaX;
     const newStartDate = pixelToDate(newLeft, viewport);
     const newEndDate = pixelToDate(newLeft + currentPos.width, viewport);
+
+    // Invalider TOUT le cache car le déplacement d'un bloc peut affecter tous les autres
+    stepTracksCache.current.clear();
 
     // Mise à jour optimiste locale immédiate
     const updatedStep = {
@@ -169,12 +187,15 @@ export const TimelineSimple = ({
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString(),
     });
-  };
+  }, [visibleSteps, viewport, onStepUpdate]);
 
   // Gestion du redimensionnement des projets avec mise à jour optimiste
   const handleStepResize = (step: Step, newPosition: { left: number; width: number }) => {
     const newStartDate = pixelToDate(newPosition.left, viewport);
     const newEndDate = pixelToDate(newPosition.left + newPosition.width, viewport);
+
+    // Invalider TOUT le cache car le redimensionnement d'un bloc peut affecter tous les autres
+    stepTracksCache.current.clear();
 
     // Mise à jour optimiste locale immédiate
     const updatedStep = {
@@ -332,7 +353,7 @@ export const TimelineSimple = ({
           position: 'relative',
           overflow: 'hidden',
           cursor: isSelecting ? 'crosshair' : isPanning ? 'grabbing' : 'grab',
-          bgcolor: 'grey.50',
+          bgcolor: '#f5f5f5', // Couleur uniforme sans dégradé
         }}
         onMouseDown={(e) => {
           // Ne pas démarrer le pan si on clique sur un projet
@@ -344,9 +365,11 @@ export const TimelineSimple = ({
             if (!rect) return;
 
             const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top - 40 - TIMELINE_PADDING_TOP; // Soustraire le header (40px) et le padding top
             setIsSelecting(true);
             setSelectionStart(x);
             setSelectionEnd(x);
+            setSelectionY(y);
             e.preventDefault();
           } else {
             startPan(e);
@@ -377,6 +400,7 @@ export const TimelineSimple = ({
             setIsSelecting(false);
             setSelectionStart(null);
             setSelectionEnd(null);
+            setSelectionY(0);
           }
         }}
         onClick={() => setSelectedStep(null)}
@@ -437,6 +461,44 @@ export const TimelineSimple = ({
             bgcolor: 'background.paper',
           }}
         >
+          {/* Lignes horizontales de grille - optimisées */}
+          {useMemo(() =>
+            [0, 1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
+              <Box
+                key={`row-line-${row}`}
+                sx={{
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  top: TIMELINE_PADDING_TOP + row * (PROJECT_HEIGHT + PROJECT_MARGIN) - 1,
+                  height: PROJECT_HEIGHT + PROJECT_MARGIN,
+                  pointerEvents: 'none',
+                  borderTop: '1px solid',
+                  borderColor: 'divider',
+                  opacity: 0.3,
+                }}
+              />
+            )), []
+          )}
+
+          {/* Lignes verticales de grille pour les dates */}
+          {timeMarkers.map((marker) => (
+            <Box
+              key={`grid-line-${marker.date.getTime()}`}
+              sx={{
+                position: 'absolute',
+                left: dateToPixel(marker.date, viewport),
+                top: 0,
+                bottom: 0,
+                width: 1,
+                bgcolor: marker.isMonth ? 'divider' : 'action.hover',
+                opacity: marker.isMonth ? 0.4 : 0.2,
+                pointerEvents: 'none',
+                zIndex: 1,
+              }}
+            />
+          ))}
+
           {/* Zone de sélection */}
           {isSelecting && selectionStart !== null && selectionEnd !== null && (
             <Box
@@ -444,7 +506,7 @@ export const TimelineSimple = ({
                 position: 'absolute',
                 left: Math.min(selectionStart, selectionEnd),
                 width: Math.abs(selectionEnd - selectionStart),
-                top: TIMELINE_PADDING_TOP,
+                top: Math.floor(selectionY / (PROJECT_HEIGHT + PROJECT_MARGIN)) * (PROJECT_HEIGHT + PROJECT_MARGIN) + TIMELINE_PADDING_TOP,
                 height: PROJECT_HEIGHT,
                 bgcolor: 'primary.main',
                 opacity: 0.2,
