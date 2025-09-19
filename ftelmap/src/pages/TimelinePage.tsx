@@ -1,19 +1,10 @@
 import { useState } from 'react';
-import {
-  Box,
-  Alert,
-  AlertTitle,
-  Skeleton,
-  Fade,
-  Dialog,
-  Stack,
-  Typography,
-  Button,
-} from '@mui/material';
+import { Box, Dialog, Stack, Typography, Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useSteps, useUpdateStep, useDeleteStep } from '../hooks/use-steps';
 import { TimelineSimple } from '../components/timeline/TimelineSimple';
 import StepForm from '../components/StepForm';
+import { PageLayout } from '../components/PageLayout';
 import type { Step, UpdateStepForm } from '../types/entities';
 import { useAuth } from '../hooks/use-auth-context';
 
@@ -83,55 +74,32 @@ const TimelinePage = () => {
     setEditingStep(null);
   };
 
-  if (isLoading) {
-    return (
-      <Box sx={{ height: '100vh', p: 3 }}>
-        <Skeleton variant="text" width={300} height={40} sx={{ mb: 2 }} />
-        <Skeleton variant="rectangular" height="calc(100% - 60px)" sx={{ borderRadius: 2 }} />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Fade in={true}>
-        <Alert severity="error" sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
-          <AlertTitle>Erreur de chargement de la timeline</AlertTitle>
-          Impossible de charger les étapes. Veuillez réessayer plus tard.
-        </Alert>
-      </Fade>
-    );
-  }
+  const actions = (
+    <Button
+      variant="contained"
+      size="small"
+      startIcon={<AddIcon />}
+      onClick={handleStepAdd}
+      sx={{
+        borderRadius: 1.5,
+        px: 2,
+        py: 0.75,
+        textTransform: 'none',
+        fontWeight: 600,
+      }}
+    >
+      Nouvelle Étape
+    </Button>
+  );
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      {/* En-tête */}
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Box>
-          <Typography variant="h4" fontWeight="bold" gutterBottom>
-            Timeline des Étapes
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Visualisez et gérez vos étapes sur une frise chronologique interactive
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleStepAdd}
-          sx={{
-            borderRadius: 2,
-            px: 3,
-            py: 1.5,
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
-        >
-          Nouvelle Étape
-        </Button>
-      </Stack>
-
-      {/* Timeline */}
+    <PageLayout
+      title="Timeline des Étapes"
+      loading={isLoading}
+      error={error ? 'Impossible de charger les étapes. Veuillez réessayer plus tard.' : null}
+      actions={actions}
+      fullHeight
+    >
       <Box sx={{ flex: 1, minHeight: 0 }}>
         {steps && steps.length > 0 ? (
           <TimelineSimple
@@ -209,7 +177,7 @@ const TimelinePage = () => {
           </Stack>
         </Box>
       </Dialog>
-    </Box>
+    </PageLayout>
   );
 };
 

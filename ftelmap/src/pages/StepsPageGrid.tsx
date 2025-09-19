@@ -43,6 +43,7 @@ import {
 } from '@mui/icons-material';
 import { useSteps, useDeleteStep } from '../hooks/use-steps';
 import StepForm from '../components/StepForm';
+import { PageLayout } from '../components/PageLayout';
 import type { Step } from '../types/entities';
 
 const StepsPageGrid = () => {
@@ -174,66 +175,50 @@ const StepsPageGrid = () => {
       return sortOrder === 'asc' ? compareValue : -compareValue;
     });
 
-  if (isLoading) {
-    return (
-      <Box
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}
+  const actions = (
+    <Stack direction="row" spacing={2}>
+      <ToggleButtonGroup
+        value={viewMode}
+        exclusive
+        onChange={(_, newMode) => newMode && setViewMode(newMode)}
+        size="small"
       >
-        <Typography>Chargement des étapes...</Typography>
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}
+        <ToggleButton value="grid">
+          <Tooltip title="Vue grille">
+            <GridViewIcon />
+          </Tooltip>
+        </ToggleButton>
+        <ToggleButton value="list">
+          <Tooltip title="Vue liste">
+            <ListIcon />
+          </Tooltip>
+        </ToggleButton>
+      </ToggleButtonGroup>
+      <Button
+        variant="contained"
+        size="small"
+        startIcon={<AddIcon />}
+        onClick={() => setShowCreateForm(true)}
+        sx={{
+          borderRadius: 1.5,
+          textTransform: 'none',
+          fontWeight: 600,
+          px: 2,
+          py: 0.75,
+        }}
       >
-        <Typography color="error">Échec du chargement des étapes</Typography>
-      </Box>
-    );
-  }
+        Nouvelle Étape
+      </Button>
+    </Stack>
+  );
 
   return (
-    <Box sx={{ p: 3 }}>
-      {/* Header */}
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" fontWeight="bold">
-          Gestion des Étapes
-        </Typography>
-        <Stack direction="row" spacing={2}>
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(_, newMode) => newMode && setViewMode(newMode)}
-            size="small"
-          >
-            <ToggleButton value="grid">
-              <Tooltip title="Vue grille">
-                <GridViewIcon />
-              </Tooltip>
-            </ToggleButton>
-            <ToggleButton value="list">
-              <Tooltip title="Vue liste">
-                <ListIcon />
-              </Tooltip>
-            </ToggleButton>
-          </ToggleButtonGroup>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setShowCreateForm(true)}
-            sx={{
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 600,
-            }}
-          >
-            Nouvelle Étape
-          </Button>
-        </Stack>
-      </Stack>
-
+    <PageLayout
+      title="Gestion des Étapes"
+      loading={isLoading}
+      error={error ? 'Échec du chargement des étapes' : null}
+      actions={actions}
+    >
       {/* Filters Bar */}
       <Paper sx={{ p: 2, mb: 3, borderRadius: 2 }}>
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
@@ -755,7 +740,7 @@ const StepsPageGrid = () => {
           Supprimer
         </MenuItem>
       </Menu>
-    </Box>
+    </PageLayout>
   );
 };
 

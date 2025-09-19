@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import {
-  Box,
   Paper,
   Table,
   TableBody,
@@ -13,9 +12,6 @@ import {
   Chip,
   TextField,
   InputAdornment,
-  Typography,
-  CircularProgress,
-  Alert,
   Tooltip,
   FormControl,
   InputLabel,
@@ -37,6 +33,7 @@ import {
 import { useUsers, useUpdateUserStatus } from '../hooks/useUsers';
 import { UserEditDialog } from '../components/users/UserEditDialog';
 import { UserDeleteDialog } from '../components/users/UserDeleteDialog';
+import { PageLayout } from '../components/PageLayout';
 import type { User, UserFilters } from '../types/user-management';
 import { useAuth } from '../hooks/use-auth-context';
 
@@ -127,27 +124,13 @@ const UsersPage: React.FC = () => {
     return currentUser?.id === userId;
   };
 
-  if (isLoading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert severity="error">Une erreur est survenue lors du chargement des utilisateurs</Alert>
-    );
-  }
-
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
-      <Box>
-        <Typography variant="h4" gutterBottom>
-          Gestion des utilisateurs
-        </Typography>
-
+    <PageLayout
+      title="Gestion des utilisateurs"
+      loading={isLoading}
+      error={error ? 'Une erreur est survenue lors du chargement des utilisateurs' : null}
+    >
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
         <Paper sx={{ p: 2, mb: 2 }}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TextField
@@ -326,8 +309,8 @@ const UsersPage: React.FC = () => {
           onClose={() => setDeletingUser(null)}
           user={deletingUser}
         />
-      </Box>
-    </LocalizationProvider>
+      </LocalizationProvider>
+    </PageLayout>
   );
 };
 

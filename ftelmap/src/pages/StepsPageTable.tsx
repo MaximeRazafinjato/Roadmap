@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box,
-  Typography,
   Button,
   Paper,
   Table,
@@ -17,6 +15,7 @@ import {
   TextField,
   InputAdornment,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -28,6 +27,7 @@ import {
 } from '@mui/icons-material';
 import { useSteps, useDeleteStep } from '../hooks/use-steps';
 import StepForm from '../components/StepForm';
+import { PageLayout } from '../components/PageLayout';
 import type { Step } from '../types/entities';
 
 const StepsPageTable = () => {
@@ -76,47 +76,31 @@ const StepsPageTable = () => {
   // Paginate the filtered steps
   const paginatedSteps = filteredSteps.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-  if (isLoading) {
-    return (
-      <Box
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}
-      >
-        <Typography>Chargement des étapes...</Typography>
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}
-      >
-        <Typography color="error">Échec du chargement des étapes</Typography>
-      </Box>
-    );
-  }
+  const actions = (
+    <Button
+      variant="contained"
+      size="small"
+      startIcon={<AddIcon />}
+      onClick={() => setShowCreateForm(true)}
+      sx={{
+        borderRadius: 1.5,
+        textTransform: 'none',
+        fontWeight: 600,
+        px: 2,
+        py: 0.75,
+      }}
+    >
+      Nouvelle Étape
+    </Button>
+  );
 
   return (
-    <Box sx={{ p: 3 }}>
-      {/* Header */}
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" fontWeight="bold">
-          Gestion des Étapes
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setShowCreateForm(true)}
-          sx={{
-            borderRadius: 2,
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
-        >
-          Nouvelle Étape
-        </Button>
-      </Stack>
-
+    <PageLayout
+      title="Gestion des Étapes"
+      loading={isLoading}
+      error={error ? 'Échec du chargement des étapes' : null}
+      actions={actions}
+    >
       {/* Search Bar */}
       <Paper sx={{ p: 2, mb: 3, borderRadius: 2 }}>
         <TextField
@@ -303,7 +287,7 @@ const StepsPageTable = () => {
           }}
         />
       )}
-    </Box>
+    </PageLayout>
   );
 };
 
