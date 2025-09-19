@@ -117,10 +117,20 @@ export const TimelineSimple = ({
   }, [viewport]);
 
   // Filtrer et positionner les projets visibles avec gestion des chevauchements
+  // Calcul optimisé des positions avec mémoïsation
   const visibleSteps = useMemo(() => {
-    const visible = localSteps.filter((step) => isStepVisible(step, viewport));
+    // Filtrer d'abord pour réduire le nombre de calculs
+    const visible = [];
+    for (const step of localSteps) {
+      if (isStepVisible(step, viewport)) {
+        visible.push(step);
+      }
+    }
+
+    // Calculer les positions seulement pour les étapes visibles
     const positions = calculateStepsPositions(visible, viewport, stepTracksCache.current);
 
+    // Mapper en une seule passe
     return visible.map((step) => ({
       step,
       position: positions.get(step.id) || {
@@ -161,31 +171,34 @@ export const TimelineSimple = ({
     }
   }, [isPanning, handlePanMove, endPan]);
 
-  // Gestion du drag des projets avec mise à jour optimiste
+  // Gestion optimisée du drag avec useCallback et RAF
   const handleStepDrag = useCallback((step: Step, deltaX: number) => {
-    const currentPos = visibleSteps.find((p) => p.step.id === step.id)?.position;
-    if (!currentPos) return;
+    // Utiliser requestAnimationFrame pour des mises à jour fluides
+    requestAnimationFrame(() => {
+      const currentPos = visibleSteps.find((p) => p.step.id === step.id)?.position;
+      if (!currentPos) return;
 
-    const newLeft = currentPos.left + deltaX;
-    const newStartDate = pixelToDate(newLeft, viewport);
-    const newEndDate = pixelToDate(newLeft + currentPos.width, viewport);
+      const newLeft = currentPos.left + deltaX;
+      const newStartDate = pixelToDate(newLeft, viewport);
+      const newEndDate = pixelToDate(newLeft + currentPos.width, viewport);
 
-    // Invalider TOUT le cache car le déplacement d'un bloc peut affecter tous les autres
-    stepTracksCache.current.clear();
+      // Invalider TOUT le cache car le déplacement d'un bloc peut affecter tous les autres
+      stepTracksCache.current.clear();
 
-    // Mise à jour optimiste locale immédiate
-    const updatedStep = {
-      ...step,
-      startDate: newStartDate.toISOString(),
-      endDate: newEndDate.toISOString(),
-    };
+      // Mise à jour optimiste locale immédiate
+      const updatedStep = {
+        ...step,
+        startDate: newStartDate.toISOString(),
+        endDate: newEndDate.toISOString(),
+      };
 
-    setLocalSteps((prev) => prev.map((p) => (p.id === step.id ? updatedStep : p)));
+      setLocalSteps((prev) => prev.map((p) => (p.id === step.id ? updatedStep : p)));
 
-    // Puis envoyer la mise à jour au serveur
-    onStepUpdate?.(step, {
-      startDate: newStartDate.toISOString(),
-      endDate: newEndDate.toISOString(),
+      // Puis envoyer la mise à jour au serveur
+      onStepUpdate?.(step, {
+        startDate: newStartDate.toISOString(),
+        endDate: newEndDate.toISOString(),
+      });
     });
   }, [visibleSteps, viewport, onStepUpdate]);
 
@@ -334,9 +347,30 @@ export const TimelineSimple = ({
           </IconButton>
 
           {onStepAdd && (
-            <IconButton onClick={onStepAdd} color="primary" size="small" title="Ajouter un projet">
-              <AddIcon />
-            </IconButton>
+            <Box
+              component="button"
+              onClick={onStepAdd}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                px: 1.5,
+                py: 0.5,
+                bgcolor: 'primary.main',
+                color: 'white',
+                border: 'none',
+                borderRadius: 1,
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                '&:hover': {
+                  bgcolor: 'primary.dark',
+                },
+              }}
+            >
+              <AddIcon sx={{ fontSize: '1.2rem' }} />
+              Nouvelle Étape
+            </Box>
           )}
 
           <IconButton onClick={handleExportMenuOpen} size="small" title="Exporter la timeline">

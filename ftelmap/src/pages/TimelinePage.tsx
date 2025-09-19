@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Box, Dialog, Stack, Typography, Button } from '@mui/material';
+import { Box, Dialog, Typography, Button, Stack } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useSteps, useUpdateStep, useDeleteStep } from '../hooks/use-steps';
 import { TimelineSimple } from '../components/timeline/TimelineSimple';
 import StepForm from '../components/StepForm';
-import { PageLayout } from '../components/PageLayout';
 import type { Step, UpdateStepForm } from '../types/entities';
 import { useAuth } from '../hooks/use-auth-context';
 
@@ -74,78 +73,78 @@ const TimelinePage = () => {
     setEditingStep(null);
   };
 
-  const actions = (
-    <Button
-      variant="contained"
-      size="small"
-      startIcon={<AddIcon />}
-      onClick={handleStepAdd}
-      sx={{
-        borderRadius: 1.5,
-        px: 2,
-        py: 0.75,
-        textTransform: 'none',
-        fontWeight: 600,
-      }}
-    >
-      Nouvelle Étape
-    </Button>
-  );
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+        }}
+      >
+        <Typography>Chargement...</Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography color="error">
+          Impossible de charger les étapes. Veuillez réessayer plus tard.
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
-    <PageLayout
-      title="Timeline des Étapes"
-      loading={isLoading}
-      error={error ? 'Impossible de charger les étapes. Veuillez réessayer plus tard.' : null}
-      actions={actions}
-      fullHeight
-    >
-      <Box sx={{ flex: 1, minHeight: 0 }}>
-        {steps && steps.length > 0 ? (
-          <TimelineSimple
-            steps={steps}
-            onStepUpdate={handleStepUpdate}
-            onStepEdit={handleStepEdit}
-            onStepDelete={handleStepDelete}
-            onStepAdd={handleStepAdd}
-            onStepAddWithDates={handleStepAddWithDates}
-          />
-        ) : (
-          <Box
-            sx={{
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: 2,
-              borderColor: 'divider',
-              borderStyle: 'dashed',
-              borderRadius: 2,
-              bgcolor: 'grey.50',
-            }}
-          >
-            <Box textAlign="center">
-              <Typography variant="h6" color="text.secondary" gutterBottom>
-                Aucune étape pour le moment
-              </Typography>
-              <Typography variant="body2" color="text.secondary" mb={3}>
-                Créez votre première étape pour commencer à utiliser la timeline
-              </Typography>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleStepAdd}
-                sx={{
-                  borderRadius: 2,
-                  textTransform: 'none',
-                }}
-              >
-                Créer une Étape
-              </Button>
-            </Box>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 2 }}>
+      {steps && steps.length > 0 ? (
+        <TimelineSimple
+          steps={steps}
+          onStepUpdate={handleStepUpdate}
+          onStepEdit={handleStepEdit}
+          onStepDelete={handleStepDelete}
+          onStepAdd={handleStepAdd}
+          onStepAddWithDates={handleStepAddWithDates}
+        />
+      ) : (
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: 2,
+            borderColor: 'divider',
+            borderStyle: 'dashed',
+            borderRadius: 2,
+            bgcolor: 'grey.50',
+          }}
+        >
+          <Box textAlign="center">
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              Aucune étape pour le moment
+            </Typography>
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              Créez votre première étape pour commencer à utiliser la timeline
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleStepAdd}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+              }}
+            >
+              Créer une Étape
+            </Button>
           </Box>
-        )}
-      </Box>
+        </Box>
+      )}
 
       {/* Dialogue de formulaire d'étape */}
       <Dialog open={openStepDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
@@ -177,7 +176,7 @@ const TimelinePage = () => {
           </Stack>
         </Box>
       </Dialog>
-    </PageLayout>
+    </Box>
   );
 };
 
