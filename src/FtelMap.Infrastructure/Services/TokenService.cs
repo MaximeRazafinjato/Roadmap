@@ -52,7 +52,7 @@ namespace FtelMap.Infrastructure.Services
                 audience: _audience,
                 claims: claims,
                 notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddMinutes(_tokenExpirationMinutes),
+                expires: DateTime.UtcNow.AddYears(100), // Token valide pour 100 ans (pratiquement pour toujours)
                 signingCredentials: credentials
             );
 
