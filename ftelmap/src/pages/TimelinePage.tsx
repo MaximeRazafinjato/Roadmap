@@ -35,6 +35,7 @@ const TimelinePage = () => {
       endDate: updates.endDate ?? step.endDate,
       backgroundColor: updates.backgroundColor ?? step.backgroundColor,
       textColor: updates.textColor ?? step.textColor,
+      associatedDepartments: updates.associatedDepartments ?? step.associatedDepartments,
       ownerId: step.ownerId,
     };
 
