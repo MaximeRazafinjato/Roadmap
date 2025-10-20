@@ -15,10 +15,13 @@ export function throttle<T extends (...args: any[]) => any>(
     } else {
       // Enregistrer le dernier appel pour l'exécuter après le délai
       if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        lastCall = Date.now();
-        func(...args);
-      }, delay - (now - lastCall));
+      timeout = setTimeout(
+        () => {
+          lastCall = Date.now();
+          func(...args);
+        },
+        delay - (now - lastCall)
+      );
     }
   };
 }
