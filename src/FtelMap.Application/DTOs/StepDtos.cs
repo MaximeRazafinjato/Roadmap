@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using FtelMap.Core.Enums;
 
 namespace FtelMap.Application.DTOs;
 
@@ -7,25 +8,27 @@ public class CreateStepDto
     [Required]
     [StringLength(200, MinimumLength = 1)]
     public string Title { get; set; } = string.Empty;
-    
+
     [Required]
     [StringLength(1000)]
     public string Description { get; set; } = string.Empty;
-    
+
     [Required]
     public DateTime StartDate { get; set; }
-    
+
     [Required]
     public DateTime EndDate { get; set; }
-    
+
     [Required]
     [RegularExpression("^#[0-9A-Fa-f]{6}$", ErrorMessage = "Background color must be a valid hex color code")]
     public string BackgroundColor { get; set; } = "#3B82F6";
-    
+
     [Required]
     [RegularExpression("^#[0-9A-Fa-f]{6}$", ErrorMessage = "Text color must be a valid hex color code")]
     public string TextColor { get; set; } = "#FFFFFF";
-    
+
+    public List<Department> AssociatedDepartments { get; set; } = new();
+
     [Required]
     public Guid OwnerId { get; set; }
 }
@@ -43,6 +46,7 @@ public class StepDto
     public DateTime EndDate { get; set; }
     public string BackgroundColor { get; set; } = "#3B82F6";
     public string TextColor { get; set; } = "#FFFFFF";
+    public List<Department> AssociatedDepartments { get; set; } = new();
     public Guid OwnerId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
