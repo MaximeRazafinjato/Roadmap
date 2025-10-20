@@ -1,3 +1,11 @@
+// Enums
+export enum Department {
+  Front = 'Front',
+  Back = 'Back',
+  Infra = 'Infra',
+  Commerce = 'Commerce',
+}
+
 // Base entity
 export interface BaseEntity {
   id: string;
@@ -27,6 +35,7 @@ export interface Step extends BaseEntity {
   endDate: string;
   backgroundColor: string;
   textColor: string;
+  associatedDepartments: Department[];
   ownerId: string;
   owner?: User;
 }
@@ -54,6 +63,7 @@ export interface CreateStepForm {
   endDate: string;
   backgroundColor: string;
   textColor: string;
+  associatedDepartments: Department[];
   ownerId: string;
 }
 

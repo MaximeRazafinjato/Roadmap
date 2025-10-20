@@ -16,6 +16,8 @@ import {
   InputAdornment,
   Tooltip,
   Typography,
+  Chip,
+  Box,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -29,6 +31,9 @@ import { useSteps, useDeleteStep } from '../hooks/use-steps';
 import StepForm from '../components/StepForm';
 import { PageLayout } from '../components/PageLayout';
 import type { Step } from '../types/entities';
+import { RichTextViewer } from '../components/RichTextViewer';
+import { stripHtmlTags } from '../utils/html-utils';
+import { getDepartmentLabel, getDepartmentColor } from '../constants/departments';
 
 const StepsPageTable = () => {
   const navigate = useNavigate();
@@ -69,8 +74,9 @@ const StepsPageTable = () => {
     steps?.filter(
       (step) =>
         step.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        step.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        step.location?.toLowerCase().includes(searchTerm.toLowerCase())
+        stripHtmlTags(step.description || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
     ) || [];
 
   // Paginate the filtered steps
@@ -133,11 +139,9 @@ const StepsPageTable = () => {
             <TableRow sx={{ backgroundColor: 'grey.50' }}>
               <TableCell sx={{ fontWeight: 'bold' }}>Titre</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Description</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Pôles associés</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Date de début</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Date de fin</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Lieu</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Participants</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Budget</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }} align="center">
                 Actions
               </TableCell>
@@ -167,37 +171,56 @@ const StepsPageTable = () => {
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        maxWidth: 250,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {step.description || '-'}
-                    </Typography>
+                    {step.description ? (
+                      <Tooltip
+                        title={<RichTextViewer content={step.description} />}
+                        placement="top"
+                        arrow
+                        enterDelay={300}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            maxWidth: 400,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            cursor: 'help',
+                          }}
+                        >
+                          {stripHtmlTags(step.description)}
+                        </Typography>
+                      </Tooltip>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        -
+                      </Typography>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {step.associatedDepartments && step.associatedDepartments.length > 0 ? (
+                        step.associatedDepartments.map((dept) => (
+                          <Chip
+                            key={dept}
+                            label={getDepartmentLabel(dept)}
+                            size="small"
+                            sx={{
+                              backgroundColor: getDepartmentColor(dept),
+                              color: '#FFFFFF',
+                              fontWeight: 500,
+                            }}
+                          />
+                        ))
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          -
+                        </Typography>
+                      )}
+                    </Box>
                   </TableCell>
                   <TableCell>{new Date(step.startDate).toLocaleDateString('fr-FR')}</TableCell>
                   <TableCell>{new Date(step.endDate).toLocaleDateString('fr-FR')}</TableCell>
-                  <TableCell>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        maxWidth: 150,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {step.location || '-'}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{step.participants || '-'}</TableCell>
-                  <TableCell>
-                    {step.budget ? `${step.budget.toLocaleString('fr-FR')} €` : '-'}
-                  </TableCell>
                   <TableCell align="center">
                     <Stack direction="row" spacing={0.5} justifyContent="center">
                       <Tooltip title="Voir">
@@ -225,7 +248,7 @@ const StepsPageTable = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 10 }}>
+                <TableCell colSpan={6} align="center" sx={{ py: 10 }}>
                   <Stack alignItems="center" spacing={2}>
                     <Typography variant="h6" color="text.secondary">
                       {filteredSteps.length === 0 && searchTerm

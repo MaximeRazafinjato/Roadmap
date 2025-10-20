@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
+import { Select, MenuItem, FormControl, InputLabel, Chip, Box, OutlinedInput } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import { useCreateStep, useUpdateStep } from '../hooks/use-steps';
-import { type Step, type CreateStepForm, type UpdateStepForm } from '../types/entities';
+import { type Step, type CreateStepForm, type UpdateStepForm, Department } from '../types/entities';
+import { RichTextEditor } from './RichTextEditor';
+import { DEPARTMENT_OPTIONS, getDepartmentColor } from '../constants/departments';
 
 interface StepFormProps {
   step?: Step | null;
@@ -20,6 +24,7 @@ const StepForm: React.FC<StepFormProps> = ({ step, onClose, ownerId }) => {
     endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 30 days from now
     backgroundColor: '#3B82F6',
     textColor: '#FFFFFF',
+    associatedDepartments: [],
     ownerId: ownerId || '00000000-0000-0000-0000-000000000001', // Use provided ownerId or default
   });
 
@@ -48,6 +53,7 @@ const StepForm: React.FC<StepFormProps> = ({ step, onClose, ownerId }) => {
           : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         backgroundColor: step.backgroundColor || '#3B82F6',
         textColor: step.textColor || '#FFFFFF',
+        associatedDepartments: step.associatedDepartments || [],
         ownerId: step.ownerId || ownerId || '00000000-0000-0000-0000-000000000001',
       });
     } else if (ownerId) {
@@ -95,6 +101,14 @@ const StepForm: React.FC<StepFormProps> = ({ step, onClose, ownerId }) => {
     }));
   };
 
+  const handleDepartmentsChange = (event: SelectChangeEvent<Department[]>) => {
+    const value = event.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      associatedDepartments: typeof value === 'string' ? [] : value,
+    }));
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal">
@@ -135,15 +149,70 @@ const StepForm: React.FC<StepFormProps> = ({ step, onClose, ownerId }) => {
 
           <div className="form-group">
             <label htmlFor="description">Description *</label>
-            <textarea
-              id="description"
-              name="description"
+            <RichTextEditor
               value={formData.description}
-              onChange={handleChange}
-              required
+              onChange={(value) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: value,
+                }))
+              }
               placeholder="Entrez la description de l'étape"
-              rows={3}
             />
+          </div>
+
+          <div className="form-group">
+            <FormControl fullWidth size="small">
+              <InputLabel id="departments-label">Pôles associés</InputLabel>
+              <Select
+                labelId="departments-label"
+                id="departments"
+                multiple
+                value={formData.associatedDepartments}
+                onChange={handleDepartmentsChange}
+                input={<OutlinedInput label="Pôles associés" />}
+                MenuProps={{
+                  disablePortal: true,
+                  PaperProps: {
+                    style: {
+                      maxHeight: 300,
+                    },
+                  },
+                  anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  },
+                  transformOrigin: {
+                    vertical: 'top',
+                    horizontal: 'left',
+                  },
+                }}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => {
+                      const option = DEPARTMENT_OPTIONS.find((opt) => opt.value === value);
+                      return (
+                        <Chip
+                          key={value}
+                          label={option?.label || value}
+                          size="small"
+                          sx={{
+                            backgroundColor: getDepartmentColor(value),
+                            color: '#FFFFFF',
+                          }}
+                        />
+                      );
+                    })}
+                  </Box>
+                )}
+              >
+                {DEPARTMENT_OPTIONS.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </div>
 
           <div className="form-row">
