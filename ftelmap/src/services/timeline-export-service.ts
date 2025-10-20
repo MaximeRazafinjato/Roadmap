@@ -429,9 +429,9 @@ export class TimelineExportService {
   static exportAsJSON(steps: Step[], filename: string = 'timeline.json'): void {
     const data = {
       exportDate: new Date().toISOString(),
-      projectCount: steps.length,
+      stepCount: steps.length,
       steps: steps.map((step) => ({
-        ...project,
+        ...step,
         duration: Math.ceil(
           (new Date(step.endDate).getTime() - new Date(step.startDate).getTime()) /
             (1000 * 60 * 60 * 24)
