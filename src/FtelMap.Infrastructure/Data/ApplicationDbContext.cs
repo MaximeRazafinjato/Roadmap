@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using FtelMap.Core.Entities;
+using FtelMap.Core.Enums;
+using System.Text.Json;
 
 namespace FtelMap.Infrastructure.Data;
 
@@ -28,6 +30,15 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(2000);
             entity.Property(e => e.BackgroundColor).IsRequired().HasMaxLength(7);
             entity.Property(e => e.TextColor).IsRequired().HasMaxLength(7);
+
+            // Configure AssociatedDepartments as JSON
+            entity.Property(e => e.AssociatedDepartments)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
+                    v => JsonSerializer.Deserialize<List<Department>>(v, (JsonSerializerOptions)null!) ?? new List<Department>()
+                )
+                .HasColumnType("nvarchar(max)");
+
             entity.HasOne(e => e.Owner)
                 .WithMany(u => u.Steps)
                 .HasForeignKey(e => e.OwnerId)

@@ -168,16 +168,6 @@ const StepsPage = () => {
                         {formatDuration(step.startDate, step.endDate)}
                       </Typography>
                     </Stack>
-                    {step.location && (
-                      <Typography variant="caption" color="text.secondary">
-                        📍 {step.location}
-                      </Typography>
-                    )}
-                    {step.budget && (
-                      <Typography variant="caption" color="text.secondary">
-                        💰 {step.budget.toLocaleString('fr-FR')} €
-                      </Typography>
-                    )}
                   </Stack>
 
                   {/* Actions */}

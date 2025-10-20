@@ -45,6 +45,9 @@ import { useSteps, useDeleteStep } from '../hooks/use-steps';
 import StepForm from '../components/StepForm';
 import { PageLayout } from '../components/PageLayout';
 import type { Step } from '../types/entities';
+import { RichTextViewer } from '../components/RichTextViewer';
+import { stripHtmlTags } from '../utils/html-utils';
+import { getDepartmentLabel, getDepartmentColor } from '../constants/departments';
 
 const StepsPageGrid = () => {
   const navigate = useNavigate();
@@ -132,7 +135,9 @@ const StepsPageGrid = () => {
       // Search filter
       const matchesSearch =
         step.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        step.description?.toLowerCase().includes(searchTerm.toLowerCase());
+        stripHtmlTags(step.description || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
 
       // Status filter
       let matchesStatus = true;
@@ -438,13 +443,10 @@ const StepsPageGrid = () => {
                       </Stack>
 
                       {/* Description */}
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
+                      <Box
                         sx={{
                           mb: 2,
                           overflow: 'hidden',
-                          textOverflow: 'ellipsis',
                           display: '-webkit-box',
                           WebkitLineClamp: 3,
                           WebkitBoxOrient: 'vertical',
@@ -452,8 +454,14 @@ const StepsPageGrid = () => {
                           minHeight: '3em',
                         }}
                       >
-                        {step.description || 'Pas de description'}
-                      </Typography>
+                        {step.description ? (
+                          <RichTextViewer content={step.description} maxLength={150} />
+                        ) : (
+                          <Typography variant="body2" color="text.secondary">
+                            Pas de description
+                          </Typography>
+                        )}
+                      </Box>
 
                       {/* Progress */}
                       <Box mb={2}>
@@ -494,6 +502,24 @@ const StepsPageGrid = () => {
                             {formatDuration(step.startDate, step.endDate)}
                           </Typography>
                         </Stack>
+                        {step.associatedDepartments && step.associatedDepartments.length > 0 && (
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
+                            {step.associatedDepartments.map((dept) => (
+                              <Chip
+                                key={dept}
+                                label={getDepartmentLabel(dept)}
+                                size="small"
+                                sx={{
+                                  backgroundColor: getDepartmentColor(dept),
+                                  color: '#FFFFFF',
+                                  fontWeight: 500,
+                                  fontSize: '0.7rem',
+                                  height: 20,
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        )}
                       </Stack>
 
                       {/* Actions */}
@@ -568,9 +594,15 @@ const StepsPageGrid = () => {
                           </Typography>
                           <Chip label={status.label} size="small" color={status.color} />
                         </Stack>
-                        <Typography variant="body2" color="text.secondary">
-                          {step.description || 'Pas de description'}
-                        </Typography>
+                        <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {step.description ? (
+                            <RichTextViewer content={step.description} maxLength={100} />
+                          ) : (
+                            <Typography variant="body2" color="text.secondary">
+                              Pas de description
+                            </Typography>
+                          )}
+                        </Box>
                       </Stack>
                     </Grid>
 

@@ -83,11 +83,11 @@ export const TimelineSimple = ({
 
   // Synchroniser avec les projets externes et nettoyer le cache si nécessaire
   useEffect(() => {
-    const prevStepIds = new Set(localSteps.map(s => s.id));
-    const newStepIds = new Set((steps || []).map(s => s.id));
+    const prevStepIds = new Set(localSteps.map((s) => s.id));
+    const newStepIds = new Set((steps || []).map((s) => s.id));
 
     // Nettoyer le cache pour les étapes supprimées
-    prevStepIds.forEach(id => {
+    prevStepIds.forEach((id) => {
       if (!newStepIds.has(id)) {
         stepTracksCache.current.delete(id);
       }
@@ -172,35 +172,38 @@ export const TimelineSimple = ({
   }, [isPanning, handlePanMove, endPan]);
 
   // Gestion optimisée du drag avec useCallback et RAF
-  const handleStepDrag = useCallback((step: Step, deltaX: number) => {
-    // Utiliser requestAnimationFrame pour des mises à jour fluides
-    requestAnimationFrame(() => {
-      const currentPos = visibleSteps.find((p) => p.step.id === step.id)?.position;
-      if (!currentPos) return;
+  const handleStepDrag = useCallback(
+    (step: Step, deltaX: number) => {
+      // Utiliser requestAnimationFrame pour des mises à jour fluides
+      requestAnimationFrame(() => {
+        const currentPos = visibleSteps.find((p) => p.step.id === step.id)?.position;
+        if (!currentPos) return;
 
-      const newLeft = currentPos.left + deltaX;
-      const newStartDate = pixelToDate(newLeft, viewport);
-      const newEndDate = pixelToDate(newLeft + currentPos.width, viewport);
+        const newLeft = currentPos.left + deltaX;
+        const newStartDate = pixelToDate(newLeft, viewport);
+        const newEndDate = pixelToDate(newLeft + currentPos.width, viewport);
 
-      // Invalider TOUT le cache car le déplacement d'un bloc peut affecter tous les autres
-      stepTracksCache.current.clear();
+        // Invalider TOUT le cache car le déplacement d'un bloc peut affecter tous les autres
+        stepTracksCache.current.clear();
 
-      // Mise à jour optimiste locale immédiate
-      const updatedStep = {
-        ...step,
-        startDate: newStartDate.toISOString(),
-        endDate: newEndDate.toISOString(),
-      };
+        // Mise à jour optimiste locale immédiate
+        const updatedStep = {
+          ...step,
+          startDate: newStartDate.toISOString(),
+          endDate: newEndDate.toISOString(),
+        };
 
-      setLocalSteps((prev) => prev.map((p) => (p.id === step.id ? updatedStep : p)));
+        setLocalSteps((prev) => prev.map((p) => (p.id === step.id ? updatedStep : p)));
 
-      // Puis envoyer la mise à jour au serveur
-      onStepUpdate?.(step, {
-        startDate: newStartDate.toISOString(),
-        endDate: newEndDate.toISOString(),
+        // Puis envoyer la mise à jour au serveur
+        onStepUpdate?.(step, {
+          startDate: newStartDate.toISOString(),
+          endDate: newEndDate.toISOString(),
+        });
       });
-    });
-  }, [visibleSteps, viewport, onStepUpdate]);
+    },
+    [visibleSteps, viewport, onStepUpdate]
+  );
 
   // Gestion du redimensionnement des projets avec mise à jour optimiste
   const handleStepResize = (step: Step, newPosition: { left: number; width: number }) => {
@@ -418,7 +421,7 @@ export const TimelineSimple = ({
             setSelectionEnd(x);
           }
         }}
-        onMouseUp={(e) => {
+        onMouseUp={() => {
           if (isSelecting && selectionStart !== null && selectionEnd !== null) {
             const minX = Math.min(selectionStart, selectionEnd);
             const maxX = Math.max(selectionStart, selectionEnd);
@@ -496,23 +499,25 @@ export const TimelineSimple = ({
           }}
         >
           {/* Lignes horizontales de grille - optimisées */}
-          {useMemo(() =>
-            [0, 1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
-              <Box
-                key={`row-line-${row}`}
-                sx={{
-                  position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  top: TIMELINE_PADDING_TOP + row * (PROJECT_HEIGHT + PROJECT_MARGIN) - 1,
-                  height: PROJECT_HEIGHT + PROJECT_MARGIN,
-                  pointerEvents: 'none',
-                  borderTop: '1px solid',
-                  borderColor: 'divider',
-                  opacity: 0.3,
-                }}
-              />
-            )), []
+          {useMemo(
+            () =>
+              [0, 1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
+                <Box
+                  key={`row-line-${row}`}
+                  sx={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    top: TIMELINE_PADDING_TOP + row * (PROJECT_HEIGHT + PROJECT_MARGIN) - 1,
+                    height: PROJECT_HEIGHT + PROJECT_MARGIN,
+                    pointerEvents: 'none',
+                    borderTop: '1px solid',
+                    borderColor: 'divider',
+                    opacity: 0.3,
+                  }}
+                />
+              )),
+            []
           )}
 
           {/* Lignes verticales de grille pour les dates */}
@@ -525,10 +530,10 @@ export const TimelineSimple = ({
                 top: 0,
                 bottom: 0,
                 width: 1,
-                bgcolor: marker.isMonth ? 'divider' : 'action.hover',
-                opacity: marker.isMonth ? 0.4 : 0.2,
+                opacity: 0.05,
                 pointerEvents: 'none',
                 zIndex: 1,
+                borderLeft: '1px solid black ',
               }}
             />
           ))}
@@ -540,7 +545,10 @@ export const TimelineSimple = ({
                 position: 'absolute',
                 left: Math.min(selectionStart, selectionEnd),
                 width: Math.abs(selectionEnd - selectionStart),
-                top: Math.floor(selectionY / (PROJECT_HEIGHT + PROJECT_MARGIN)) * (PROJECT_HEIGHT + PROJECT_MARGIN) + TIMELINE_PADDING_TOP,
+                top:
+                  Math.floor(selectionY / (PROJECT_HEIGHT + PROJECT_MARGIN)) *
+                    (PROJECT_HEIGHT + PROJECT_MARGIN) +
+                  TIMELINE_PADDING_TOP,
                 height: PROJECT_HEIGHT,
                 bgcolor: 'primary.main',
                 opacity: 0.2,

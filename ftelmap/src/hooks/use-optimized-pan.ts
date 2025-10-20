@@ -27,32 +27,38 @@ export const useOptimizedPan = ({ onPan, onPanEnd }: UseOptimizedPanOptions = {}
   }, [onPan]);
 
   // Démarrer le pan
-  const startPan = useCallback((event: React.MouseEvent | MouseEvent) => {
-    event.preventDefault();
-    setIsPanning(true);
-    panStartX.current = event.clientX;
-    panStartY.current = event.clientY;
-    lastDeltaX.current = 0;
-    lastDeltaY.current = 0;
-    isDirty.current = false;
+  const startPan = useCallback(
+    (event: React.MouseEvent | MouseEvent) => {
+      event.preventDefault();
+      setIsPanning(true);
+      panStartX.current = event.clientX;
+      panStartY.current = event.clientY;
+      lastDeltaX.current = 0;
+      lastDeltaY.current = 0;
+      isDirty.current = false;
 
-    // Désactiver la sélection de texte pendant le pan
-    document.body.style.userSelect = 'none';
-    document.body.style.cursor = 'grabbing';
+      // Désactiver la sélection de texte pendant le pan
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'grabbing';
 
-    // Démarrer la boucle d'animation
-    rafId.current = requestAnimationFrame(updatePan);
-  }, [updatePan]);
+      // Démarrer la boucle d'animation
+      rafId.current = requestAnimationFrame(updatePan);
+    },
+    [updatePan]
+  );
 
   // Gérer le mouvement pendant le pan
-  const handlePanMove = useCallback((event: MouseEvent) => {
-    if (!isPanning) return;
+  const handlePanMove = useCallback(
+    (event: MouseEvent) => {
+      if (!isPanning) return;
 
-    // Calculer le delta et marquer comme dirty pour la prochaine frame
-    lastDeltaX.current = event.clientX - panStartX.current;
-    lastDeltaY.current = event.clientY - panStartY.current;
-    isDirty.current = true;
-  }, [isPanning]);
+      // Calculer le delta et marquer comme dirty pour la prochaine frame
+      lastDeltaX.current = event.clientX - panStartX.current;
+      lastDeltaY.current = event.clientY - panStartY.current;
+      isDirty.current = true;
+    },
+    [isPanning]
+  );
 
   // Terminer le pan
   const endPan = useCallback(() => {

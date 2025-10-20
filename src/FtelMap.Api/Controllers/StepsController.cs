@@ -44,6 +44,7 @@ public class StepsController : ControllerBase
             EndDate = s.EndDate,
             BackgroundColor = s.BackgroundColor,
             TextColor = s.TextColor,
+            AssociatedDepartments = s.AssociatedDepartments,
             OwnerId = s.OwnerId,
             CreatedAt = s.CreatedAt,
             UpdatedAt = s.UpdatedAt,
@@ -81,6 +82,7 @@ public class StepsController : ControllerBase
             EndDate = step.EndDate,
             BackgroundColor = step.BackgroundColor,
             TextColor = step.TextColor,
+            AssociatedDepartments = step.AssociatedDepartments,
             OwnerId = step.OwnerId,
             CreatedAt = step.CreatedAt,
             UpdatedAt = step.UpdatedAt,
@@ -105,6 +107,7 @@ public class StepsController : ControllerBase
             EndDate = createDto.EndDate,
             BackgroundColor = createDto.BackgroundColor,
             TextColor = createDto.TextColor,
+            AssociatedDepartments = createDto.AssociatedDepartments,
             OwnerId = string.IsNullOrEmpty(userId) ? createDto.OwnerId : Guid.Parse(userId)
         };
         
@@ -120,6 +123,7 @@ public class StepsController : ControllerBase
             EndDate = step.EndDate,
             BackgroundColor = step.BackgroundColor,
             TextColor = step.TextColor,
+            AssociatedDepartments = step.AssociatedDepartments,
             OwnerId = step.OwnerId,
             CreatedAt = step.CreatedAt,
             UpdatedAt = step.UpdatedAt,
@@ -155,6 +159,7 @@ public class StepsController : ControllerBase
         existingStep.EndDate = updateDto.EndDate;
         existingStep.BackgroundColor = updateDto.BackgroundColor;
         existingStep.TextColor = updateDto.TextColor;
+        existingStep.AssociatedDepartments = updateDto.AssociatedDepartments;
         existingStep.OwnerId = updateDto.OwnerId;
 
         await _unitOfWork.Steps.UpdateAsync(existingStep);

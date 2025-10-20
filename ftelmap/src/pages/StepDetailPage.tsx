@@ -8,6 +8,8 @@ import {
 } from '@mui/icons-material';
 import { useStep } from '../hooks/use-steps';
 import { PageLayout } from '../components/PageLayout';
+import { RichTextViewer } from '../components/RichTextViewer';
+import { getDepartmentLabel, getDepartmentColor } from '../constants/departments';
 
 const StepDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -73,9 +75,15 @@ const StepDetailPage = () => {
             <Typography variant="h6" gutterBottom color="text.secondary">
               Description
             </Typography>
-            <Typography variant="body1" sx={{ mb: 3 }}>
-              {step.description || 'Aucune description disponible'}
-            </Typography>
+            <Box sx={{ mb: 3 }}>
+              {step.description ? (
+                <RichTextViewer content={step.description} />
+              ) : (
+                <Typography variant="body1" color="text.secondary">
+                  Aucune description disponible
+                </Typography>
+              )}
+            </Box>
           </Paper>
 
           {/* Details Grid */}
@@ -278,30 +286,30 @@ const StepDetailPage = () => {
                   {new Date(step.updatedAt).toLocaleString('fr-FR')}
                 </Typography>
               </Grid>
-              {step.location && (
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" color="text.secondary">
-                    Lieu
-                  </Typography>
-                  <Typography variant="body1">{step.location}</Typography>
-                </Grid>
-              )}
-              {step.participants && (
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" color="text.secondary">
-                    Participants
-                  </Typography>
-                  <Typography variant="body1">{step.participants}</Typography>
-                </Grid>
-              )}
-              {step.budget && (
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" color="text.secondary">
-                    Budget
-                  </Typography>
-                  <Typography variant="body1">{step.budget.toLocaleString('fr-FR')} €</Typography>
-                </Grid>
-              )}
+              <Grid item xs={12}>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Pôles associés
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {step.associatedDepartments && step.associatedDepartments.length > 0 ? (
+                    step.associatedDepartments.map((dept) => (
+                      <Chip
+                        key={dept}
+                        label={getDepartmentLabel(dept)}
+                        sx={{
+                          backgroundColor: getDepartmentColor(dept),
+                          color: '#FFFFFF',
+                          fontWeight: 500,
+                        }}
+                      />
+                    ))
+                  ) : (
+                    <Typography variant="body1" color="text.secondary">
+                      Aucun pôle associé
+                    </Typography>
+                  )}
+                </Box>
+              </Grid>
             </Grid>
           </Paper>
         </Stack>

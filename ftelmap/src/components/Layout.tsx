@@ -13,7 +13,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Container,
   useMediaQuery,
   useTheme,
   Divider,
@@ -27,6 +26,8 @@ import {
 } from '@mui/icons-material';
 import { UserMenu } from './auth/user-menu';
 import { useAuth } from '../hooks/use-auth-context';
+import { ThemeToggle } from './ui/ThemeToggle';
+import { useTheme as useCustomTheme } from '../hooks/useTheme';
 
 interface NavItem {
   title: string;
@@ -58,6 +59,7 @@ const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { mode } = useCustomTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user } = useAuth();
@@ -151,10 +153,10 @@ const Layout = () => {
         position="fixed"
         elevation={1}
         sx={{
-          bgcolor: 'white',
+          bgcolor: mode === 'dark' ? 'background.paper' : 'white',
           color: 'text.primary',
           backdropFilter: 'blur(8px)',
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          backgroundColor: mode === 'dark' ? 'rgba(30, 30, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)',
         }}
       >
         <Toolbar sx={{ height: 64, px: { xs: 2, sm: 3, md: 4 } }}>
@@ -213,7 +215,10 @@ const Layout = () => {
             </Stack>
           )}
 
-          <UserMenu />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <ThemeToggle />
+            <UserMenu />
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -242,7 +247,7 @@ const Layout = () => {
           flexGrow: 1,
           pt: '64px', // Exact height of the toolbar
           height: '100vh',
-          bgcolor: '#f8fafc',
+          bgcolor: 'background.default',
           overflow: 'auto',
           display: 'flex',
           flexDirection: 'column',
